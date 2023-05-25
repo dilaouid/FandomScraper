@@ -162,7 +162,7 @@ export class FandomScraper {
                     data[key] = images;
                 }
 
-                const element = page.querySelector(`[data-source=${sourceKey}]`);
+                const element = page.querySelector(`[data-source="${sourceKey}"]`);
                 if (!element) {
                     continue;
                 }
