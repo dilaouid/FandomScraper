@@ -1,4 +1,5 @@
 interface IData {
+    id: number; // id of the character from the wikia pageId value
     name: string; // name of the character
     url: string; // url of the character page on the wikia
     data?: IDataset; // data of the character

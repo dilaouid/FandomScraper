@@ -88,12 +88,18 @@ export class FandomScraper {
                     const name = element.textContent;
                     if (!name) throw new Error('No name found');
 
+                    const characterPage = await this.fetchPage(new URL(url, this._schema.url).href);
                     if (options.recursive) {
-                        const characterPage = await this.fetchPage(new URL(url, this._schema.url).href);
                         characterData = await this.parseCharacterPage(characterPage, options.base64);
                     }
+
+                    // get the pageId value from a script tag in the page after converting the whole page to string
+                    const allScripts = characterPage.getElementsByTagName('script');
+                    const script = Array.from(allScripts).find(script => script.textContent?.includes('pageId'));
+                    
+                    const id: number = this.extractPageId(script?.textContent || '');
             
-                    data.push({ url: url, name: name, data: characterData });
+                    data.push({ id: id, url: url, name: name, data: characterData });
                     count++;
                     
                     if (count == options.limit) {
@@ -128,7 +134,6 @@ export class FandomScraper {
             if (Object.prototype.hasOwnProperty.call(format, key)) {
                 const sourceKey = format[key as keyof IDataSource];
                 if (!sourceKey) {
-                    console.error(`No source key found for key ${key}`);
                     continue;
                 }
 
@@ -136,7 +141,6 @@ export class FandomScraper {
                     // get the elements with the classname sourceKey
                     const elements = page.getElementsByClassName(sourceKey);
                     if (!elements) { 
-                        console.error(`No elements found for key ${key}`);
                         continue;
                     }
 
@@ -160,21 +164,18 @@ export class FandomScraper {
 
                 const element = page.querySelector(`[data-source=${sourceKey}]`);
                 if (!element) {
-                    console.error(`No element found for key ${key}`);
                     continue;
                 }
 
                 // get the element with the classname pi-data-value inside the element
                 const valueElement = element.getElementsByClassName('pi-data-value')[0];
                 if (!valueElement) {
-                    console.error(`No value element found for key ${key}`);
                     continue;
                 }
 
                 // get the value from the value element
                 const value: string | null = valueElement.textContent;
                 if (!value) {
-                    console.error(`No value found for key ${key}`);
                     continue;
                 }
                 
@@ -204,6 +205,15 @@ export class FandomScraper {
             const innerText = element.textContent?.toLowerCase() ?? '';
             return !banList.some((substring) => innerText.includes(substring.toLowerCase()));
         });
+    }
+
+    private extractPageId(scriptContent: string): number {
+        const regex = /"pageId":(\d+)/;
+        const match = scriptContent.match(regex);
+        if (match && match.length > 1) {
+            return parseInt(match[1], 10);
+        }
+        return 0;
     }
 
 }
