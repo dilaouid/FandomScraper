@@ -15,7 +15,3 @@ export const switchFirstAndLastName = (name: string) => {
     const [firstName, lastName] = split;
     return `${lastName} ${firstName}`;
 };
-
-export const urlEncodeName = (name: string) => {
-    return name.replace(/ /g, '_');
-}
