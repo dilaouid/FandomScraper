@@ -1,6 +1,6 @@
 // remove brackets and their content from a string
 export const removeBrackets = (str: string) => {
-    return str.replace(/\[.*?\]/g, '');
+    return str.replace(/\[.*?\]/g, '').trim();
 };
 
 export const isComposedName = (name: string) => {

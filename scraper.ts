@@ -1,10 +1,11 @@
 import jsdom from "jsdom";
 
-import { IData, ISchema } from './interfaces';
+import { IData, IDataSource, ISchema } from './interfaces';
 import { Schemas } from './schemas';
 import { TAvailableWikis } from './types';
 
 import { allCharactersPage } from './utils/';
+import { removeBrackets } from './func/parsing';
 
 interface IConstructor {
     name: TAvailableWikis;
@@ -15,6 +16,7 @@ interface IGetCharactersOptions {
     limit: number;
     offset: number;
     recursive: boolean;
+    base64: boolean;
 };
 
 export class FandomScraper {
@@ -48,7 +50,7 @@ export class FandomScraper {
         return new jsdom.JSDOM(text , { url: url, contentType: "text/html", referrer: url }).window.document;
     }
 
-    public async getAll(options: IGetCharactersOptions = { offset: 0, limit: 100000, recursive: false }): Promise<any[]> {
+    public async getAll(options: IGetCharactersOptions = { offset: 0, limit: 100000, recursive: false, base64: true }): Promise<any[]> {
         try {
             if (options.limit < 1) throw new Error('Limit must be greater than 0');
             if (options.offset < 0) throw new Error('Offset must be greater than 0');
@@ -78,14 +80,20 @@ export class FandomScraper {
         while (hasNext && count < options.limit) {
             const elements = this.filterBannedElement(this._CharactersPage.getElementsByClassName(pageElement.value), allCharactersPage.classic.banList);
             for (const element of elements) {
+                var characterData = {};
                 if (offset >= options.offset) {
                     const url = element.getAttribute('href');
                     if (!url) throw new Error('No URL found');
             
                     const name = element.textContent;
                     if (!name) throw new Error('No name found');
+
+                    if (options.recursive) {
+                        const characterPage = await this.fetchPage(new URL(url, this._schema.url).href);
+                        characterData = await this.parseCharacterPage(characterPage, options.base64);
+                    }
             
-                    data.push({ url: url, name: name });
+                    data.push({ url: url, name: name, data: characterData });
                     count++;
                     
                     if (count == options.limit) {
@@ -111,6 +119,84 @@ export class FandomScraper {
           
         return data;
     }
+
+    private async parseCharacterPage(page: Document, base64: boolean): Promise<any> {
+        const format: IDataSource = this._schema.dataSource;
+        const data: any = {};
+        // for each key in format, get the value from the page according to the attribute data-source=key and get the value
+        for (const key in format) {
+            if (Object.prototype.hasOwnProperty.call(format, key)) {
+                const sourceKey = format[key as keyof IDataSource];
+                if (!sourceKey) {
+                    console.error(`No source key found for key ${key}`);
+                    continue;
+                }
+
+                if (key === "images") {
+                    // get the elements with the classname sourceKey
+                    const elements = page.getElementsByClassName(sourceKey);
+                    if (!elements) { 
+                        console.error(`No elements found for key ${key}`);
+                        continue;
+                    }
+
+                    const images: string[] = [];
+                    for (const element of elements) {
+                        // get src attribute
+                        const src = element.getAttribute('src');
+                        if (!src) { 
+                            console.error(`No src found for key ${key}`);
+                            continue;
+                        }
+                        if (base64) {
+                            const b64 = await this.convertImageToBase64(src);
+                            images.push(b64);
+                        } else {
+                            images.push(src);
+                        }
+                    }
+                    data[key] = images;
+                }
+
+                const element = page.querySelector(`[data-source=${sourceKey}]`);
+                if (!element) {
+                    console.error(`No element found for key ${key}`);
+                    continue;
+                }
+
+                // get the element with the classname pi-data-value inside the element
+                const valueElement = element.getElementsByClassName('pi-data-value')[0];
+                if (!valueElement) {
+                    console.error(`No value element found for key ${key}`);
+                    continue;
+                }
+
+                // get the value from the value element
+                const value: string | null = valueElement.textContent;
+                if (!value) {
+                    console.error(`No value found for key ${key}`);
+                    continue;
+                }
+                
+                data[key] = removeBrackets(value);
+            }
+        }
+        return data;
+    }
+
+    private async convertImageToBase64(imageUrl: string) {
+        try {
+            const response = await fetch(imageUrl);
+            const arrayBuffer = await response.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            const base64Image = buffer.toString('base64');
+            return base64Image;        
+        } catch (error) {
+            console.error('Error fetching or converting image:', error);
+            throw error;
+        }
+    }
+    
 
     private filterBannedElement(elements: HTMLCollectionOf<Element>, banList: string[]): Element[] {
         const elementsArray = Array.from(elements);
