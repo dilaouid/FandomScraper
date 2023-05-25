@@ -15,8 +15,9 @@ interface IConstructor {
 interface IGetCharactersOptions {
     limit: number;
     offset: number;
-    recursive: boolean;
-    base64: boolean;
+    recursive?: boolean;
+    base64?: boolean;
+    withId?: boolean;
 };
 
 export class FandomScraper {
@@ -50,7 +51,7 @@ export class FandomScraper {
         return new jsdom.JSDOM(text , { url: url, contentType: "text/html", referrer: url }).window.document;
     }
 
-    public async getAll(options: IGetCharactersOptions = { offset: 0, limit: 100000, recursive: false, base64: true }): Promise<any[]> {
+    public async getAll(options: IGetCharactersOptions = { offset: 0, limit: 100000, recursive: false, base64: true, withId: true }): Promise<any[]> {
         try {
             if (options.limit < 1) throw new Error('Limit must be greater than 0');
             if (options.offset < 0) throw new Error('Offset must be greater than 0');
@@ -90,18 +91,25 @@ export class FandomScraper {
 
                     const characterPage = await this.fetchPage(new URL(url, this._schema.url).href);
                     if (options.recursive) {
-                        characterData = await this.parseCharacterPage(characterPage, options.base64);
+                        characterData = await this.parseCharacterPage(characterPage, options);
                     }
 
-                    // get the pageId value from a script tag in the page after converting the whole page to string
-                    const allScripts = characterPage.getElementsByTagName('script');
-                    const script = Array.from(allScripts).find(script => script.textContent?.includes('pageId'));
-                    
-                    const id: number = this.extractPageId(script?.textContent || '');
-            
-                    data.push({ id: id, url: url, name: name, data: characterData });
+                    if (options.withId) {
+                        const allScripts = characterPage.getElementsByTagName('script');
+                        const script = Array.from(allScripts).find(script => script.textContent?.includes('pageId'));
+                        
+                        const id: number = this.extractPageId(script?.textContent || '');
+                        data.push({ id: id, url: url, name: name, data: characterData });
+                    } else {
+                        data.push({ url: url, name: name, data: characterData });
+                    }
+
                     count++;
                     
+                    if (!options.recursive) {
+                        data[data.length - 1].data = undefined;
+                    }
+
                     if (count == options.limit) {
                         return data; // Return the data when the limit is reached
                     }
@@ -109,7 +117,7 @@ export class FandomScraper {
                 offset++;
             }
           
-              // Change the characters page according to the next button
+            // Change the characters page according to the next button
             const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage.classic.next.value)[0];
             if (!nextElement) {
                 hasNext = false;
@@ -126,7 +134,7 @@ export class FandomScraper {
         return data;
     }
 
-    private async parseCharacterPage(page: Document, base64: boolean): Promise<any> {
+    private async parseCharacterPage(page: Document, options: IGetCharactersOptions): Promise<any> {
         const format: IDataSource = this._schema.dataSource;
         const data: any = {};
         // for each key in format, get the value from the page according to the attribute data-source=key and get the value
@@ -152,7 +160,7 @@ export class FandomScraper {
                             console.error(`No src found for key ${key}`);
                             continue;
                         }
-                        if (base64) {
+                        if (options.base64) {
                             const b64 = await this.convertImageToBase64(src);
                             images.push(b64);
                         } else {
