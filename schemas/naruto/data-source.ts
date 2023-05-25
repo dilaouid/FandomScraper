@@ -4,7 +4,7 @@ const NarutoFRDataSource: IDataSource = {
     name: 'Nom',
     status: 'Statut',
     gender: 'Genre',
-    images: 'Image',
+    images: 'pi-image-thumbnail',
     episode: 'Début anime',
     age: 'Âge',
     affiliation: 'Affiliation'
