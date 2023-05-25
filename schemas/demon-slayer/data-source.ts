@@ -1,7 +1,6 @@
 import { IDataSource } from "../../interfaces";
 
 const DemonSlayerFRDataSource: IDataSource = {
-    name: 'titre',
     kanji: 'kanji',
     romaji: 'rômaji',
     status: 'statut',
@@ -14,7 +13,6 @@ const DemonSlayerFRDataSource: IDataSource = {
 };
 
 const DemonSlayerENDataSource: IDataSource = {
-    name: 'title',
     kanji: 'kanji',
     romaji: 'rōmaji',
     status: 'status',
