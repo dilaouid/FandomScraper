@@ -8,7 +8,6 @@ const NarutoFRDataSource: IDataSource = {
     episode: 'Début anime',
     age: 'Âge',
     affiliation: 'Affiliation'
-
 };
 
 // DOM version of the english data-source is bad, so WIP to find a solution

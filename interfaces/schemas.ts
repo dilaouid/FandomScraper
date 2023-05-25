@@ -7,6 +7,7 @@ interface ISchema {
     url: string;
     pageFormat: TPageFormats;
     charactersUrl: string;
+    oldVersion: boolean; // if the character page is the old version (table with no data-source property in the dom)
     dataSource: IDataSource;
 };
 

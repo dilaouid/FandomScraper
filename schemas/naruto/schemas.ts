@@ -6,6 +6,7 @@ const NarutoFR: ISchema = {
     url: 'https://naruto.fandom.com/fr/wiki/',
     pageFormat: 'classic',
     charactersUrl: 'https://naruto.fandom.com/fr/wiki/Catégorie:Personnages',
+    oldVersion: false,
     dataSource: NarutoFRDataSource
 };
 
@@ -16,6 +17,7 @@ const NarutoEN: ISchema = {
     url: '',
     pageFormat: 'classic',
     charactersUrl: '',
+    oldVersion: true,
     dataSource: NarutoENDataSource
 };
 
