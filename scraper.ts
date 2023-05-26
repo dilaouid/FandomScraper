@@ -5,7 +5,7 @@ import { Schemas } from './schemas';
 import { TAvailableWikis } from './types';
 
 import { allCharactersPage } from './utils/';
-import { removeBrackets } from './func/parsing';
+import { formatForUrl, formatName, removeBrackets, switchFirstAndLastName } from './func/parsing';
 
 /**
  * The constructor options.
@@ -160,6 +160,62 @@ export class FandomScraper {
         }
         return [];
     };
+    
+
+    public async get(options: IGetCharacterOptions = { name: '', base64: false, withId: true }): Promise<any> {
+        try {
+            const name = formatName(options.name);
+            const url = this._schema.url + formatForUrl(name);
+            const data: any = {
+                name: name,
+                url: this._schema.url + formatForUrl(name),
+            }
+            return this.fetchPage(url).then(async page => {
+                const characterData = await this.formatCharacterData(page, options, data);
+                if (characterData.data && ( (options.withId && Object.keys(characterData.data).length === 2) || (!options.withId && Object.keys(characterData.data).length === 1) )) {
+                    const switchName = formatName(name.split(' ').reverse().join(' '));
+                    const url = this._schema.url + formatForUrl(switchName);
+                    return this.fetchPage(url).then(async page => {
+                        const retryData = await this.formatCharacterData(page, options, data);
+                        if (retryData.data && ( (options.withId && Object.keys(retryData.data).length === 2) || (!options.withId && Object.keys(retryData.data).length === 1) )) {
+                            throw new Error(`This character does not exists: ${name}`);
+                        }
+                        data.url = url;
+                        return retryData;
+                    }).catch(err => {
+                        throw new Error(`Error while fetching ${url}: ${err}`);
+                    });
+                } else {
+                    return characterData;
+                }
+            });
+        } catch(err) {
+            console.error(err);
+        }
+    }
+
+
+    private async _getOne(page: Document, options: IGetCharacterOptions): Promise<IData> {
+        const characterData = await this.parseCharacterPage(page, options.base64);
+        if (options.withId) {
+            const allScripts = page.getElementsByTagName('script');
+            const script = Array.from(allScripts).find(script => script.textContent?.includes('pageId'));
+            
+            const id: number = this.extractPageId(script?.textContent || '');
+            characterData.id = id;
+        }
+        return characterData;
+    };
+
+    private async formatCharacterData(page: Document, options: IGetCharacterOptions, data: any): Promise<IData> {
+        const character = await this._getOne(page, options);
+        if (options.withId) {
+            data.id = character.id;
+            character.id = undefined;
+        }
+        data.data = character;
+        return data;
+    }
 
     /**
      * Get all the characters of the current wiki, considering the options provided.
