@@ -7,36 +7,102 @@ import { TAvailableWikis } from './types';
 import { allCharactersPage } from './utils/';
 import { removeBrackets } from './func/parsing';
 
+/**
+ * The constructor options.
+ * @typedef {Object} IConstructor
+ * @property {TAvailableWikis} name - The name of the fiction you want to scrape from the Fandom wiki (ex: 'dragon-ball')
+ * @property {'en' | 'fr' | null} [language] - The language of the wiki you want to scrape from the Fandom wiki (optional). Default: 'en'
+ * @throws Error if an invalid wiki name is provided.
+ */
 interface IConstructor {
+    /**
+     * The name of the fiction you want to scrape from the Fandom wiki (ex: 'dragon-ball')
+     */
     name: TAvailableWikis;
+
+    /**
+     * The language of the wiki you want to scrape from the Fandom wiki (optional). Default: 'en'
+     */
     language?: 'en' | 'fr' | null;
 };
 
 interface IGetCharactersOptions {
+    
+    /**
+     * The limit of characters to get (optional). Default: 100000
+     */
     limit: number;
+
+    /**
+     * The offset of characters to get (optional). Default: 0
+     */
     offset: number;
+
+    /**
+     * If the scraper should get all the characters recursively (optional). Default: false
+     */
     recursive?: boolean;
+
+    /**
+     * If the scraper should get the images in base64 (optional). Default: false
+     */
     base64?: boolean;
+
+    /**
+     * If the scraper should get the id of the character (optional). The id is the pageId of the wikia. Default: false
+     */
     withId?: boolean;
 };
 
+/**
+ * FandomScraper is a class that allows you to scrape a Fandom wiki, and get all the characters of a fiction.
+ * The list of available wikis can be found in the TAvailableWikis type.
+ */
 export class FandomScraper {
 
     private _schema: ISchema;
     private _CharactersPage!: Document;
 
+    /**
+     * Constructs a FandomScraper instance.
+     * @param {IConstructor} constructor - The constructor options.
+     * @throws Error if an invalid wiki name is provided.
+     * @example
+     * ```js
+     * const scraper = new FandomScraper({ name: 'dragon-ball', language: 'fr' });
+     * ```
+     */
     constructor(constructor: IConstructor) {
         // check if constructor.name is a valid wiki
-        if (!Schemas[constructor.name]) 
+        if (!this.isValidConstructor(constructor)) 
             throw new Error(`Invalid wiki name: ${constructor.name}`);
         if (constructor.language == null) constructor.language = 'en';
         this._schema = Schemas[constructor.name][constructor.language];
     }
 
+
+    /**
+     * Get the schema of the current wiki.
+     * @returns The schema of the wiki.
+     */
     public getSchema(): ISchema {
         return this._schema;
     }
 
+
+
+    /**
+     * Get the characters page of the current wiki.
+     *  
+     * @param url - The url of the characters page.
+     * @returns The characters page of the wiki.
+     * @throws Error if the characters page is not set.
+     * @example
+     * ```js
+     * const scraper = new FandomScraper({ name: 'dragon-ball' });
+     * await scraper.getCharactersPage('https://kimetsu-no-yaiba.fandom.com/fr/wiki/Catégorie:Personnages');
+     * ```
+     */
     public async getCharactersPage(url: string): Promise<void> {
         this._CharactersPage = await this.fetchPage(url);
     }
@@ -51,6 +117,25 @@ export class FandomScraper {
         return new jsdom.JSDOM(text , { url: url, contentType: "text/html", referrer: url }).window.document;
     }
 
+
+    /**
+     * Get all the characters of the current wiki, considering the options provided.
+     * @param {IGetCharactersOptions} [options] - The options of the getCharacters method.
+     * @returns The characters of the wiki.
+     * @throws Error if the limit is less than 1.
+     * @throws Error if the offset is less than 0.
+     * @throws Error if the offset is greater than the limit.
+     * @example
+     * ```js
+     * const scraper = new FandomScraper({ name: 'dragon-ball' });
+     * const characters = await scraper.getCharacters({ limit: 100, offset: 0 });
+     * ```
+     * @example
+     * ```js
+     * const scraper = new FandomScraper({ name: 'dragon-ball' });
+     * const characters = await scraper.getCharacters({ limit: 100, offset: 0, recursive: true, base64: true, withId: true });
+     * ```
+     */
     public async getAll(options: IGetCharactersOptions = { offset: 0, limit: 100000, recursive: false, base64: true, withId: true }): Promise<any[]> {
         try {
             if (options.limit < 1) throw new Error('Limit must be greater than 0');
@@ -193,6 +278,13 @@ export class FandomScraper {
         return data;
     }
 
+    /**
+     * Convert the image from the given URL to a base64 string
+     * Due to somes issues about CORS, this method is sometimes necessary to print the image in your application
+     * @param imageUrl The URL of the image to convert
+     * @returns The base64 string of the image
+     * @throws An error if the image cannot be fetched or converted
+     */
     private async convertImageToBase64(imageUrl: string) {
         try {
             const response = await fetch(imageUrl);
@@ -222,6 +314,13 @@ export class FandomScraper {
             return parseInt(match[1], 10);
         }
         return 0;
+    }
+
+    // Helper function to validate the constructor object
+    private isValidConstructor(constructor: IConstructor): boolean {
+        // Add your validation logic here
+        // Return true if the constructor object is valid, false otherwise
+        return !!constructor.name;
     }
 
 }
