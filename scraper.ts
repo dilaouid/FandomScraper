@@ -12,7 +12,6 @@ import { removeBrackets } from './func/parsing';
  * @typedef {Object} IConstructor
  * @property {TAvailableWikis} name - The name of the fiction you want to scrape from the Fandom wiki (ex: 'dragon-ball')
  * @property {'en' | 'fr' | null} [language] - The language of the wiki you want to scrape from the Fandom wiki (optional). Default: 'en'
- * @throws Error if an invalid wiki name is provided.
  */
 interface IConstructor {
     /**
@@ -92,11 +91,11 @@ export class FandomScraper {
     /**
      * Get the characters page of the current wiki.
      *  
-     * @param url - The url of the characters page.
+     * @param {string} url - The url of the characters page.
      * @returns The characters page of the wiki.
      * @throws Error if the characters page is not set.
      * @example
-     * ```js
+     * ```ts
      * const scraper = new FandomScraper({ name: 'dragon-ball' });
      * await scraper.getCharactersPage('https://kimetsu-no-yaiba.fandom.com/fr/wiki/Catégorie:Personnages');
      * ```
@@ -124,12 +123,12 @@ export class FandomScraper {
      * @throws Error if the offset is less than 0.
      * @throws Error if the offset is greater than the limit.
      * @example
-     * ```js
+     * ```ts
      * const scraper = new FandomScraper({ name: 'dragon-ball' });
      * const characters = await scraper.getCharacters({ limit: 100, offset: 0 });
      * ```
      * @example
-     * ```js
+     * ```ts
      * const scraper = new FandomScraper({ name: 'dragon-ball' });
      * const characters = await scraper.getCharacters({ limit: 100, offset: 0, recursive: true, base64: true, withId: true });
      * ```
@@ -153,6 +152,12 @@ export class FandomScraper {
         return [];
     };
 
+    /**
+     * Get all the characters of the current wiki, considering the options provided.
+     * Works only for the classic characters page format.
+     * @param {IGetCharactersOptions} [options] - The options of the getCharacters method.
+     * @returns The characters of the wiki.
+     */
     private async _getAllClassic(options: IGetCharactersOptions): Promise<any[]> {
         const data: IData[] = [];
         const pageElement = allCharactersPage.classic.listCharactersElement;
@@ -279,7 +284,7 @@ export class FandomScraper {
     /**
      * Convert the image from the given URL to a base64 string
      * Due to somes issues about CORS, this method is sometimes necessary to print the image in your application
-     * @param imageUrl The URL of the image to convert
+     * @param {string} imageUrl The URL of the image to convert
      * @returns The base64 string of the image
      * @throws An error if the image cannot be fetched or converted
      */
@@ -297,6 +302,12 @@ export class FandomScraper {
     }
     
 
+    /**
+     * Remove the elements from the characters list that contains one of the banned substring
+     * @param {HTMLCollectionOf<Element>} elements The elements to filter
+     * @param {string[]} banList The list of substring to ban
+     * @returns The filtered elements
+     */
     private filterBannedElement(elements: HTMLCollectionOf<Element>, banList: string[]): Element[] {
         const elementsArray = Array.from(elements);
         return elementsArray.filter((element) => {
