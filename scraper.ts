@@ -53,6 +53,23 @@ interface IGetCharactersOptions {
     withId?: boolean;
 };
 
+interface IGetCharacterOptions {
+    /**
+     * The name of the character you want to get.
+     */
+    name: string;
+
+    /**
+     * If the scraper should get the images in base64 (optional). Default: false
+     */
+    base64?: boolean;
+    
+    /**
+     * If the scraper should get the id of the character (optional). The id is the pageId of the wikia. Default: true
+     */
+    withId?: boolean;
+};
+
 /**
  * FandomScraper is a class that allows you to scrape a Fandom wiki, and get all the characters of a fiction.
  * The list of available wikis can be found in the TAvailableWikis type.
@@ -106,7 +123,8 @@ export class FandomScraper {
 
     public async fetchPage(url: string): Promise<Document> {
         const text = await fetch(url).then(async res => {
-            return await res.text();
+            const text = await res.text();
+            return text;
         }).catch(err => {
             throw new Error(`Error while fetching ${url}: ${err}`);
         }) as unknown as string;
@@ -122,11 +140,6 @@ export class FandomScraper {
      * @throws Error if the limit is less than 1.
      * @throws Error if the offset is less than 0.
      * @throws Error if the offset is greater than the limit.
-     * @example
-     * ```ts
-     * const scraper = new FandomScraper({ name: 'dragon-ball' });
-     * const characters = await scraper.getCharacters({ limit: 100, offset: 0 });
-     * ```
      * @example
      * ```ts
      * const scraper = new FandomScraper({ name: 'dragon-ball' });
@@ -173,7 +186,7 @@ export class FandomScraper {
                     if (options.recursive || options.withId) {
                         const characterPage = await this.fetchPage(new URL(url, this._schema.url).href);
                         if (options.recursive) {
-                            characterData = await this.parseCharacterPage(characterPage, options);
+                            characterData = await this.parseCharacterPage(characterPage, options.base64);
                         }
 
                         if (options.withId) {
@@ -223,7 +236,7 @@ export class FandomScraper {
         return data;
     }
 
-    private async parseCharacterPage(page: Document, options: IGetCharactersOptions): Promise<any> {
+    private async parseCharacterPage(page: Document, getBase64: boolean | undefined): Promise<any> {
         const format: IDataSource = this._schema.dataSource;
         const data: any = {};
         // for each key in format, get the value from the page according to the attribute data-source=key and get the value
@@ -249,7 +262,7 @@ export class FandomScraper {
                             console.error(`No src found for key ${key}`);
                             continue;
                         }
-                        if (options.base64) {
+                        if (getBase64) {
                             const b64 = await this.convertImageToBase64(src);
                             images.push(b64);
                         } else {
