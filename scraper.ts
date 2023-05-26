@@ -140,14 +140,8 @@ export class FandomScraper {
             if (options.offset > options.limit) throw new Error('Offset must be less than limit');
 
             await this.getCharactersPage(this._schema.charactersUrl);
-
-            if (this._schema.pageFormat === 'classic') {
-                return await this._getAllClassic(options);
-            } else if (this._schema.pageFormat === 'table-1') {
-                // return await this._getAllTable1(options);
-            } else if (this._schema.pageFormat === 'table-2') {
-                return await this._getAllTable2(options);
-            }
+            return await this._getAll(options);
+            
         } catch (err) {
             console.error(err);
         }
@@ -160,20 +154,18 @@ export class FandomScraper {
      * @param {IGetCharactersOptions} [options] - The options of the getCharacters method.
      * @returns The characters of the wiki.
      */
-    private async _getAllClassic(options: IGetCharactersOptions): Promise<any[]> {
+    private async _getAll(options: IGetCharactersOptions): Promise<any[]> {
         const data: IData[] = [];
-        const pageElement = allCharactersPage.classic.listCharactersElement;
         let hasNext = true;
         let offset = 0;
         let count = 0;
 
         while (hasNext && count < options.limit) {
-            const elements = this.filterBannedElement(this._CharactersPage.getElementsByClassName(pageElement.value), allCharactersPage.classic.banList);
+            const elements = this.getElementAccordingToFormat();
             for (const element of elements) {
                 var characterData = {};
                 if (offset >= options.offset) {
-                    const url = element.getAttribute('href');
-                    if (!url) throw new Error('No URL found');
+                    const url = this.getUrlAccordingToFormat(element);
             
                     const name = element.textContent;
                     if (!name) throw new Error('No name found');
@@ -221,64 +213,6 @@ export class FandomScraper {
         }
           
         return data;
-    }
-
-    /**
-     * Get the characters of the current wiki, considering the options provided.
-     * Works only for the table-1 characters page format.
-     * @param {IGetCharactersOptions} [options] - The options of the getCharacters method.
-     * @returns The characters of the wiki.
-     */
-    private async _getAllTable2(options: IGetCharactersOptions): Promise<any[]> {
-        const data: IData[] = [];
-        let offset = 0;
-        let count = 0;
-
-        while (count < options.limit) {
-            const elements = this._CharactersPage.querySelectorAll('small > b');
-            for (const element of elements) {
-                var characterData = {};
-                if (offset >= options.offset) {
-                    // get the <a> element inside of the <b> element
-                    const aElement = element.querySelector('a');
-                    if (!aElement) throw new Error('No <a> element found');
-
-                    const url = aElement.getAttribute('href');
-                    if (!url) throw new Error('No URL found');
-            
-                    const name = element.textContent;
-                    if (!name) throw new Error('No name found');
-
-                    const characterPage = await this.fetchPage(new URL(url, this._schema.url).href);
-                    if (options.recursive) {
-                        characterData = await this.parseCharacterPage(characterPage, options);
-                    }
-
-                    if (options.withId) {
-                        const allScripts = characterPage.getElementsByTagName('script');
-                        const script = Array.from(allScripts).find(script => script.textContent?.includes('pageId'));
-                        
-                        const id: number = this.extractPageId(script?.textContent || '');
-                        data.push({ id: id, url: url, name: name, data: characterData });
-                    } else {
-                        data.push({ url: url, name: name, data: characterData });
-                    }
-
-                    count++;
-                    
-                    if (!options.recursive) {
-                        data[data.length - 1].data = undefined;
-                    }
-
-                    if (count == options.limit) {
-                        return data; // Return the data when the limit is reached
-                    }
-                }
-                offset++;
-            }
-        }
-        return data;
-
     }
 
     private async parseCharacterPage(page: Document, options: IGetCharactersOptions): Promise<any> {
@@ -383,5 +317,34 @@ export class FandomScraper {
         }
         return 0;
     }
+
+    private getElementAccordingToFormat(): Element[] | NodeListOf<Element> {
+        if (this._schema.pageFormat === 'classic') {
+            const value = allCharactersPage.classic.listCharactersElement.value;
+            return this.filterBannedElement(this._CharactersPage.getElementsByClassName(value), allCharactersPage.classic.banList);
+        } else if (this._schema.pageFormat === 'table-2') {
+            return this._CharactersPage.querySelectorAll('small > b');
+        }
+
+        throw new Error('Invalid page format');
+    }
+
+    private getUrlAccordingToFormat(element: Element): string {
+        if (this._schema.pageFormat === 'classic') {
+            const url = element.getAttribute('href');
+            if (!url) throw new Error('No URL found');
+            return url;
+        } else if (this._schema.pageFormat === 'table-2') {
+            const aElement = element.querySelector('a');
+            if (!aElement) throw new Error('No <a> element found');
+
+            const url = aElement.getAttribute('href');
+            if (!url) throw new Error('No URL found');
+            return url;
+        }
+
+        return '';
+    }
+
 
 }
