@@ -68,14 +68,12 @@ export class FandomScraper {
      * @param {IConstructor} constructor - The constructor options.
      * @throws Error if an invalid wiki name is provided.
      * @example
-     * ```js
+     * ```ts
      * const scraper = new FandomScraper({ name: 'dragon-ball', language: 'fr' });
      * ```
      */
     constructor(constructor: IConstructor) {
-        // check if constructor.name is a valid wiki
-        if (!this.isValidConstructor(constructor)) 
-            throw new Error(`Invalid wiki name: ${constructor.name}`);
+        if (!Object.keys(Schemas).includes(constructor.name)) throw new Error(`Invalid wiki name provided: ${constructor.name}`);
         if (constructor.language == null) constructor.language = 'en';
         this._schema = Schemas[constructor.name][constructor.language];
     }
@@ -314,13 +312,6 @@ export class FandomScraper {
             return parseInt(match[1], 10);
         }
         return 0;
-    }
-
-    // Helper function to validate the constructor object
-    private isValidConstructor(constructor: IConstructor): boolean {
-        // Add your validation logic here
-        // Return true if the constructor object is valid, false otherwise
-        return !!constructor.name;
     }
 
 }
