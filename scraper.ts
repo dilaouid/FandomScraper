@@ -170,9 +170,10 @@ export class FandomScraper {
                     const name = element.textContent;
                     if (!name) throw new Error('No name found');
 
-                    const characterPage = await this.fetchPage(new URL(url, this._schema.url).href);
-                    if (options.recursive) {
-                        characterData = await this.parseCharacterPage(characterPage, options);
+                    if (options.recursive || options.withId) {
+                        const characterPage = await this.fetchPage(new URL(url, this._schema.url).href);
+                        if (options.recursive) {
+                            characterData = await this.parseCharacterPage(characterPage, options);
                     }
 
                     if (options.withId) {
@@ -181,14 +182,21 @@ export class FandomScraper {
                         
                         const id: number = this.extractPageId(script?.textContent || '');
                         data.push({ id: id, url: url, name: name, data: characterData });
+                        } else {
+                            data.push({ url: url, name: name, data: characterData });
+                        }
                     } else {
-                        data.push({ url: url, name: name, data: characterData });
+                        data.push({ url: url, name: name });
                     }
 
                     count++;
                     
                     if (!options.recursive) {
                         data[data.length - 1].data = undefined;
+                    }
+
+                    if (!options.withId) {
+                        data[data.length - 1].id = undefined;
                     }
 
                     if (count == options.limit) {
