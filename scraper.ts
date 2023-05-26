@@ -141,7 +141,7 @@ export class FandomScraper {
 
             await this.getCharactersPage(this._schema.charactersUrl);
             return await this._getAll(options);
-            
+
         } catch (err) {
             console.error(err);
         }
@@ -174,14 +174,14 @@ export class FandomScraper {
                         const characterPage = await this.fetchPage(new URL(url, this._schema.url).href);
                         if (options.recursive) {
                             characterData = await this.parseCharacterPage(characterPage, options);
-                    }
+                        }
 
-                    if (options.withId) {
-                        const allScripts = characterPage.getElementsByTagName('script');
-                        const script = Array.from(allScripts).find(script => script.textContent?.includes('pageId'));
-                        
-                        const id: number = this.extractPageId(script?.textContent || '');
-                        data.push({ id: id, url: url, name: name, data: characterData });
+                        if (options.withId) {
+                            const allScripts = characterPage.getElementsByTagName('script');
+                            const script = Array.from(allScripts).find(script => script.textContent?.includes('pageId'));
+                            
+                            const id: number = this.extractPageId(script?.textContent || '');
+                            data.push({ id: id, url: url, name: name, data: characterData });
                         } else {
                             data.push({ url: url, name: name, data: characterData });
                         }
@@ -207,7 +207,7 @@ export class FandomScraper {
             }
           
             // Change the characters page according to the next button
-            const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage.classic.next.value)[0];
+            const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage[this._schema.pageFormat].next.value)[0];
             if (!nextElement) {
                 hasNext = false;
             } else {

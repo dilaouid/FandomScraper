@@ -5,7 +5,7 @@ interface IDataAllCharactersPage {
 };
 
 const allCharactersPage = {
-    classic: {
+    'classic': {
         banList: ['Catégorie:', 'Category:', 'List of'],
         listCharactersElement: {
             type: 'class',
@@ -14,6 +14,20 @@ const allCharactersPage = {
         next: {
             type: 'class',
             value: 'category-page__pagination-next'
+        }
+    },
+    'table-1': {
+        banList: [],
+        next: {
+            type: '',
+            value: ''
+        }
+    },
+    'table-2': {
+        banList: [],
+        next: {
+            type: '',
+            value: ''
         }
     }
 }
