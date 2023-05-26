@@ -6,6 +6,7 @@ const DemonSlayerFR: ISchema = {
     url: 'https://kimetsu-no-yaiba.fandom.com/fr/wiki/',
     pageFormat: 'classic',
     charactersUrl: 'https://kimetsu-no-yaiba.fandom.com/fr/wiki/Catégorie:Personnages',
+    oldVersion: false,
     dataSource: DemonSlayerFRDataSource
 };
 
@@ -14,6 +15,7 @@ const DemonSlayerEN: ISchema = {
     url: 'https://kimetsu-no-yaiba.fandom.com/wiki/',
     pageFormat: 'table-2',
     charactersUrl: 'https://kimetsu-no-yaiba.fandom.com/wiki/Characters',
+    oldVersion: false,
     dataSource: DemonSlayerENDataSource
 };
 

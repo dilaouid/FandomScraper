@@ -10,9 +10,9 @@ interface IDataset {
     name?: string; // name of the character
     kanji?: string; // kanji name of the character
     romaji?: string; // romaji name of the character
-    status?: string;
+    status?: string; // status of the character (dead, alive, etc.)
     species?: string; // race
-    gender?: string;
+    gender?: string; // gender of the character
     images?: string[]; // array of image urls
     episode?: string[]; // array of episode names where the character first appeared
     age?: string; // age of the character
