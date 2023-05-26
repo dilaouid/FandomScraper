@@ -14,7 +14,7 @@ const DemonSlayerEN: ISchema = {
     name: 'demon-slayer',
     url: 'https://kimetsu-no-yaiba.fandom.com/wiki/',
     pageFormat: 'table-2',
-    charactersUrl: 'https://kimetsu-no-yaiba.fandom.com/wiki/Characters',
+    charactersUrl: 'https://kimetsu-no-yaiba.fandom.com/wiki/Characters#Manga',
     oldVersion: false,
     dataSource: DemonSlayerENDataSource
 };

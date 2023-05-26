@@ -18,7 +18,7 @@ const DemonSlayerENDataSource: IDataSource = {
     status: 'status',
     species: 'race',
     gender: 'gender',
-    images: 'image',
+    images: 'pi-image-thumbnail',
     episode: 'anime_debut',
     age: 'age',
     affiliation: 'affiliation'
