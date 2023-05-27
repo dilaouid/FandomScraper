@@ -6,6 +6,7 @@ import { TAvailableWikis } from './types';
 
 import { allCharactersPage } from './utils/';
 import { formatForUrl, formatName, removeBrackets, switchFirstAndLastName } from './func/parsing';
+import { IImage } from "./interfaces/datasets";
 
 /**
  * The constructor options.
@@ -361,26 +362,20 @@ export class FandomScraper {
                         }
                     }
                     data[key] = images;
+                } else {
+                    const element = this.getDataAccordingToVersion(page, sourceKey);
+                    if (!element) {
+                        continue;
+                    }
+    
+                    // get the value from the value element
+                    const value: string | null = element.textContent;
+                    if (!value) {
+                        continue;
+                    }
+                    
+                    data[key] = removeBrackets(value);
                 }
-
-                const element = page.querySelector(`[data-source="${sourceKey}"]`);
-                if (!element) {
-                    continue;
-                }
-
-                // get the element with the classname pi-data-value inside the element
-                const valueElement = element.getElementsByClassName('pi-data-value')[0];
-                if (!valueElement) {
-                    continue;
-                }
-
-                // get the value from the value element
-                const value: string | null = valueElement.textContent;
-                if (!value) {
-                    continue;
-                }
-                
-                data[key] = removeBrackets(value);
             }
         }
         return data;
@@ -421,12 +416,30 @@ export class FandomScraper {
         });
     }
 
+    /**
+     * 
+     * Get the data from the infobox according to if the wiki is in the old version or not
+     * @param page
+     * @param key
+     * @returns The data from the page according to the old version of the wiki
+     * 
+     */
+    private getDataAccordingToVersion(page: Document, key: string | IImage): Element | null {
+        if (this._schema.oldVersion === true) {
+            const tdElement = Array.from(page.querySelectorAll('.mw-parser-output td')).find((td) => {
+                return td?.textContent?.includes(String(key));
+            });
+            return tdElement?.nextElementSibling || null;
+        } else {
+            return page.querySelector(`[data-source="${key}"] .pi-data-value`);
+        }
+    }
+
     private extractPageId(scriptContent: string): number {
         const regex = /"pageId":(\d+)/;
         const match = scriptContent.match(regex);
-        if (match && match.length > 1) {
+        if (match && match.length > 1)
             return parseInt(match[1], 10);
-        }
         return 0;
     }
 

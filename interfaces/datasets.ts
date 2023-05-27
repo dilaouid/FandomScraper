@@ -38,4 +38,4 @@ interface IDataSource {
     affiliation?: string;
 };
 
-export { IDataset, IDataSource, IData };
+export { IDataset, IDataSource, IData, IImage };
