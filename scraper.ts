@@ -6,7 +6,7 @@ import { TAvailableWikis } from './types';
 
 import { allCharactersPage } from './utils/';
 import { formatForUrl, formatName, removeBrackets, switchFirstAndLastName } from './func/parsing';
-import { IImage } from "./interfaces/datasets";
+import { IDataset, IImage } from "./interfaces/datasets";
 
 /**
  * The constructor options.
@@ -162,7 +162,7 @@ export class FandomScraper {
     };
     
 
-    public async get(options: IGetCharacterOptions = { name: '', base64: false, withId: true }): Promise<any> {
+    public async get(options: IGetCharacterOptions = { name: '', base64: false, withId: true }): Promise<IData | undefined> {
         try {
             const name = formatName(options.name);
             const url = this._schema.url + formatForUrl(name);
@@ -172,12 +172,12 @@ export class FandomScraper {
             }
             return this.fetchPage(url).then(async page => {
                 const characterData = await this.formatCharacterData(page, options, data);
-                if (characterData.data && ( (options.withId && Object.keys(characterData.data).length === 2) || (!options.withId && Object.keys(characterData.data).length === 1) )) {
+                if (!this.isValidCharacterPage(options.withId || false, characterData.data || null)) {
                     const switchName = formatName(name.split(' ').reverse().join(' '));
                     const url = this._schema.url + formatForUrl(switchName);
                     return this.fetchPage(url).then(async page => {
                         const retryData = await this.formatCharacterData(page, options, data);
-                        if (retryData.data && ( (options.withId && Object.keys(retryData.data).length === 2) || (!options.withId && Object.keys(retryData.data).length === 1) )) {
+                        if (!this.isValidCharacterPage(options.withId || false, retryData.data || null)) {
                             throw new Error(`This character does not exists: ${name}`);
                         }
                         data.url = url;
@@ -481,5 +481,11 @@ export class FandomScraper {
         return '';
     }
 
+    private isValidCharacterPage(withId: boolean, data: IDataset | null): boolean {
+        if (!data) {
+            return false;
+        } 
+        return data && ( !(withId && Object.keys(data).length === 2) || !(!withId && Object.keys(data).length === 1) );
+    }
 
 }
