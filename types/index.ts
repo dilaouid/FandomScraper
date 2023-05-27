@@ -1,11 +1,13 @@
-// the available wikis
-export type TAvailableWikis = 
-    'demon-slayer' |
-    'dragon-ball' |
-    'one-piece' |
-    'shiki' |
-    'death-note' |
-    'naruto';
+import fs from 'fs';
+import path from 'path';
+
+const schemaDirectory = path.join(__dirname, '../schemas');
+
+export const availableWikis = fs.readdirSync(schemaDirectory, { withFileTypes: true })
+  .filter((dirent) => dirent.isDirectory())
+  .map((dirent) => dirent.name);
+
+export type TAvailableWikis = typeof availableWikis[number];
 
 // the different formats available of pages
 export type TPageFormats = 'classic' | 'table-1' | 'table-2';
