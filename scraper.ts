@@ -115,7 +115,6 @@ export class FandomScraper {
      * @throws Error if the characters page is not set.
      * @example
      * ```ts
-     * const scraper = new FandomScraper({ name: 'dragon-ball' });
      * await scraper.getCharactersPage('https://kimetsu-no-yaiba.fandom.com/fr/wiki/Catégorie:Personnages');
      * ```
      */
@@ -141,10 +140,8 @@ export class FandomScraper {
      * @returns The characters of the wiki.
      * @throws Error if the limit is less than 1.
      * @throws Error if the offset is less than 0.
-     * @throws Error if the offset is greater than the limit.
      * @example
      * ```ts
-     * const scraper = new FandomScraper({ name: 'dragon-ball' });
      * const characters = await scraper.getCharacters({ limit: 100, offset: 0, recursive: true, base64: true, withId: true });
      * ```
      */
@@ -169,6 +166,10 @@ export class FandomScraper {
      * @returns The character of the wiki.
      * @throws Error if the name is not provided.
      * @throws Error if the character is not found.
+     * @example
+     * ```ts
+     * const character = await scraper.getByName({ name: 'Goku', base64: true, withId: true });
+     * ```
      */
     public async get(options: IGetCharacterOptions = { name: '', base64: false, withId: true }): Promise<IData | undefined> {
         try {
