@@ -292,6 +292,36 @@ export class FandomScraper {
         return data;
     }
 
+    /**
+     * Count the number of characters of the current wiki and return the number.
+     * @returns The number of characters of the wiki.
+     * @async
+     */
+    public async count(): Promise<number> {
+        var count = 0;
+        try {
+            let hasNext = true;
+            await this.getCharactersPage(this._schema.charactersUrl);
+            while (hasNext) {
+                count += this.getElementAccordingToFormat().length;
+                const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage[this._schema.pageFormat].next.value)[0];
+                if (!nextElement) {
+                    hasNext = false;
+                } else {
+                    const nextUrl = nextElement.getAttribute('href');
+                    if (!nextUrl) {
+                        hasNext = false;
+                    } else {
+                        await this.getCharactersPage(nextUrl);
+                    }
+                }
+            }
+        } catch(err) {
+            console.error(err);
+        }
+        return count;
+    }
+
     private async parseCharacterPage(page: Document, getBase64: boolean | undefined): Promise<any> {
         const format: IDataSource = this._schema.dataSource;
         const data: any = {};
