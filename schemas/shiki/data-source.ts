@@ -8,11 +8,10 @@ const ShikiENDataSource: IDataSource = {
     species: 'Race',
     gender: 'Gender',
     images: {
-        identifier: '.mw-parser-output',
+        identifier: '.mw-parser-output table img',
         get: function(page: Document) {
             // get the image inside the second tr of the table
-            const table = page.querySelector(this.identifier)?.querySelectorAll('tr')[1];
-            return table?.querySelector('img');
+            return page.querySelectorAll(this.identifier)
         },
     },
     episode: 'Anime Debut',

@@ -118,11 +118,11 @@ export class FandomScraper {
      * await scraper.getCharactersPage('https://kimetsu-no-yaiba.fandom.com/fr/wiki/Catégorie:Personnages');
      * ```
      */
-    public async getCharactersPage(url: string): Promise<void> {
+    private async getCharactersPage(url: string): Promise<void> {
         this._CharactersPage = await this.fetchPage(url);
     }
 
-    public async fetchPage(url: string): Promise<Document> {
+    private async fetchPage(url: string): Promise<Document> {
         const text = await fetch(url).then(async res => {
             const text = await res.text();
             return text;
@@ -151,7 +151,6 @@ export class FandomScraper {
         try {
             if (options.limit < 1) throw new Error('Limit must be greater than 0');
             if (options.offset < 0) throw new Error('Offset must be greater than 0');
-            if (options.offset > options.limit) throw new Error('Offset must be less than limit');
 
             await this.getCharactersPage(this._schema.charactersUrl);
             return await this._getAll(options);
@@ -339,21 +338,26 @@ export class FandomScraper {
                     if (!elements) { 
                         continue;
                     }
-
                     const images: string[] = [];
                     for (const element of elements) {
-                        // get src attribute
-                        const src = element.getAttribute('src');
+                        let src = element.getAttribute('src');
                         // if src is a base64 image, continue
                         if (src?.startsWith('data:image')) {
-                            continue;
+                            const attributes = element.attributes;
+                            // check if one of the attributes value starts with http
+                            for (const attribute of attributes) {
+                                if (attribute.value.startsWith('http')) {
+                                    src = attribute.value;
+                                    break;
+                                }
+                            }
                         }
-
 
                         if (!src) { 
                             console.error(`No src found for key ${key}`);
                             continue;
                         }
+
                         if (getBase64) {
                             const b64 = await this.convertImageToBase64(src);
                             images.push(b64);
