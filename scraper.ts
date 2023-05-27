@@ -194,6 +194,43 @@ export class FandomScraper {
         }
     }
 
+    /**
+     * Get a character of the current wiki by its id, considering the options provided.
+     * @param {number} id - The id of the character.
+     * @param {IGetCharacterOptions} [options] - The options of the getCharacter method.
+     * @returns The character of the wiki.
+     * @throws Error if the id is less than 1.
+     * @throws Error if the character does not exists.
+     * @example
+     * ```ts
+     * const scraper = new FandomScraper({ name: 'dragon-ball' });
+     * const character = await scraper.getById(1, { base64: true, withId: true });
+     * ```
+     */
+    public async getById(id: number, options: IGetCharacterOptions = { name: '', base64: false, withId: true }): Promise<any> {
+        try {
+            if (id < 1) throw new Error('Id must be greater than 0');
+
+            const url = this._schema.url + `?curid=${id}`;
+            const data: any = {
+                url: url,
+            }
+            
+            return this.fetchPage(url).then(async page => {
+                const name = page.querySelector('.mw-page-title-main')?.textContent || '';
+                data.name = name;
+                const characterData = await this.formatCharacterData(page, options, data);
+                
+                if (!this.isValidCharacterPage(options.withId || false, characterData.data || null)) {
+                    throw new Error(`This character with this id does not exists: ${id}`);
+                }
+                return characterData;
+            });
+        } catch(err) {
+            console.error(err);
+        }
+    }
+
 
     private async _getOne(page: Document, options: IGetCharacterOptions): Promise<IData> {
         const characterData = await this.parseCharacterPage(page, options.base64);
