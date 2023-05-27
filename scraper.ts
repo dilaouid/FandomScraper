@@ -162,8 +162,17 @@ export class FandomScraper {
     };
     
 
+    /**
+     * Get a character of the current wiki according to its name, considering the options provided.
+     * @param {IGetCharacterOptions} [options] - The options of the getCharacter method.
+     * @returns The character of the wiki.
+     * @throws Error if the name is not provided.
+     * @throws Error if the character is not found.
+     */
     public async get(options: IGetCharacterOptions = { name: '', base64: false, withId: true }): Promise<IData | undefined> {
         try {
+            if (options.name?.trim()?.length == 0) throw new Error('Name must be provided');
+
             const name = formatName(options.name);
             const url = this._schema.url + formatForUrl(name);
             const data: any = {
