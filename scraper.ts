@@ -171,7 +171,7 @@ export class FandomScraper {
      * const character = await scraper.getByName({ name: 'Goku', base64: true, withId: true });
      * ```
      */
-    public async get(options: IGetCharacterOptions = { name: '', base64: false, withId: true }): Promise<IData | undefined> {
+    public async getByName(options: IGetCharacterOptions = { name: '', base64: false, withId: true }): Promise<IData | undefined> {
         try {
             if (options.name?.trim()?.length == 0) throw new Error('Name must be provided');
 
