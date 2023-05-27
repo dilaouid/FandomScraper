@@ -1,4 +1,4 @@
-import { IDataSource } from "@interfaces/index"
+import { IDataSource } from "@interfaces/datasets"
 
 const DeathNoteFRDataSource: IDataSource = {
     gender: 'Sexe',
