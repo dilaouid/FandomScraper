@@ -343,6 +343,12 @@ export class FandomScraper {
                     for (const element of elements) {
                         // get src attribute
                         const src = element.getAttribute('src');
+                        // if src is a base64 image, continue
+                        if (src?.startsWith('data:image')) {
+                            continue;
+                        }
+
+
                         if (!src) { 
                             console.error(`No src found for key ${key}`);
                             continue;
