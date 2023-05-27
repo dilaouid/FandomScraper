@@ -1,4 +1,4 @@
-import { IDataSource } from "../../interfaces";
+import { IDataSource } from "@interfaces/datasets"
 
 // French data source not available yet
 

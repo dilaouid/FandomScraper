@@ -1,4 +1,4 @@
-import { IDataSource } from "../../interfaces";
+import { IDataSource } from "@interfaces/datasets"
 
 const NarutoFRDataSource: IDataSource = {
     name: 'Nom',

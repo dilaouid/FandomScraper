@@ -1,4 +1,4 @@
-import { ISchema } from "../../interfaces";
+import { ISchema } from "@interfaces/schemas"
 import { ShikiENDataSource } from "./data-source";
 
 const ShikiEN: ISchema = {

@@ -1,4 +1,4 @@
-import { ISchema } from "../../interfaces";
+import { ISchema } from "@interfaces/schemas"
 import { DragonBallFRDataSource, DragonBallENDataSource } from "./data-source";
 
 const DragonBallFR: ISchema = {

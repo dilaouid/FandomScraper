@@ -1,4 +1,4 @@
-import { ISchema } from "../../interfaces";
+import { ISchema } from "@interfaces/schemas"
 import { NarutoFRDataSource, NarutoENDataSource } from "./data-source";
 
 const NarutoFR: ISchema = {

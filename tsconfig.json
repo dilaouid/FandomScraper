@@ -9,7 +9,11 @@
         "esModuleInterop": true,
         "declaration": true,
         "allowJs": true,
-        "sourceMap": true
+        "baseUrl": ".",
+        "sourceMap": true,
+        "paths": {
+            "@interfaces/*": ["interfaces/*"]
+        }
     },
     "include": ["scraper.ts"],
 }
