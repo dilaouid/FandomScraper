@@ -3,10 +3,7 @@ import { IDataSource } from "./datasets";
 
 // The schema of a wiki (the different properties of a wiki) for the scraper to work
 interface ISchema {
-    // name of the wiki to scrape (ex: 'dragon-ball')
-    name: TAvailableWikis;
-
-    // the url of the wiki (ex: 'https://dragonball.fandom.com/wiki/')
+    // the url of the wiki to scrape (ex: 'https://dragonball.fandom.com/wiki/')
     url: string;
 
     // the format of the characters list page (ex: 'classic')
