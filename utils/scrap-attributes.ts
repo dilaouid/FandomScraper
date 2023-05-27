@@ -6,7 +6,7 @@ interface IDataAllCharactersPage {
 
 const allCharactersPage = {
     'classic': {
-        banList: ['Catégorie:', 'Category:', 'List of'],
+        banList: ['Catégorie:', 'Category:', 'List of', 'File:'],
         listCharactersElement: {
             type: 'class',
             value: 'category-page__member-link'
