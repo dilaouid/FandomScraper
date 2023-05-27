@@ -6,7 +6,6 @@ const DeathNoteFRDataSource: IDataSource = {
         identifier: '.mw-parser-output table img',
         get: function(page: Document) {
             const elements = page.querySelectorAll(this.identifier);
-            // remove element with the alt attribute equal to 'Tete'
             const filteredElements = Array.from(elements).filter((element) => {
                 return element.getAttribute('alt') !== 'Tete' && element.getAttribute('alt') !== 'Pomme';
             });
