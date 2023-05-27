@@ -434,6 +434,8 @@ export class FandomScraper {
         if (this._schema.pageFormat === 'classic') {
             const value = allCharactersPage.classic.listCharactersElement.value;
             return this.filterBannedElement(this._CharactersPage.getElementsByClassName(value), allCharactersPage.classic.banList);
+        } else if (this._schema.pageFormat === 'table-1') {
+            return this._CharactersPage.querySelectorAll('table.wikitable td:nth-child(2) a');
         } else if (this._schema.pageFormat === 'table-2') {
             return this._CharactersPage.querySelectorAll('small > b');
         }
@@ -443,6 +445,10 @@ export class FandomScraper {
 
     private getUrlAccordingToFormat(element: Element): string {
         if (this._schema.pageFormat === 'classic') {
+            const url = element.getAttribute('href');
+            if (!url) throw new Error('No URL found');
+            return url;
+        } else if (this._schema.pageFormat === 'table-1') {
             const url = element.getAttribute('href');
             if (!url) throw new Error('No URL found');
             return url;
