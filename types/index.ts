@@ -3,6 +3,7 @@ export type TAvailableWikis =
     'demon-slayer' |
     'dragon-ball' |
     'one-piece' |
+    'shiki' |
     'naruto';
 
 // the different formats available of pages
