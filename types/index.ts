@@ -4,6 +4,7 @@ export type TAvailableWikis =
     'dragon-ball' |
     'one-piece' |
     'shiki' |
+    'death-note' |
     'naruto';
 
 // the different formats available of pages
