@@ -334,8 +334,7 @@ export class FandomScraper {
                 }
 
                 if (key === "images") {
-                    // get the elements with the classname sourceKey
-                    const elements = page.getElementsByClassName(sourceKey);
+                    const elements = format.images?.get(page);
                     if (!elements) { 
                         continue;
                     }

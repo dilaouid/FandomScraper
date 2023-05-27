@@ -6,7 +6,12 @@ const OnePieceFRDataSource: IDataSource = {
     romaji: 'nomr',
     status: 'statut',
     age: 'âge',
-    images: 'image',
+    images: {
+        identifier: '.wds-tab__content img',
+        get: function(page: Document) {
+            return page.querySelectorAll(this.identifier);
+        },
+    },
     episode: 'première',
     affiliation: 'affiliation'
 };
@@ -17,7 +22,12 @@ const OnePieceENDataSource: IDataSource = {
     romaji: 'rname',
     status: 'status',
     age: 'age',
-    images: 'image',
+    images: {
+        identifier: '.wds-tab__content img',
+        get: function(page: Document) {
+            return page.querySelectorAll(this.identifier);
+        },
+    },
     episode: 'first',
     affiliation: 'affiliation'
 };

@@ -6,7 +6,12 @@ const DemonSlayerFRDataSource: IDataSource = {
     status: 'statut',
     species: 'race',
     gender: 'genre',
-    images: 'pi-image-thumbnail',
+    images: {
+        identifier: '.pi-image-thumbnail',
+        get: function(page: Document) {
+            return page.querySelectorAll(this.identifier);
+        },
+    },
     episode: 'anime',
     age: 'âge',
     affiliation: 'affiliation'
@@ -18,7 +23,12 @@ const DemonSlayerENDataSource: IDataSource = {
     status: 'status',
     species: 'race',
     gender: 'gender',
-    images: 'pi-image-thumbnail',
+    images: {
+        identifier: '.pi-image-thumbnail',
+        get: function(page: Document) {
+            return page.querySelectorAll(this.identifier);
+        },
+    },
     episode: 'anime_debut',
     age: 'age',
     affiliation: 'affiliation'

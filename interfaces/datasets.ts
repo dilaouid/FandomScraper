@@ -19,6 +19,10 @@ interface IDataset {
     affiliation?: string; // affiliation of the character
 };
 
+interface IImage {
+    identifier: string;
+    get: Function;
+};
 
 // Interface of where to scrap the page to get the data of the characters (data-source)
 interface IDataSource {
@@ -28,7 +32,7 @@ interface IDataSource {
     status?: string;
     species?: string;
     gender?: string;
-    images?: string;
+    images?: IImage;
     episode?: string;
     age?: string;
     affiliation?: string;
