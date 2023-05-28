@@ -10,10 +10,7 @@
         "declaration": true,
         "allowJs": true,
         "baseUrl": ".",
-        "sourceMap": true,
-        "paths": {
-            "@interfaces/*": ["interfaces/*"]
-        }
+        "sourceMap": true
     },
-    "include": ["scraper.ts"],
+    "include": ["src/**/*"]
 }

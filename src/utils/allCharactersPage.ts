@@ -1,10 +1,4 @@
-interface IDataAllCharactersPage {
-    url: string;
-    name: string;
-    data?: any[];
-};
-
-const allCharactersPage = {
+export const allCharactersPage = {
     'classic': {
         banList: ['Catégorie:', 'Category:', 'List of', 'File:'],
         listCharactersElement: {
@@ -31,8 +25,3 @@ const allCharactersPage = {
         }
     }
 }
-
-export { 
-    IDataAllCharactersPage,
-    allCharactersPage 
-};

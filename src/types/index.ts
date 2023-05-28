@@ -9,7 +9,7 @@ export const availableWikis = fs.readdirSync(schemaDirectory, { withFileTypes: t
   .filter((dirent) => dirent.isDirectory())
   .map((dirent) => dirent.name);
 
-  // the type of the available wikis is the list of the different folders in the schemas folder
+// the type of the available wikis is the list of the different folders in the schemas folder
 export type TAvailableWikis = typeof availableWikis[number];
 
 // the different formats available of pages

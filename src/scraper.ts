@@ -1,13 +1,13 @@
 import jsdom from "jsdom";
 
-import { IData, IDataSource, IDataset, IImage } from "@interfaces/datasets"
-import { ISchema } from "@interfaces/schemas"
+import { IData, IDataSource, IDataset, IImage } from "./interfaces/datasets";
+import { ISchema } from './interfaces/schemas';
 
 import { Schemas } from './schemas';
-import { TAvailableWikis } from './types';
 
-import { allCharactersPage } from './utils/';
+import { allCharactersPage } from './utils/allCharactersPage';
 import { formatForUrl, formatName, removeBrackets } from './func/parsing';
+import { TAvailableWikis } from './types';
 
 /**
  * The constructor options.
