@@ -64,7 +64,7 @@ const allCharacters = await scraper.getAll({ limit: 100, offset: 0, base64: fals
 -   **Get a character by name:**
 ```js
 const character = await scraper.getByName({
-  name: 'light yagami',
+  name: 'toshio ozaki',
   withId: true,
   base64: false,
 });
