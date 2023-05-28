@@ -7,7 +7,7 @@ import { Schemas } from './schemas';
 
 import { allCharactersPage } from './utils/allCharactersPage';
 import { formatForUrl, formatName, removeBrackets } from './func/parsing';
-import { TAvailableWikis } from './types';
+import { TAvailableWikis, availableWikis } from './types';
 
 /**
  * The constructor options.
@@ -241,6 +241,17 @@ export class FandomScraper {
             console.error(err);
         }
     }
+
+
+
+    /**
+     * Get all the available wikis of the FandomScraper class.
+     * @returns The available wikis.
+     */
+    public getAvailableWikis(): string[] {
+        return availableWikis;
+    };
+
 
 
     private async _getOne(page: Document, options: IGetCharacterOptions): Promise<IData> {
