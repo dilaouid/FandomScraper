@@ -1,21 +1,24 @@
 {
   "name": "fandomscraper",
-  "version": "1.0.14",
+  "version": "1.0.141",
   "description": "A package to scrap fandoms wikis characters page. Only scraps the characters info section and the list of all repertoried characters.",
+  "type": "module",
+  "exports": {
+    "require": "./dist/cjs/src/scraper.js",
+    "import": "./dist/esm/src/scraper.js"
+  },
   "main": "./dist/cjs/src/scraper.js",
-  "module": "./dist/esm/src/scraper.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc --declaration --module esnext",
     "build:cjs": "tsc --declaration --module commonjs --outDir dist/cjs",
-    "build:esm": "tsc --declaration --module es2020 --outDir dist/esm",
+    "build:esm": "tsc --declaration --module es2022 --outDir dist/esm",
     "build:all": "npm run build:cjs && npm run build:esm"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dilaouid/FandomScraper.git"
   },
-  "type": "module",
   "keywords": ["fandom", "wikia", "wiki", "scraper", "characters", "info", "list"],
   "author": "dilaouid",
   "license": "GPLv3",
