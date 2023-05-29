@@ -7,13 +7,14 @@
     "require": "./dist/cjs/src/scraper.js",
     "import": "./dist/esm/src/scraper.js"
   },
+  "files": [
+    "dist/"
+  ],
   "main": "./dist/cjs/src/scraper.js",
+  "module": "./dist/esm/src/scraper.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc --declaration --module esnext",
-    "build:cjs": "tsc --declaration --module commonjs --outDir dist/cjs",
-    "build:esm": "tsc --declaration --module es2022 --outDir dist/esm",
-    "build:all": "npm run build:cjs && npm run build:esm"
+    "build": "tsc --project tsconfig.json && tsc --project tsconfig-cjs.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
