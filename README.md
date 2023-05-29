@@ -5,7 +5,7 @@
 
 ## Introduction
 
-**FandomScraper** is a TypeScript library working in **NodeJS** environment designed to simplify and accelerate the process of scraping character lists and information from various Fandom wikias. With this library, you can effortlessly retrieve data from any Fandom wiki, making it quick and easy to access information about characters. FandomScraper is highly scalable, allowing for seamless integration with a growing number of wikias.
+**FandomScraper** is a TypeScript library working a **NodeJS** environment designed to simplify and accelerate the process of scraping character lists and informations from various Fandom wikias. With this library, you can effortlessly retrieve data from any Fandom wiki, making it quick and easy to access informations about characters. FandomScraper is highly scalable, allowing for seamless integration with a growing number of wikias.
 
 
 ## How to use
@@ -59,7 +59,7 @@ const allCharacters = await scraper.getAll({ limit: 100, offset: 0, base64: fals
     
 -   The `withId` option indicates whether to include the character's ID (corresponding to the wikai's pageId value).
     
--   The `recursive` option specifies whether to retrieve additional information from the character's infobox along with their name, URL, and optional ID.
+-   The `recursive` option specifies whether to retrieve additional informations from the character's infobox along with their name, URL, and optional ID.
 ---
 -   **Get a character by name:**
 ```js
@@ -118,7 +118,7 @@ interface IDataset {
 -   The `IData` interface represents the structure of a character object.
 -   The `IDataset` interface defines the structure of the character's data.
 
-Feel free to customize the options and explore the capabilities of FandomScraper to efficiently retrieve character information from various Fandom wikis.
+Feel free to customize the options and explore the capabilities of FandomScraper to efficiently retrieve character informations from various Fandom wikis.
 
 Remember to handle any errors that may occur and adjust the method names and options according to your specific use case.
 
@@ -126,11 +126,11 @@ Remember to handle any errors that may occur and adjust the method names and opt
 
 ### Key Features
 
--   Rapid and Simple Retrieval: FandomScraper offers a fast and straightforward approach to fetching information from any Fandom wikia.
+-   Rapid and Simple Retrieval: FandomScraper offers a fast and straightforward approach to fetching informations from any Fandom wikia.
     
 -   Scalability: While the current number of wikias is hardcoded, FandomScraper allows for effortless and speedy addition of new wikias.
     
--   Database Integration: The `withId` option enables the storage of character information in a database.
+-   Database Integration: The `withId` option will help you to store character informations in a database.
     
 
-Feel free to explore FandomScraper and leverage its capabilities for efficiently gathering information from various Fandom wikias.
+Feel free to explore FandomScraper and leverage its capabilities for efficiently gathering informations from various Fandom wikias.
