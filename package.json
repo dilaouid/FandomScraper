@@ -5,21 +5,21 @@
   "exports": {
     ".": {
       "require": {
-        "types": "./dist/cjs/src/scraper.d.ts",
-        "default": "./dist/cjs/src/scraper.js"
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
       },
       "import": {
-        "default": "./dist/esm/src/scraper.js",
-        "types": "./dist/esm/src/scraper.d.ts"
+        "default": "./dist/esm/index.js",
+        "types": "./dist/esm/index.d.ts"
       }
     }
   },
-  "types": "./dist/esm/src/scraper.d.ts",
-  "main": "./dist/cjs/src/scraper.js",
+  "types": "./dist/esm/index.d.ts",
+  "main": "./dist/cjs/index.js",
   "files": [
     "dist/"
   ],
-  "module": "./dist/esm/src/scraper.js",
+  "module": "./dist/esm/index.js",
   "scripts": {
     "build": "tsc --project tsconfig.json && tsc --project tsconfig-cjs.json",
     "test": "echo \"Error: no test specified\" && exit 1"

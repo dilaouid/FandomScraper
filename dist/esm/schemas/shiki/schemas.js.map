@@ -1,0 +1,1 @@
+{"version":3,"file":"schemas.js","sourceRoot":"","sources":["../../../../schemas/shiki/schemas.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,iBAAiB,EAAE,MAAM,eAAe,CAAC;AAElD,MAAM,OAAO,GAAY;IACrB,GAAG,EAAE,gCAAgC;IACrC,UAAU,EAAE,SAAS;IACrB,aAAa,EAAE,mDAAmD;IAClE,UAAU,EAAE,IAAI;IAChB,UAAU,EAAE,iBAAiB;CAChC,CAAC;AAEF,OAAO,EAAE,OAAO,EAAE,CAAC"}
