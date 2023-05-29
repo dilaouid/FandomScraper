@@ -7,7 +7,7 @@ const importSchema = async (wiki: TAvailableWikis) => {
     const formatted = wiki.split('-').map(word => word[0].toUpperCase() + word.slice(1)).join('');
     
     // import the schema module according to the wiki name
-    const schemaModule = await import(`./${wiki}`);
+    const schemaModule = await import(`./${wiki}/index`);
 
     return schemaModule[formatted];
 };

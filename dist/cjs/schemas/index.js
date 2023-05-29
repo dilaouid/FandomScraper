@@ -40,7 +40,7 @@ const importSchema = (wiki) => __awaiter(void 0, void 0, void 0, function* () {
     // ex: demon-slayer -> DemonSlayer
     const formatted = wiki.split('-').map(word => word[0].toUpperCase() + word.slice(1)).join('');
     // import the schema module according to the wiki name
-    const schemaModule = yield (_a = `./${wiki}`, Promise.resolve().then(() => __importStar(require(_a))));
+    const schemaModule = yield (_a = `./${wiki}/index`, Promise.resolve().then(() => __importStar(require(_a))));
     return schemaModule[formatted];
 });
 exports.Schemas = {};
