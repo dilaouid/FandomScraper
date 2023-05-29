@@ -1,16 +1,24 @@
 {
   "name": "fandomscraper",
-  "version": "1.0.141",
+  "version": "1.0.2",
   "description": "A package to scrap fandoms wikis characters page. Only scraps the characters info section and the list of all repertoried characters.",
-  "type": "module",
   "exports": {
-    "require": "./dist/cjs/src/scraper.js",
-    "import": "./dist/esm/src/scraper.js"
+    ".": {
+      "require": {
+        "types": "./dist/cjs/src/scraper.d.ts",
+        "default": "./dist/cjs/src/scraper.js"
+      },
+      "import": {
+        "default": "./dist/esm/src/scraper.js",
+        "types": "./dist/esm/src/scraper.d.ts"
+      }
+    }
   },
+  "types": "./dist/esm/src/scraper.d.ts",
+  "main": "./dist/cjs/src/scraper.js",
   "files": [
     "dist/"
   ],
-  "main": "./dist/cjs/src/scraper.js",
   "module": "./dist/esm/src/scraper.js",
   "scripts": {
     "build": "tsc --project tsconfig.json && tsc --project tsconfig-cjs.json",
