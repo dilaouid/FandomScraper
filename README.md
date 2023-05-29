@@ -57,7 +57,7 @@ const allCharacters = await scraper.getAll({ limit: 100, offset: 0, base64: fals
     
 -   The `base64` option determines whether to return character images in base64 format.
     
--   The `withId` option indicates whether to include the character's ID (corresponding to the wikai's pageId value).
+-   The `withId` option indicates whether to include the character's ID (corresponding to the wikia's pageId value).
     
 -   The `recursive` option specifies whether to retrieve additional informations from the character's infobox along with their name, URL, and optional ID.
 ---
