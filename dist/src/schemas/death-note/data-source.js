@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeathNoteENDataSource = exports.DeathNoteFRDataSource = void 0;
 const DeathNoteFRDataSource = {
     gender: 'Sexe',
     images: {
@@ -17,7 +14,6 @@ const DeathNoteFRDataSource = {
     age: 'âge',
     affiliation: 'affiliation'
 };
-exports.DeathNoteFRDataSource = DeathNoteFRDataSource;
 const DeathNoteENDataSource = {
     kanji: 'name',
     species: 'species',
@@ -32,5 +28,5 @@ const DeathNoteENDataSource = {
     age: 'age',
     affiliation: 'organization'
 };
-exports.DeathNoteENDataSource = DeathNoteENDataSource;
+export { DeathNoteFRDataSource, DeathNoteENDataSource };
 //# sourceMappingURL=data-source.js.map

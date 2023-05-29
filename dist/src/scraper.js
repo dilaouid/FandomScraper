@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,13 +7,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FandomScraper = void 0;
-const jsdom_1 = require("jsdom");
-const schemas_1 = require("./schemas");
-const allCharactersPage_1 = require("./utils/allCharactersPage");
-const parsing_1 = require("./func/parsing");
-const types_1 = require("./types");
+import { JSDOM } from 'jsdom';
+import { Schemas } from './schemas';
+import { allCharactersPage } from './utils/allCharactersPage';
+import { formatForUrl, formatName, removeBrackets } from './func/parsing';
+import { availableWikis } from './types';
 ;
 ;
 ;
@@ -22,7 +19,7 @@ const types_1 = require("./types");
  * FandomScraper is a class that allows you to scrape a Fandom wiki, and get all the characters of a fiction.
  * The list of available wikis can be found in the TAvailableWikis type.
  */
-class FandomScraper {
+export class FandomScraper {
     /**
      * Constructs a FandomScraper instance.
      * @param {IConstructor} constructor - The constructor options.
@@ -33,9 +30,9 @@ class FandomScraper {
      * ```
      */
     constructor(constructor) {
-        if (!Object.keys(schemas_1.Schemas).includes(constructor.name))
+        if (!Object.keys(Schemas).includes(constructor.name))
             throw new Error(`Invalid wiki name provided: ${constructor.name}`);
-        this._schema = schemas_1.Schemas[constructor.name][constructor.language || 'en'];
+        this._schema = Schemas[constructor.name][constructor.language || 'en'];
     }
     /**
      * Get the schema of the current wiki.
@@ -68,7 +65,7 @@ class FandomScraper {
             })).catch(err => {
                 throw new Error(`Error while fetching ${url}: ${err}`);
             });
-            return new jsdom_1.JSDOM(text, { url: url, contentType: "text/html", referrer: url }).window.document;
+            return new JSDOM(text, { url: url, contentType: "text/html", referrer: url }).window.document;
         });
     }
     /**
@@ -116,17 +113,17 @@ class FandomScraper {
             try {
                 if (((_b = (_a = options.name) === null || _a === void 0 ? void 0 : _a.trim()) === null || _b === void 0 ? void 0 : _b.length) == 0)
                     throw new Error('Name must be provided');
-                const name = (0, parsing_1.formatName)(options.name);
-                const url = this._schema.url + (0, parsing_1.formatForUrl)(name);
+                const name = formatName(options.name);
+                const url = this._schema.url + formatForUrl(name);
                 const data = {
                     name: name,
-                    url: this._schema.url + (0, parsing_1.formatForUrl)(name),
+                    url: this._schema.url + formatForUrl(name),
                 };
                 return this.fetchPage(url).then((page) => __awaiter(this, void 0, void 0, function* () {
                     const characterData = yield this.formatCharacterData(page, options, data);
                     if (!this.isValidCharacterPage(options.withId || false, characterData.data || null)) {
-                        const switchName = (0, parsing_1.formatName)(name.split(' ').reverse().join(' '));
-                        const url = this._schema.url + (0, parsing_1.formatForUrl)(switchName);
+                        const switchName = formatName(name.split(' ').reverse().join(' '));
+                        const url = this._schema.url + formatForUrl(switchName);
                         return this.fetchPage(url).then((page) => __awaiter(this, void 0, void 0, function* () {
                             const retryData = yield this.formatCharacterData(page, options, data);
                             if (!this.isValidCharacterPage(options.withId || false, retryData.data || null)) {
@@ -191,7 +188,7 @@ class FandomScraper {
      * @returns The available wikis.
      */
     getAvailableWikis() {
-        return types_1.availableWikis;
+        return availableWikis;
     }
     ;
     _getOne(page, options) {
@@ -271,7 +268,7 @@ class FandomScraper {
                     offset++;
                 }
                 // Change the characters page according to the next button
-                const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage_1.allCharactersPage[this._schema.pageFormat].next.value)[0];
+                const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage[this._schema.pageFormat].next.value)[0];
                 if (!nextElement) {
                     hasNext = false;
                 }
@@ -301,7 +298,7 @@ class FandomScraper {
                 yield this.getCharactersPage(this._schema.charactersUrl);
                 while (hasNext) {
                     count += this.getElementAccordingToFormat().length;
-                    const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage_1.allCharactersPage[this._schema.pageFormat].next.value)[0];
+                    const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage[this._schema.pageFormat].next.value)[0];
                     if (!nextElement) {
                         hasNext = false;
                     }
@@ -377,7 +374,7 @@ class FandomScraper {
                         if (!value) {
                             continue;
                         }
-                        data[key] = (0, parsing_1.removeBrackets)(value);
+                        data[key] = removeBrackets(value);
                     }
                 }
             }
@@ -449,8 +446,8 @@ class FandomScraper {
     }
     getElementAccordingToFormat() {
         if (this._schema.pageFormat === 'classic') {
-            const value = allCharactersPage_1.allCharactersPage.classic.listCharactersElement.value;
-            return this.filterBannedElement(this._CharactersPage.getElementsByClassName(value), allCharactersPage_1.allCharactersPage.classic.banList);
+            const value = allCharactersPage.classic.listCharactersElement.value;
+            return this.filterBannedElement(this._CharactersPage.getElementsByClassName(value), allCharactersPage.classic.banList);
         }
         else if (this._schema.pageFormat === 'table-1') {
             return this._CharactersPage.querySelectorAll('table.wikitable td:nth-child(2) a');
@@ -491,5 +488,4 @@ class FandomScraper {
         return data && (!(withId && Object.keys(data).length === 2) || !(!withId && Object.keys(data).length === 1));
     }
 }
-exports.FandomScraper = FandomScraper;
 //# sourceMappingURL=scraper.js.map

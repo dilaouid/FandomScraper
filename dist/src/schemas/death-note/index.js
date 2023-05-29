@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeathNote = void 0;
-const schemas_1 = require("./schemas");
-exports.DeathNote = {
-    fr: schemas_1.DeathNoteFR,
-    en: schemas_1.DeathNoteEN
+import { DeathNoteFR, DeathNoteEN } from "./schemas";
+export const DeathNote = {
+    fr: DeathNoteFR,
+    en: DeathNoteEN
 };
 //# sourceMappingURL=index.js.map

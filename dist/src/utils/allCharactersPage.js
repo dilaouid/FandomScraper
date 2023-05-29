@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.allCharactersPage = void 0;
-exports.allCharactersPage = {
+export const allCharactersPage = {
     'classic': {
         banList: ['Catégorie:', 'Category:', 'List of', 'File:', 'Template:'],
         listCharactersElement: {

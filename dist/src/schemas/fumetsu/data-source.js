@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FumetsuENDataSource = void 0;
 // French data source not available yet
 const FumetsuENDataSource = {
     kanji: 'Kanji',
@@ -18,5 +15,5 @@ const FumetsuENDataSource = {
     age: 'Age',
     affiliation: 'Affiliation'
 };
-exports.FumetsuENDataSource = FumetsuENDataSource;
+export { FumetsuENDataSource };
 //# sourceMappingURL=data-source.js.map

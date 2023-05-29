@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/dilaouid/FandomScraper.git"
   },
-  "type": "commonjs",
+  "type": "module",
   "keywords": ["fandom", "wikia", "wiki", "scraper", "characters", "info", "list"],
   "author": "dilaouid",
   "license": "GPLv3",

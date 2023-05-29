@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.OnePiece = void 0;
-const schemas_1 = require("./schemas");
-exports.OnePiece = {
-    fr: schemas_1.OnePieceFR,
-    en: schemas_1.OnePieceEN
+import { OnePieceEN, OnePieceFR } from "./schemas";
+export const OnePiece = {
+    fr: OnePieceFR,
+    en: OnePieceEN
 };
 //# sourceMappingURL=index.js.map

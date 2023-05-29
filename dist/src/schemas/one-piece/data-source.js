@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.OnePieceENDataSource = exports.OnePieceFRDataSource = void 0;
 const OnePieceFRDataSource = {
     name: 'nomf',
     kanji: 'nomj',
@@ -16,7 +13,6 @@ const OnePieceFRDataSource = {
     episode: 'première',
     affiliation: 'affiliation'
 };
-exports.OnePieceFRDataSource = OnePieceFRDataSource;
 const OnePieceENDataSource = {
     name: 'ename',
     kanji: 'jname',
@@ -32,5 +28,5 @@ const OnePieceENDataSource = {
     episode: 'first',
     affiliation: 'affiliation'
 };
-exports.OnePieceENDataSource = OnePieceENDataSource;
+export { OnePieceFRDataSource, OnePieceENDataSource };
 //# sourceMappingURL=data-source.js.map

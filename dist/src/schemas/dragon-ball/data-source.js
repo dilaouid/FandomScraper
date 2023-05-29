@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DragonBallENDataSource = exports.DragonBallFRDataSource = void 0;
 const DragonBallFRDataSource = {
     kanji: 'Nom Original',
     status: 'Statut',
@@ -13,7 +10,6 @@ const DragonBallFRDataSource = {
     },
     episode: 'Première apparition Anime'
 };
-exports.DragonBallFRDataSource = DragonBallFRDataSource;
 const DragonBallENDataSource = {
     kanji: 'JapName',
     romaji: 'RomName',
@@ -28,5 +24,5 @@ const DragonBallENDataSource = {
     episode: 'anime debut',
     affiliation: 'Allegiance'
 };
-exports.DragonBallENDataSource = DragonBallENDataSource;
+export { DragonBallFRDataSource, DragonBallENDataSource };
 //# sourceMappingURL=data-source.js.map

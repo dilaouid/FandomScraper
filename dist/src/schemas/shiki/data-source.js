@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ShikiENDataSource = void 0;
 // French data source not available yet
 const ShikiENDataSource = {
     kanji: 'Name Kanji',
@@ -18,5 +15,5 @@ const ShikiENDataSource = {
     age: 'Age',
     affiliation: 'Occupation'
 };
-exports.ShikiENDataSource = ShikiENDataSource;
+export { ShikiENDataSource };
 //# sourceMappingURL=data-source.js.map

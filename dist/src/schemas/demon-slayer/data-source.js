@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DemonSlayerENDataSource = exports.DemonSlayerFRDataSource = void 0;
 const DemonSlayerFRDataSource = {
     kanji: 'kanji',
     romaji: 'rômaji',
@@ -17,7 +14,6 @@ const DemonSlayerFRDataSource = {
     age: 'âge',
     affiliation: 'affiliation'
 };
-exports.DemonSlayerFRDataSource = DemonSlayerFRDataSource;
 const DemonSlayerENDataSource = {
     kanji: 'kanji',
     romaji: 'rōmaji',
@@ -34,5 +30,5 @@ const DemonSlayerENDataSource = {
     age: 'age',
     affiliation: 'affiliation'
 };
-exports.DemonSlayerENDataSource = DemonSlayerENDataSource;
+export { DemonSlayerFRDataSource, DemonSlayerENDataSource };
 //# sourceMappingURL=data-source.js.map

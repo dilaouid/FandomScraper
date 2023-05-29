@@ -1,21 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeathNoteEN = exports.DeathNoteFR = void 0;
-const data_source_1 = require("./data-source");
+import { DeathNoteFRDataSource, DeathNoteENDataSource } from "./data-source";
 const DeathNoteFR = {
     url: 'https://deathnote.fandom.com/fr/wiki/',
     pageFormat: 'classic',
     charactersUrl: 'https://deathnote.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages',
     oldVersion: true,
-    dataSource: data_source_1.DeathNoteFRDataSource
+    dataSource: DeathNoteFRDataSource
 };
-exports.DeathNoteFR = DeathNoteFR;
 const DeathNoteEN = {
     url: 'https://deathnote.fandom.com/wiki/',
     pageFormat: 'classic',
     charactersUrl: 'https://deathnote.fandom.com/wiki/Category:Manga_characters',
     oldVersion: false,
-    dataSource: data_source_1.DeathNoteENDataSource
+    dataSource: DeathNoteENDataSource
 };
-exports.DeathNoteEN = DeathNoteEN;
+export { DeathNoteFR, DeathNoteEN };
 //# sourceMappingURL=schemas.js.map
