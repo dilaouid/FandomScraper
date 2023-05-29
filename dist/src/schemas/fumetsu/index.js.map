@@ -1,1 +1,1 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../../src/schemas/fumetsu/index.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,SAAS,EAAE,MAAM,WAAW,CAAC;AAEtC,MAAM,CAAC,MAAM,OAAO,GAAG;IACnB,EAAE,EAAE,SAAS;IACb,EAAE,EAAE,SAAS;CAChB,CAAC"}
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../../src/schemas/fumetsu/index.ts"],"names":[],"mappings":";;;AAAA,uCAAsC;AAEzB,QAAA,OAAO,GAAG;IACnB,EAAE,EAAE,mBAAS;IACb,EAAE,EAAE,mBAAS;CAChB,CAAC"}

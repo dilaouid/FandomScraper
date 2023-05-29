@@ -1,11 +1,15 @@
 {
   "name": "fandomscraper",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "A package to scrap fandoms wikis characters page. Only scraps the characters info section and the list of all repertoried characters.",
-  "main": "./dist/src/scraper.js",
+  "main": "./dist/cjs/src/scraper.js",
+  "module": "./dist/esm/src/scraper.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc --declaration"
+    "build": "tsc --declaration --module esnext",
+    "build:cjs": "tsc --declaration --module commonjs --outDir dist/cjs",
+    "build:esm": "tsc --declaration --module es2020 --outDir dist/esm",
+    "build:all": "npm run build:cjs && npm run build:esm"
   },
   "repository": {
     "type": "git",
