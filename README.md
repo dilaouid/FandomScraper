@@ -5,7 +5,7 @@
 
 ## Introduction
 
-**FandomScraper** is a TypeScript library designed to simplify and accelerate the process of scraping character lists and information from various Fandom wikias. With this library, you can effortlessly retrieve data from any Fandom wiki, making it quick and easy to access information about characters. FandomScraper is highly scalable, allowing for seamless integration with a growing number of wikias.
+**FandomScraper** is a TypeScript library working in **NodeJS** environment designed to simplify and accelerate the process of scraping character lists and information from various Fandom wikias. With this library, you can effortlessly retrieve data from any Fandom wiki, making it quick and easy to access information about characters. FandomScraper is highly scalable, allowing for seamless integration with a growing number of wikias.
 
 
 ## How to use

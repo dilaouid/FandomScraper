@@ -1,4 +1,4 @@
-import jsdom from "jsdom";
+import { JSDOM } from 'jsdom';
 
 import { IData, IDataSource, IDataset, IImage } from "./interfaces/datasets";
 import { ISchema } from './interfaces/schemas';
@@ -92,8 +92,7 @@ export class FandomScraper {
      */
     constructor(constructor: IConstructor) {
         if (!Object.keys(Schemas).includes(constructor.name)) throw new Error(`Invalid wiki name provided: ${constructor.name}`);
-        if (constructor.language == null) constructor.language = 'en';
-        this._schema = Schemas[constructor.name][constructor.language];
+        this._schema = Schemas[constructor.name][constructor.language || 'en'];
     }
 
 
@@ -130,7 +129,7 @@ export class FandomScraper {
             throw new Error(`Error while fetching ${url}: ${err}`);
         }) as unknown as string;
 
-        return new jsdom.JSDOM(text , { url: url, contentType: "text/html", referrer: url }).window.document;
+        return new JSDOM(text , { url: url, contentType: "text/html", referrer: url }).window.document;
     }
 
 

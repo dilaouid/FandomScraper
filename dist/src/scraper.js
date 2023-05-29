@@ -8,12 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FandomScraper = void 0;
-const jsdom_1 = __importDefault(require("jsdom"));
+const jsdom_1 = require("jsdom");
 const schemas_1 = require("./schemas");
 const allCharactersPage_1 = require("./utils/allCharactersPage");
 const parsing_1 = require("./func/parsing");
@@ -38,9 +35,7 @@ class FandomScraper {
     constructor(constructor) {
         if (!Object.keys(schemas_1.Schemas).includes(constructor.name))
             throw new Error(`Invalid wiki name provided: ${constructor.name}`);
-        if (constructor.language == null)
-            constructor.language = 'en';
-        this._schema = schemas_1.Schemas[constructor.name][constructor.language];
+        this._schema = schemas_1.Schemas[constructor.name][constructor.language || 'en'];
     }
     /**
      * Get the schema of the current wiki.
@@ -73,7 +68,7 @@ class FandomScraper {
             })).catch(err => {
                 throw new Error(`Error while fetching ${url}: ${err}`);
             });
-            return new jsdom_1.default.JSDOM(text, { url: url, contentType: "text/html", referrer: url }).window.document;
+            return new jsdom_1.JSDOM(text, { url: url, contentType: "text/html", referrer: url }).window.document;
         });
     }
     /**
