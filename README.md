@@ -27,8 +27,6 @@ yarn add fandomscraper
 
 1. Once installed, you can import the `FandomScraper` class into your project as follows:
 ```js
-const { FandomScraper } = require('fandomscraper');
-// or
 import { FandomScraper } from 'fandomscraper';
 ```
 
