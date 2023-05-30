@@ -1,22 +1,19 @@
-import { TAvailableWikis, availableWikis } from '../types';
+import { TAvailableWikis } from '../types';
 
+import { DeathNote } from './death-note';
+import { DemonSlayer } from './demon-slayer';
+import { DragonBall } from './dragon-ball';
+import { Fumetsu } from './fumetsu';
+import { Naruto } from './naruto';
+import { OnePiece } from './one-piece';
+import { Shiki } from './shiki';
 
-const importSchema = async (wiki: TAvailableWikis) => {
-
-    // change wiki into a single word with each first letter capitalized
-    // ex: demon-slayer -> DemonSlayer
-    const formatted = wiki.split('-').map(word => word[0].toUpperCase() + word.slice(1)).join('');
-
-    // get the index file of the wiki folder
-    const schemaModule = await import(`./${wiki}`);
-
-    return schemaModule[formatted];
-};
-
-export const Schemas: Record<TAvailableWikis, any> = {} as Record<TAvailableWikis, any>;
-
-(async () => {
-    for (const wiki of availableWikis) {
-        Schemas[wiki] = await importSchema(wiki);
-    }
-})();
+export const Schemas: Record<TAvailableWikis, any> = {
+    'demon-slayer': DemonSlayer,
+    'naruto': Naruto,
+    'shiki': Shiki,
+    'death-note': DeathNote,
+    'fumetsu': Fumetsu,
+    'one-piece': OnePiece,
+    'dragon-ball': DragonBall
+} as Record<TAvailableWikis, any>;
