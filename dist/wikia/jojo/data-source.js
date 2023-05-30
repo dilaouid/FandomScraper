@@ -19,7 +19,7 @@ const JojoENDataSource = {
     status: 'status',
     gender: 'gender',
     images: {
-        identifier: '.wds-tab__content img',
+        identifier: '.pi-image-thumbnail',
         get: function (page) {
             return page.querySelectorAll(this.identifier);
         },
