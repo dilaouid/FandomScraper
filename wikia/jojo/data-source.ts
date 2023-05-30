@@ -22,7 +22,7 @@ const JojoENDataSource: IDataSource = {
     status: 'status',
     gender: 'gender',
     images: {
-        identifier: '.wds-tab__content img',
+        identifier: '.pi-image-thumbnail',
         get: function(page: Document) {
             return page.querySelectorAll(this.identifier);
         },
