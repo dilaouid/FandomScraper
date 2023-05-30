@@ -7,6 +7,9 @@ import { Fumetsu } from './fumetsu';
 import { Naruto } from './naruto';
 import { OnePiece } from './one-piece';
 import { Shiki } from './shiki';
+import { PromisedNeverland } from './promised-neverland';
+import { Berserk } from './berserk';
+import { Jojo } from './jojo';
 
 export const Schemas: Record<TAvailableWikis, any> = {
     'demon-slayer': DemonSlayer,
@@ -15,5 +18,8 @@ export const Schemas: Record<TAvailableWikis, any> = {
     'death-note': DeathNote,
     'fumetsu': Fumetsu,
     'one-piece': OnePiece,
-    'dragon-ball': DragonBall
+    'dragon-ball': DragonBall,
+    'promised-neverland': PromisedNeverland,
+    'berserk': Berserk,
+    'jojo': Jojo
 } as Record<TAvailableWikis, any>;
