@@ -8,7 +8,7 @@ const importSchema = async (wiki: TAvailableWikis) => {
     const formatted = wiki.split('-').map(word => word[0].toUpperCase() + word.slice(1)).join('');
 
     // get the index file of the wiki folder
-    const schemaModule = await import(`/wikia/${wiki}`);
+    const schemaModule = await import(`./${wiki}`);
 
     return schemaModule[formatted];
 };
