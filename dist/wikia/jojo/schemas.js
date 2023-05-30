@@ -7,7 +7,7 @@ const JojoFR = {
     dataSource: JojoFRDataSource
 };
 const JojoEN = {
-    url: 'https://kimetsu-no-yaiba.fandom.com/wiki/',
+    url: 'https://jojo.fandom.com/wiki/',
     pageFormat: 'classic',
     charactersUrl: 'https://jojo.fandom.com/wiki/Category:Characters',
     oldVersion: false,
