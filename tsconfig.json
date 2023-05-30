@@ -1,18 +1,16 @@
 {
     "compilerOptions": {
-        "target": "ES2015",
+        "target": "ES2020",
         "module": "ES2020",
         "moduleResolution": "node",
         "outDir": "./dist/esm",
         "rootDir": ".",
         "strict": true,
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
         "declaration": true,
         "allowJs": true,
         "baseUrl": ".",
         "sourceMap": true
     },
-    "include": ["**/*"],
     "exclude": ["node_modules", "dist"]
 }

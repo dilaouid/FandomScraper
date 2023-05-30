@@ -1,6 +1,7 @@
 {
   "name": "fandomscraper",
-  "version": "1.0.2",
+  "version": "1.0.23",
+  "type": "module",
   "description": "A package to scrap fandoms wikis characters page. Only scraps the characters info section and the list of all repertoried characters.",
   "exports": {
     ".": {
@@ -17,7 +18,7 @@
   "types": "./dist/esm/index.d.ts",
   "main": "./dist/cjs/index.js",
   "files": [
-    "dist/"
+    "./dist/"
   ],
   "module": "./dist/esm/index.js",
   "scripts": {

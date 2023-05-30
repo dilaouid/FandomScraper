@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.allCharactersPage = void 0;
-exports.allCharactersPage = {
+const allCharactersPage = {
     'classic': {
         banList: ['Catégorie:', 'Category:', 'List of', 'File:', 'Template:'],
         listCharactersElement: {
@@ -28,4 +28,5 @@ exports.allCharactersPage = {
         }
     }
 };
+exports.allCharactersPage = allCharactersPage;
 //# sourceMappingURL=allCharactersPage.js.map

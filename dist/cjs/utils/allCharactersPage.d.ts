@@ -1,4 +1,4 @@
-export declare const allCharactersPage: {
+declare const allCharactersPage: {
     classic: {
         banList: string[];
         listCharactersElement: {
@@ -25,3 +25,4 @@ export declare const allCharactersPage: {
         };
     };
 };
+export { allCharactersPage };

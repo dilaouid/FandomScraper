@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // the different wikis available to scrape are the different folders in the schemas folder
 const schemaDirectory = path.join(__dirname, '../schemas');

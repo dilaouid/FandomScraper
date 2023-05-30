@@ -1,4 +1,4 @@
-export const allCharactersPage = {
+const allCharactersPage = {
     'classic': {
         banList: ['Catégorie:', 'Category:', 'List of', 'File:', 'Template:'],
         listCharactersElement: {
@@ -25,4 +25,5 @@ export const allCharactersPage = {
         }
     }
 };
+export { allCharactersPage };
 //# sourceMappingURL=allCharactersPage.js.map
