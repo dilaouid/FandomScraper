@@ -5,7 +5,6 @@ const FumetsuEN: ISchema = {
     url: 'https://fumetsunoanatae.fandom.com/wiki/',
     pageFormat: 'classic',
     charactersUrl: 'https://fumetsunoanatae.fandom.com/wiki/Category:Characters',
-    oldVersion: true,
     dataSource: FumetsuENDataSource
 };
 

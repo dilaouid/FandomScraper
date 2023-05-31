@@ -12,9 +12,6 @@ interface ISchema {
     // the url of the characters list page (ex: 'https://dragonball.fandom.com/wiki/Characters')
     charactersUrl: string;
 
-    // if the character page is the old version (table with no data-source property in the dom)
-    oldVersion: boolean; 
-
     // the data-source of the wiki (ex: DragonBallFRDataSource) which will be used to scrape the wiki
     dataSource: IDataSource;
 };

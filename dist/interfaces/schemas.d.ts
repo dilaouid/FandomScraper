@@ -4,7 +4,6 @@ interface ISchema {
     url: string;
     pageFormat: TPageFormats;
     charactersUrl: string;
-    oldVersion: boolean;
     dataSource: IDataSource;
 }
 export { ISchema };

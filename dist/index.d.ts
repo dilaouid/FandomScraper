@@ -175,5 +175,6 @@ export declare class FandomScraper {
     private getElementAccordingToFormat;
     private getUrlAccordingToFormat;
     private isValidCharacterPage;
+    private isOldVersion;
 }
 export {};

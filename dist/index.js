@@ -391,7 +391,7 @@ export class FandomScraper {
      *
      */
     getDataAccordingToVersion(page, key) {
-        if (this._schema.oldVersion === true) {
+        if (this.isOldVersion(page)) {
             const tdElement = Array.from(page.querySelectorAll('.mw-parser-output td')).find((td) => {
                 return td?.textContent?.includes(String(key));
             });
@@ -450,6 +450,9 @@ export class FandomScraper {
             return false;
         }
         return data && (!(withId && Object.keys(data).length === 2) || !(!withId && Object.keys(data).length === 1));
+    }
+    isOldVersion(page) {
+        return page.querySelector('.pi-data-value') === null;
     }
 }
 //# sourceMappingURL=index.js.map
