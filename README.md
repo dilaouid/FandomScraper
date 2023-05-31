@@ -145,60 +145,60 @@ Make sure to adjust the import statement according to your project's setup.
 
 ```js
 const personalScraper = new  FandomPersonalScraper({
-	url:  'https://mywikia.fandom.com/wiki/Category:Characters',
-	pageFormat:  'classic',
+	url: 'https://mywikia.fandom.com/wiki/Category:Characters',
+	pageFormat: 'classic',
 	dataSource: {
 		name: 'Name',
 		age: 'Age',
 		kanji: 'Kanji',
 		romaji: 'Romaji',
 		status: 'Status',
-		gender:  'Gender',
-		species:  'Kind',
+		gender: 'Gender',
+		species: 'Kind',
 		images: {
 			identifier:  '.mw-parser-output table img',
-			get:  function(page) {
-				return  page.querySelectorAll(this.identifier);
+			get: function(page) {
+				return page.querySelectorAll(this.identifier);
 			}
 		},
-		episode:  'First appearance',
-		affiliation:  'Affiliations'
+		episode: 'First appearance',
+		affiliation: 'Affiliations'
 	}
 });
 ```
 The constructor of `FandomPersonalScraper` expects an object that adheres to the `ISchema` interface.
 
 ```ts
-type TPageFormats = 'classic'  |  'table-1'  |  'table-2';
+type TPageFormats = 'classic' | 'table-1' | 'table-2';
 
-interface  IImage {
-	identifier:  string;
-	get:  Function;
+interface IImage {
+	identifier: string;
+	get: Function;
 };
 
 // Interface of where to scrap the page to get the data of the characters (data-source)
 interface  IDataSource {
-	name?:  string;
-	kanji?:  string;
-	romaji?:  string;
-	status?:  string;
-	species?:  string;
-	gender?:  string;
-	images?:  IImage;
-	episode?:  string;
-	age?:  string;
-	affiliation?:  string;
+	name?: string;
+	kanji?: string;
+	romaji?: string;
+	status?: string;
+	species?: string;
+	gender?: string;
+	images?: IImage;
+	episode?: string;
+	age?: string;
+	affiliation?: string;
 };
 
 interface  ISchema {
 	// the url of the wiki characters list to scrape (ex: 'https://dragonball.fandom.com/wiki/Characters')
-	url:  string;
+	url: string;
 
 	// the format of the characters list page (ex: 'classic')
 	pageFormat: TPageFormats;
 
 	// the data-source of the wiki (ex: DragonBallFRDataSource) which will be used to scrape the wiki
-	dataSource:  IDataSource;
+	dataSource: IDataSource;
 };
 ```
 -   `url`: The URL of the wiki's characters list page, for example: `'https://dragonball.fandom.com/wiki/Characters'`.
