@@ -62,7 +62,7 @@ interface IGetCharacterOptions {
  * The list of available wikis can be found in the TAvailableWikis type.
  */
 export declare class FandomScraper {
-    private _schema;
+    protected _schema: ISchema;
     private _CharactersPage;
     /**
      * Constructs a FandomScraper instance.
@@ -182,5 +182,12 @@ export declare class FandomScraper {
     private isOldVersion;
     private getWikiUrl;
     private getDataUrl;
+}
+/**
+ * This class allows you to define your own schema for a fandom wiki scraper
+ * @class
+ */
+export declare class FandomPersonalScraper extends FandomScraper {
+    constructor(schema: ISchema);
 }
 export {};
