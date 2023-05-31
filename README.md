@@ -129,15 +129,111 @@ Feel free to customize the options and explore the capabilities of FandomScraper
 
 Remember to handle any errors that may occur and adjust the method names and options according to your specific use case.
 
+#### FandomPersonalScraper
+
+**FandomPersonalScraper** is a child class of **FandomScraper** that allows you to specify your own schema for scraping a wiki. It has the same methods as the parent class, but instead of relying on an existing schema, you define the schema in its constructor.
+
+To use FandomPersonalScraper, follow these steps:
+
+1.  Import the `FandomPersonalScraper` class into your project:
+```js
+import { FandomPersonalScraper } from  'fandomscraper';
+```
+Make sure to adjust the import statement according to your project's setup.
+
+2.  Create an instance of `FandomPersonalScraper` by providing the scraper schema in the constructor:
+
+```js
+const personalScraper = new  FandomPersonalScraper({
+	url:  'https://mywikia.fandom.com/wiki/Category:Characters',
+	pageFormat:  'classic',
+	dataSource: {
+		name: 'Name',
+		age: 'Age',
+		kanji: 'Kanji',
+		romaji: 'Romaji',
+		status: 'Status',
+		gender:  'Gender',
+		species:  'Kind',
+		images: {
+			identifier:  '.mw-parser-output table img',
+			get:  function(page) {
+				return  page.querySelectorAll(this.identifier);
+			}
+		},
+		episode:  'First appearance',
+		affiliation:  'Affiliations'
+	}
+});
+```
+The constructor of `FandomPersonalScraper` expects an object that adheres to the `ISchema` interface.
+
+```ts
+type TPageFormats = 'classic'  |  'table-1'  |  'table-2';
+
+interface  IImage {
+	identifier:  string;
+	get:  Function;
+};
+
+// Interface of where to scrap the page to get the data of the characters (data-source)
+interface  IDataSource {
+	name?:  string;
+	kanji?:  string;
+	romaji?:  string;
+	status?:  string;
+	species?:  string;
+	gender?:  string;
+	images?:  IImage;
+	episode?:  string;
+	age?:  string;
+	affiliation?:  string;
+};
+
+interface  ISchema {
+	// the url of the wiki characters list to scrape (ex: 'https://dragonball.fandom.com/wiki/Characters')
+	url:  string;
+
+	// the format of the characters list page (ex: 'classic')
+	pageFormat: TPageFormats;
+
+	// the data-source of the wiki (ex: DragonBallFRDataSource) which will be used to scrape the wiki
+	dataSource:  IDataSource;
+};
+```
+-   `url`: The URL of the wiki's characters list page, for example: `'https://dragonball.fandom.com/wiki/Characters'`.
+
+-   `pageFormat`: The format of the characters list page, which can be `'classic'`, `'table-1'`, or `'table-2'` depending on how the characters page list is structured.
+
+-   `dataSource`: An object specifying the data sources for scraping character pages. It defines properties like `name`, `age`, `kanji`, etc. Each property corresponds to a piece of information about the character. If an element on the character page has a `data-source` attribute, the value of that attribute is used as the property value. Otherwise, the value is taken from the adjacent cell in the table.
+	-   `images`: An object specifying the data source for scraping character images. It follows the `IImage` interface, which has two properties:
+	    -   `identifier`: A string that identifies the HTML element(s) containing the images. This can be a CSS selector, XPath, or any other valid selector format.
+	    -   `get`: A function that takes the `page` document as an argument and returns the selected image elements. This function is responsible for extracting and returning all the image elements that match the specified identifier.
+
+Here's an example of how to define the `images` property in the `dataSource` object:
+```ts
+images: {
+    identifier: '.mw-parser-output table img',
+    get: function(page: Document) {
+        return page.querySelectorAll(this.identifier);
+    },
+}
+```
+
+In this example, the `identifier` uses a CSS selector format to select all the image elements within a specific table on the character page. The `get` function receives the `page` document and uses the `querySelectorAll` method to retrieve and return all the selected image elements.
+
+This allows you to customize the image scraping process based on the specific structure and location of images on your wiki's character pages.
+
+Make sure to provide the appropriate values for your specific wiki.
+
+This allows you to create a customized scraper that fits the structure and data sources of your wiki.
+
 ---
 
 ### Key Features
 
--   Rapid and Simple Retrieval: FandomScraper offers a fast and straightforward approach to fetching informations from any Fandom wikia.
-    
--   Scalability: While the current number of wikias is hardcoded, FandomScraper allows for effortless and speedy addition of new wikias.
-    
--   Database Integration: The `withId` option will help you to store character informations in a database.
-    
+- Rapid and Simple Retrieval: FandomScraper offers a fast and straightforward approach to fetching informations from any Fandom wikia.
+- Scalability: While the current number of wikias is hardcoded, FandomScraper allows for effortless and speedy addition of new wikias.
+- Database Integration: The `withId` option will help you to store character informations in a database.
 
 Feel free to explore FandomScraper and leverage its capabilities for efficiently gathering informations from various Fandom wikias.
