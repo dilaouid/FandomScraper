@@ -1,6 +1,6 @@
 const allCharactersPage = {
     'classic': {
-        banList: ['Catégorie:', 'Category:', 'List of', 'File:', 'Template:'],
+        ignore: ['Catégorie:', 'Category:', 'List of', 'File:', 'Template:'],
         listCharactersElement: {
             type: 'class',
             value: 'category-page__member-link'

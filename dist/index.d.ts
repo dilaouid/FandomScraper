@@ -38,6 +38,10 @@ interface IGetCharactersOptions {
      * If the scraper should get the id of the character (optional). The id is the pageId of the wikia. Default: false
      */
     withId?: boolean;
+    /**
+     * The substrings to ignore in the characters names (optional). Default: []
+     */
+    ignore?: string[];
 }
 interface IGetCharacterOptions {
     /**

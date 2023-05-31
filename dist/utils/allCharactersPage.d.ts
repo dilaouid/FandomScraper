@@ -1,6 +1,6 @@
 declare const allCharactersPage: {
     classic: {
-        banList: string[];
+        ignore: string[];
         listCharactersElement: {
             type: string;
             value: string;

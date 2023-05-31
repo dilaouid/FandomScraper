@@ -47,7 +47,7 @@ const wikis = scraper.getAvailableWikis();
 ---
 -   **Get all characters of the current wiki:**
 ```js
-const allCharacters = await scraper.getAll({ limit: 100, offset: 0, base64: false, withId: true, recursive: true });
+const allCharacters = await scraper.getAll({ limit: 100, offset: 0, base64: false, withId: true, recursive: true, ignore: ['muroi'] });
 ```
 -   The `limit` option sets the maximum number of characters to return.
     
@@ -58,6 +58,8 @@ const allCharacters = await scraper.getAll({ limit: 100, offset: 0, base64: fals
 -   The `withId` option indicates whether to include the character's ID (corresponding to the wikia's pageId value).
     
 -   The `recursive` option specifies whether to retrieve additional informations from the character's infobox along with their name, URL, and optional ID.
+    
+-   The `ignore` option is an array that allows you to specify substrings. Characters whose names contain any of the specified substrings will be ignored.
 ---
 -   **Get a character by name:**
 ```js

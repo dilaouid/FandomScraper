@@ -66,7 +66,7 @@ export class FandomScraper {
      * const characters = await scraper.getCharacters({ limit: 100, offset: 0, recursive: true, base64: true, withId: true });
      * ```
      */
-    async getAll(options = { offset: 0, limit: 100000, recursive: false, base64: true, withId: true }) {
+    async getAll(options = { offset: 0, limit: 100000, recursive: false, base64: true, withId: true, ignore: [] }) {
         try {
             if (options.limit < 1)
                 throw new Error('Limit must be greater than 0');
@@ -202,7 +202,7 @@ export class FandomScraper {
         let offset = 0;
         let count = 0;
         while (hasNext && count < options.limit) {
-            const elements = this.getElementAccordingToFormat();
+            const elements = this.getElementAccordingToFormat(options.ignore);
             for (const element of elements) {
                 var characterData = {};
                 if (offset >= options.offset) {
@@ -375,11 +375,11 @@ export class FandomScraper {
      * @param {string[]} banList The list of substring to ban
      * @returns The filtered elements
      */
-    filterBannedElement(elements, banList) {
+    filterBannedElement(elements, ignore) {
         const elementsArray = Array.from(elements);
         return elementsArray.filter((element) => {
             const innerText = element.textContent?.toLowerCase() ?? '';
-            return !banList.some((substring) => innerText.includes(substring.toLowerCase()));
+            return !ignore.some((substring) => innerText.includes(substring.toLowerCase()));
         });
     }
     /**
@@ -408,10 +408,12 @@ export class FandomScraper {
             return parseInt(match[1], 10);
         return 0;
     }
-    getElementAccordingToFormat() {
+    getElementAccordingToFormat(ignore) {
+        // merge ignore and allCharactersPage.classic.ignore arrays
+        const ignoreList = ignore ? [...ignore, ...allCharactersPage.classic.ignore] : allCharactersPage.classic.ignore;
         if (this._schema.pageFormat === 'classic') {
             const value = allCharactersPage.classic.listCharactersElement.value;
-            return this.filterBannedElement(this._CharactersPage.getElementsByClassName(value), allCharactersPage.classic.banList);
+            return this.filterBannedElement(this._CharactersPage.getElementsByClassName(value), ignoreList);
         }
         else if (this._schema.pageFormat === 'table-1') {
             return this._CharactersPage.querySelectorAll('table.wikitable td:nth-child(2) a');
