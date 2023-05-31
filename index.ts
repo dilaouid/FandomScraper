@@ -560,12 +560,13 @@ export class FandomScraper {
     }
 
     private getWikiUrl(): string {
-        // remove everything after /wiki/ in the schema url (but keep the /wiki/)
-        return this._schema.url.replace(/\/wiki\/.*/, '/wiki/');
-    }
+        const parts = this._schema.url.split('/');
+        const baseParts = parts.slice(0, 3);
+        return baseParts.join('/');
+    };
 
     private getDataUrl(href: string | null): string {
-        return this.getWikiUrl() + href?.replace('/wiki/', '');
-    }
+        return this.getWikiUrl() + href;
+    };
 
 }

@@ -457,11 +457,14 @@ export class FandomScraper {
         return page.querySelector('.pi-data-value') === null;
     }
     getWikiUrl() {
-        // remove everything after /wiki/ in the schema url (but keep the /wiki/)
-        return this._schema.url.replace(/\/wiki\/.*/, '/wiki/');
+        const parts = this._schema.url.split('/');
+        const baseParts = parts.slice(0, 3);
+        return baseParts.join('/');
     }
+    ;
     getDataUrl(href) {
-        return this.getWikiUrl() + href?.replace('/wiki/', '');
+        return this.getWikiUrl() + href;
     }
+    ;
 }
 //# sourceMappingURL=index.js.map
