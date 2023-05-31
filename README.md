@@ -47,7 +47,14 @@ const wikis = scraper.getAvailableWikis();
 ---
 -   **Get all characters of the current wiki:**
 ```js
-const allCharacters = await scraper.getAll({ limit: 100, offset: 0, base64: false, withId: true, recursive: true, ignore: ['muroi'] });
+const allCharacters = await scraper.getAll({
+    limit: 100,
+    offset: 0,
+    base64: false,
+    withId: true,
+    recursive: true,
+    ignore: ['muroi']
+  });
 ```
 -   The `limit` option sets the maximum number of characters to return.
     

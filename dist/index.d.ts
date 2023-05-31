@@ -180,5 +180,7 @@ export declare class FandomScraper {
     private getUrlAccordingToFormat;
     private isValidCharacterPage;
     private isOldVersion;
+    private getWikiUrl;
+    private getDataUrl;
 }
 export {};

@@ -1,14 +1,12 @@
 import { PromisedNeverlandFRDataSource, PromisedNeverlandENDataSource } from "./data-source.js";
 const PromisedNeverlandFR = {
-    url: 'https://the-promised-neverland.fandom.com/fr/wiki/',
+    url: 'https://the-promised-neverland.fandom.com/fr/wiki/Catégorie:Personnages',
     pageFormat: 'classic',
-    charactersUrl: 'https://the-promised-neverland.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages',
     dataSource: PromisedNeverlandFRDataSource
 };
 const PromisedNeverlandEN = {
-    url: 'https://yakusokunoneverland.fandom.com//wiki/',
+    url: 'https://yakusokunoneverland.fandom.com/wiki/Category:Manga_characters',
     pageFormat: 'classic',
-    charactersUrl: 'https://yakusokunoneverland.fandom.com/wiki/Category:Manga_characters',
     dataSource: PromisedNeverlandENDataSource
 };
 export { PromisedNeverlandFR, PromisedNeverlandEN };

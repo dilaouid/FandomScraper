@@ -1,8 +1,7 @@
 import { ShikiENDataSource } from "./data-source.js";
 const ShikiEN = {
-    url: 'https://shiki.fandom.com/wiki/',
+    url: 'https://shiki.fandom.com/wiki/Category:Characters',
     pageFormat: 'classic',
-    charactersUrl: 'https://shiki.fandom.com/wiki/Category:Characters',
     dataSource: ShikiENDataSource
 };
 export { ShikiEN };

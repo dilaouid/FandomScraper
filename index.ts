@@ -154,7 +154,7 @@ export class FandomScraper {
             if (options.limit < 1) throw new Error('Limit must be greater than 0');
             if (options.offset < 0) throw new Error('Offset must be greater than 0');
 
-            await this.getCharactersPage(this._schema.charactersUrl);
+            await this.getCharactersPage(this._schema.url);
             return await this._getAll(options);
 
         } catch (err) {
@@ -180,16 +180,16 @@ export class FandomScraper {
             if (options.name?.trim()?.length == 0) throw new Error('Name must be provided');
 
             const name = formatName(options.name);
-            const url = this._schema.url + formatForUrl(name);
+            const url = this.getWikiUrl() + formatForUrl(name);
             const data: any = {
                 name: name,
-                url: this._schema.url + formatForUrl(name),
+                url: this.getWikiUrl() + formatForUrl(name),
             }
             return this.fetchPage(url).then(async page => {
                 const characterData = await this.formatCharacterData(page, options, data);
                 if (!this.isValidCharacterPage(options.withId || false, characterData.data || null)) {
                     const switchName = formatName(name.split(' ').reverse().join(' '));
-                    const url = this._schema.url + formatForUrl(switchName);
+                    const url = this.getWikiUrl() + formatForUrl(switchName);
                     return this.fetchPage(url).then(async page => {
                         const retryData = await this.formatCharacterData(page, options, data);
                         if (!this.isValidCharacterPage(options.withId || false, retryData.data || null)) {
@@ -226,7 +226,7 @@ export class FandomScraper {
         try {
             if (id < 1) throw new Error('Id must be greater than 0');
 
-            const url = this._schema.url + `?curid=${id}`;
+            const url = this.getWikiUrl() + `?curid=${id}`;
             const data: any = {
                 url: url,
             }
@@ -303,7 +303,7 @@ export class FandomScraper {
                     if (!name) throw new Error('No name found');
 
                     if (options.recursive || options.withId) {
-                        const characterPage = await this.fetchPage(new URL(url, this._schema.url).href);
+                        const characterPage = await this.fetchPage(new URL(url, this.getWikiUrl()).href);
                         if (options.recursive) {
                             characterData = await this.parseCharacterPage(characterPage, options.base64);
                         }
@@ -364,7 +364,7 @@ export class FandomScraper {
         var count = 0;
         try {
             let hasNext = true;
-            await this.getCharactersPage(this._schema.charactersUrl);
+            await this.getCharactersPage(this._schema.url);
             while (hasNext) {
                 count += this.getElementAccordingToFormat().length;
                 const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage[this._schema.pageFormat].next.value)[0];
@@ -529,18 +529,18 @@ export class FandomScraper {
 
     private getUrlAccordingToFormat(element: Element): string {
         if (this._schema.pageFormat === 'classic') {
-            const url = element.getAttribute('href');
+            const url = this.getDataUrl(element.getAttribute('href'));
             if (!url) throw new Error('No URL found');
             return url;
         } else if (this._schema.pageFormat === 'table-1') {
-            const url = element.getAttribute('href');
+            const url = this.getDataUrl(element.getAttribute('href'));
             if (!url) throw new Error('No URL found');
             return url;
         } else if (this._schema.pageFormat === 'table-2') {
             const aElement = element.querySelector('a');
             if (!aElement) throw new Error('No <a> element found');
 
-            const url = aElement.getAttribute('href');
+            const url = this.getDataUrl(aElement.getAttribute('href'));
             if (!url) throw new Error('No URL found');
             return url;
         }
@@ -557,6 +557,15 @@ export class FandomScraper {
 
     private isOldVersion(page: Document): boolean {
         return page.querySelector('.pi-data-value') === null;
+    }
+
+    private getWikiUrl(): string {
+        // remove everything after /wiki/ in the schema url (but keep the /wiki/)
+        return this._schema.url.replace(/\/wiki\/.*/, '/wiki/');
+    }
+
+    private getDataUrl(href: string | null): string {
+        return this.getWikiUrl() + href?.replace('/wiki/', '');
     }
 
 }

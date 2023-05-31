@@ -4,9 +4,8 @@ import { BerserkENDataSource } from "./data-source";
 // Berserk (FR) schema not available yet on Fandom
 
 const BerserkEN: ISchema = {
-    url: 'https://berserk.fandom.com/wiki/',
+    url: 'https://berserk.fandom.com/wiki/Category:Fantasia_Arc_Characters',
     pageFormat: 'classic',
-    charactersUrl: 'https://berserk.fandom.com/wiki/Category:Fantasia_Arc_Characters',
     dataSource: BerserkENDataSource
 };
 
