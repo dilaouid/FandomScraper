@@ -60,6 +60,25 @@ interface IGetCharactersOptions {
     ignore?: string[];
 };
 
+interface IGetCharactersOptions {
+    
+    /**
+     * If the scraper should get all the characters recursively (optional). Default: false
+     */
+    recursive?: boolean;
+
+    /**
+     * If the scraper should get the images in base64 (optional). Default: false
+     */
+    base64?: boolean;
+
+    /**
+     * If the scraper should get the id of the character (optional). The id is the pageId of the wikia. Default: false
+     */
+    withId?: boolean;
+
+};
+
 interface IGetCharacterOptions {
     /**
      * The name of the character you want to get.
@@ -85,6 +104,7 @@ export class FandomScraper {
 
     protected _schema: ISchema;
     private _CharactersPage!: Document;
+    private properties: string[] = [];
 
     /**
      * Constructs a FandomScraper instance.
@@ -98,6 +118,8 @@ export class FandomScraper {
     constructor(constructor: IConstructor) {
         if (!Object.keys(Schemas).includes(constructor.name)) throw new Error(`Invalid wiki name provided: ${constructor.name}`);
         this._schema = Schemas[constructor.name][constructor.language || 'en'];
+            
+        this.properties = Object.keys(this._schema.dataSource);
     }
 
 
