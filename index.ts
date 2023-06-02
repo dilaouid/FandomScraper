@@ -118,9 +118,9 @@ export class FandomScraper {
      * const scraper = new FandomScraper({ name: 'dragon-ball', language: 'fr' });
      * ```
      */
-    constructor(constructor: IConstructor) {
-        if (!Object.keys(Schemas).includes(constructor.name)) throw new Error(`Invalid wiki name provided: ${constructor.name}`);
-        this._schema = Schemas[constructor.name][constructor.language || 'en'];
+    constructor(name: TAvailableWikis, options?: { lang: 'en' | 'fr' | null }) {
+        if (!Object.keys(Schemas).includes(name)) throw new Error(`Invalid wiki name provided: ${name}`);
+        this._schema = Schemas[name][options?.lang || 'en'];
             
         this.properties = Object.keys(this._schema.dataSource);
     }
@@ -834,7 +834,7 @@ export class FandomScraper {
  */
 export class FandomPersonalScraper extends FandomScraper {
     constructor(schema: ISchema) {
-        super({ name: 'one-piece', language: 'en' });
+        super('one-piece', { lang: 'en' });
 
         // check if the schema is valid
         if (!schema.url || !schema.pageFormat || !schema.dataSource) {

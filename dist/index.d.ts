@@ -1,22 +1,6 @@
 import { IData } from "./interfaces/datasets";
 import { ISchema } from './interfaces/schemas';
 import { TAvailableWikis } from './types';
-/**
- * The constructor options.
- * @typedef {Object} IConstructor
- * @property {TAvailableWikis} name - The name of the fiction you want to scrape from the Fandom wiki (ex: 'dragon-ball')
- * @property {'en' | 'fr' | null} [language] - The language of the wiki you want to scrape from the Fandom wiki (optional). Default: 'en'
- */
-interface IConstructor {
-    /**
-     * The name of the fiction you want to scrape from the Fandom wiki (ex: 'dragon-ball')
-     */
-    name: TAvailableWikis;
-    /**
-     * The language of the wiki you want to scrape from the Fandom wiki (optional). Default: 'en'
-     */
-    language?: 'en' | 'fr' | null;
-}
 interface IGetCharactersOptions {
     /**
      * The limit of characters to get (optional). Default: 100000
@@ -86,7 +70,9 @@ export declare class FandomScraper {
      * const scraper = new FandomScraper({ name: 'dragon-ball', language: 'fr' });
      * ```
      */
-    constructor(constructor: IConstructor);
+    constructor(name: TAvailableWikis, options?: {
+        lang: 'en' | 'fr' | null;
+    });
     /**
      * Get the schema of the current wiki.
      * @returns The schema of the wiki.
