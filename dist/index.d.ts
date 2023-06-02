@@ -42,12 +42,16 @@ interface IGetCharactersOptions {
      * The substrings to ignore in the characters names (optional). Default: []
      */
     ignore?: string[];
+    /**
+     * The substrings to ignore in the characters names (optional). Default: []
+     */
+    attributes?: string[];
 }
 interface IGetCharacterOptions {
     /**
      * The name of the character you want to get.
      */
-    name: string;
+    name?: string;
     /**
      * If the scraper should get the images in base64 (optional). Default: false
      */
@@ -56,6 +60,10 @@ interface IGetCharacterOptions {
      * If the scraper should get the id of the character (optional). The id is the pageId of the wikia. Default: true
      */
     withId?: boolean;
+    /**
+     * The attributes to get in the character (optional). Default are the attributes of the schema.
+     */
+    attributes?: string[];
 }
 /**
  * FandomScraper is a class that allows you to scrape a Fandom wiki, and get all the characters of a fiction.
@@ -64,6 +72,11 @@ interface IGetCharacterOptions {
 export declare class FandomScraper {
     protected _schema: ISchema;
     private _CharactersPage;
+    private properties;
+    private options;
+    private method;
+    private name;
+    private id;
     /**
      * Constructs a FandomScraper instance.
      * @param {IConstructor} constructor - The constructor options.
@@ -79,6 +92,47 @@ export declare class FandomScraper {
      * @returns The schema of the wiki.
      */
     getSchema(): ISchema;
+    /**
+     * Set the limit of characters to get. Default: 50
+     * @param {number} limit - The limit of characters to get.
+     * @throws Error if the limit is less than 1.
+     * @example
+     * ```ts
+     * await scraper.findAll({ base64: true, recursive: true, withId: true }).limit(100).exec();
+     * ```
+     */
+    limit(limit: number): this;
+    /**
+     * Set the offset of characters to get. Default: 0
+     * @param {number} offset - The offset of characters to get.
+     * @throws Error if the offset is less than 0.
+     * @example
+     * ```ts
+     * await scraper.findAll({ base64: true, recursive: true, withId: true }).offset(100).exec();
+     * ```
+     */
+    offset(offset: number): this;
+    /**
+     * Set the ignored substrings in the characters names. Default: []
+     * @param {string[]} ignore - The substrings to ignore in the characters names.
+     * @throws Error if the ignore parameter is not an array.
+     * @example
+     * ```ts
+     * await scraper.findAll({ base64: true, recursive: true, withId: true }).ignore(['(Dragon Ball Heroes)']).exec();
+     * ```
+     */
+    ignore(ignore: string[]): this;
+    /**
+     * Set the attributes to get in the characters. Default are the attributes of the schema.
+     * @param {string} attributes - The attributes to get in the characters.
+     * @throws Error if the attributes parameter is not a string.
+     * @example
+     * ```ts
+     * await scraper.findAll({ base64: true, recursive: true, withId: true }).attr('name images age kanji').exec();
+     * ```
+     */
+    attr(attributes: string): this;
+    private reset;
     /**
      * Get the characters page of the current wiki.
      *
@@ -102,8 +156,65 @@ export declare class FandomScraper {
      * ```ts
      * const characters = await scraper.getCharacters({ limit: 100, offset: 0, recursive: true, base64: true, withId: true });
      * ```
+     * @deprecated Use the findAll method instead.
      */
     getAll(options?: IGetCharactersOptions): Promise<any[]>;
+    /**
+     * Get all the characters of the current wiki, considering the options provided.
+     * Must be called before the exec method and any other method.
+     * @param { { base64: boolean, recursive: boolean, withId: boolean } } [options] - The options of the getCharacters method.
+     * @returns The characters of the wiki.
+     * @example
+     * ```ts
+     * const characters = await scraper.findAll({ base64: true, recursive: true, withId: true }).exec();
+     * ```
+     */
+    findAll(options: {
+        base64: boolean;
+        recursive: boolean;
+        withId: boolean;
+    }): this;
+    /**
+     * Get a character of the current wiki according to its name, considering the options provided.
+     * Must be called before the exec method and any other method.
+     * @param {string} name - The name of the character to get.
+     * @param { { base64: boolean, withId: boolean } } [options] - The options of the getCharacters method.
+     * @returns The character of the wiki.
+     * @throws Error if the name is not provided.
+     * @example
+     * ```ts
+     * const character = await scraper.findByName('Tanjiro Kamado', { base64: true, withId: true }).exec();
+     * ```
+     */
+    findByName(name: string, options: {
+        base64: boolean;
+        withId: boolean;
+    }): this;
+    /**
+     * Get a character of the current wiki according to its id, considering the options provided.
+     * Must be called before the exec method and any other method.
+     * @param {number} id - The id of the character to get.
+     * @param { { base64: boolean } } [options] - The options of the getCharacters method.
+     * @returns The character of the wiki.
+     * @throws Error if the id is less than 1.
+     * @example
+     * ```ts
+     * const character = await scraper.findById(1, { base64: true }).exec();
+     * ```
+     */
+    findById(id: number, options: {
+        base64: boolean;
+    }): this;
+    /**
+     * Execute the method previously called. Must be called after all the methods to get the result.
+     * @returns The result of the method previously called.
+     * @throws Error if the method is not valid.
+     * @example
+     * ```ts
+     * const characters = await scraper.findAll({ base64: true, recursive: true, withId: true }).limit(100).attributes('name images').exec();
+     * ```
+     */
+    exec(): Promise<any>;
     /**
      * Get a character of the current wiki according to its name, considering the options provided.
      * @param {IGetCharacterOptions} [options] - The options of the getCharacter method.
@@ -114,8 +225,14 @@ export declare class FandomScraper {
      * ```ts
      * const character = await scraper.getByName({ name: 'Goku', base64: true, withId: true });
      * ```
+     * @deprecated Use the findByName method instead.
      */
     getByName(options?: IGetCharacterOptions): Promise<IData | undefined>;
+    _getByName(name: string, options: {
+        base64: boolean;
+        withId: boolean;
+        attributes?: string[];
+    }): Promise<IData | undefined>;
     /**
      * Get a character of the current wiki by its id, considering the options provided.
      * @param {number} id - The id of the character.
@@ -128,8 +245,14 @@ export declare class FandomScraper {
      * const scraper = new FandomScraper({ name: 'dragon-ball' });
      * const character = await scraper.getById(1, { base64: true, withId: true });
      * ```
+     * @deprecated Use the findById method instead.
      */
     getById(id: number, options?: IGetCharacterOptions): Promise<any>;
+    _getById(id: number, options: {
+        base64?: boolean;
+        withId?: boolean;
+        attributes?: string[];
+    }): Promise<any>;
     /**
      * Get all the available wikis of the FandomScraper class.
      * @returns The available wikis.
@@ -140,7 +263,7 @@ export declare class FandomScraper {
     /**
      * Get all the characters of the current wiki, considering the options provided.
      * Works only for the classic characters page format.
-     * @param {IGetCharactersOptions} [options] - The options of the getCharacters method.
+     * @param {IGetCharactersOptionsDeprecated} [options] - The options of the getCharacters method.
      * @returns The characters of the wiki.
      */
     private _getAll;

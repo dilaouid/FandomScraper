@@ -58,32 +58,18 @@ interface IGetCharactersOptions {
      * The substrings to ignore in the characters names (optional). Default: []
      */
     ignore?: string[];
-};
-
-interface IGetCharactersOptions {
-    
-    /**
-     * If the scraper should get all the characters recursively (optional). Default: false
-     */
-    recursive?: boolean;
 
     /**
-     * If the scraper should get the images in base64 (optional). Default: false
+     * The substrings to ignore in the characters names (optional). Default: []
      */
-    base64?: boolean;
-
-    /**
-     * If the scraper should get the id of the character (optional). The id is the pageId of the wikia. Default: false
-     */
-    withId?: boolean;
-
+    attributes?: string[];
 };
 
 interface IGetCharacterOptions {
     /**
      * The name of the character you want to get.
      */
-    name: string;
+    name?: string;
 
     /**
      * If the scraper should get the images in base64 (optional). Default: false
@@ -94,6 +80,11 @@ interface IGetCharacterOptions {
      * If the scraper should get the id of the character (optional). The id is the pageId of the wikia. Default: true
      */
     withId?: boolean;
+
+    /**
+     * The attributes to get in the character (optional). Default are the attributes of the schema.
+     */
+    attributes?: string[];
 };
 
 /**
@@ -105,6 +96,18 @@ export class FandomScraper {
     protected _schema: ISchema;
     private _CharactersPage!: Document;
     private properties: string[] = [];
+    private options: IGetCharactersOptions = {
+        base64: false,
+        recursive: false,
+        withId: true,
+        limit: 50,
+        offset: 0,
+        ignore: [],
+        attributes: []
+    };
+    private method: 'find' | 'findByName' | 'findById' | undefined;
+    private name: string = '';
+    private id: number = 0;
 
     /**
      * Constructs a FandomScraper instance.
@@ -130,6 +133,96 @@ export class FandomScraper {
     public getSchema(): ISchema {
         return this._schema;
     }
+
+    /**
+     * Set the limit of characters to get. Default: 50
+     * @param {number} limit - The limit of characters to get.
+     * @throws Error if the limit is less than 1.
+     * @example
+     * ```ts
+     * await scraper.findAll({ base64: true, recursive: true, withId: true }).limit(100).exec();
+     * ```
+     */
+    public limit(limit: number): this {
+        if (this.method === 'findById' || this.method === 'findByName')
+            throw new Error('Limit cannot be used with findById or findByName');
+        if (limit < 1)
+            throw new Error('Limit must be greater than 0');
+        this.options.limit = limit;
+        return this;
+    };
+
+    /**
+     * Set the offset of characters to get. Default: 0
+     * @param {number} offset - The offset of characters to get.
+     * @throws Error if the offset is less than 0.
+     * @example
+     * ```ts
+     * await scraper.findAll({ base64: true, recursive: true, withId: true }).offset(100).exec();
+     * ```
+     */
+    public offset(offset: number): this {
+        if (this.method === 'findById' || this.method === 'findByName')
+            throw new Error('Offset cannot be used with findById or findByName');
+        if (offset < 0)
+            throw new Error('Offset must be greater than 0');
+        this.options.offset = offset;
+        return this;
+    };
+
+    /**
+     * Set the ignored substrings in the characters names. Default: []
+     * @param {string[]} ignore - The substrings to ignore in the characters names.
+     * @throws Error if the ignore parameter is not an array.
+     * @example
+     * ```ts
+     * await scraper.findAll({ base64: true, recursive: true, withId: true }).ignore(['(Dragon Ball Heroes)']).exec();
+     * ```
+     */
+    public ignore(ignore: string[]): this {
+        if (this.method === 'findById' || this.method === 'findByName')
+            throw new Error('Ignore cannot be used with findById or findByName');
+
+        if (!Array.isArray(ignore))
+            throw new Error('Ignore parameter must be an array');
+        this.options.ignore = ignore;
+        return this;
+    };
+
+    /**
+     * Set the attributes to get in the characters. Default are the attributes of the schema.
+     * @param {string} attributes - The attributes to get in the characters.
+     * @throws Error if the attributes parameter is not a string.
+     * @example
+     * ```ts
+     * await scraper.findAll({ base64: true, recursive: true, withId: true }).attr('name images age kanji').exec();
+     * ```
+     */
+    public attr(attributes: string): this {
+
+        if (typeof attributes !== 'string')
+            throw new Error('Attributes parameter must be a string');
+
+        // remove double spaces
+        attributes = attributes.replace(/\s\s+/g, ' ')?.trim();
+
+        // split the string into an array
+        this.options.attributes = attributes.split(' ');
+        return this;
+    };
+
+
+    private reset(): void {
+        this.options = {
+            base64: false,
+            recursive: false,
+            withId: true,
+            limit: 50,
+            offset: 0,
+            ignore: [],
+            attributes: []
+        };
+    };
 
 
 
@@ -170,6 +263,7 @@ export class FandomScraper {
      * ```ts
      * const characters = await scraper.getCharacters({ limit: 100, offset: 0, recursive: true, base64: true, withId: true });
      * ```
+     * @deprecated Use the findAll method instead.
      */
     public async getAll(options: IGetCharactersOptions = { offset: 0, limit: 100000, recursive: false, base64: true, withId: true, ignore: [] }): Promise<any[]> {
         try {
@@ -179,6 +273,97 @@ export class FandomScraper {
             await this.getCharactersPage(this._schema.url);
             return await this._getAll(options);
 
+        } catch (err) {
+            console.error(err);
+        }
+        return [];
+    };
+
+    /**
+     * Get all the characters of the current wiki, considering the options provided.
+     * Must be called before the exec method and any other method.
+     * @param { { base64: boolean, recursive: boolean, withId: boolean } } [options] - The options of the getCharacters method.
+     * @returns The characters of the wiki.
+     * @example
+     * ```ts
+     * const characters = await scraper.findAll({ base64: true, recursive: true, withId: true }).exec();
+     * ```
+     */
+    public findAll(options: { base64: boolean, recursive: boolean, withId: boolean }): this {
+        this.method = 'find';
+        this.reset();
+
+        this.options.base64 = options.base64;
+        this.options.recursive = options.recursive;
+        this.options.withId = options.withId;
+
+        return this;
+    };
+
+    /**
+     * Get a character of the current wiki according to its name, considering the options provided.
+     * Must be called before the exec method and any other method.
+     * @param {string} name - The name of the character to get.
+     * @param { { base64: boolean, withId: boolean } } [options] - The options of the getCharacters method.
+     * @returns The character of the wiki.
+     * @throws Error if the name is not provided.
+     * @example
+     * ```ts
+     * const character = await scraper.findByName('Tanjiro Kamado', { base64: true, withId: true }).exec();
+     * ```
+     */
+    public findByName(name: string, options: { base64: boolean, withId: boolean }): this {
+        if (name.trim().length == 0) throw new Error('Name must be provided');
+        this.name = formatName(name);
+        this.method = 'findByName';
+
+        this.reset();
+        return this;
+    };
+
+    /**
+     * Get a character of the current wiki according to its id, considering the options provided.
+     * Must be called before the exec method and any other method.
+     * @param {number} id - The id of the character to get.
+     * @param { { base64: boolean } } [options] - The options of the getCharacters method.
+     * @returns The character of the wiki.
+     * @throws Error if the id is less than 1.
+     * @example
+     * ```ts
+     * const character = await scraper.findById(1, { base64: true }).exec();
+     * ```
+     */
+    public findById(id: number, options: { base64: boolean }): this {
+        if (id < 1) throw new Error('Id must be greater than 0');
+        this.id = id;
+        this.method = 'findById';
+
+        this.reset();
+        return this;
+    };
+
+    /**
+     * Execute the method previously called. Must be called after all the methods to get the result.
+     * @returns The result of the method previously called.
+     * @throws Error if the method is not valid.
+     * @example
+     * ```ts
+     * const characters = await scraper.findAll({ base64: true, recursive: true, withId: true }).limit(100).attributes('name images').exec();
+     * ```
+     */
+    public async exec(): Promise<any> {
+        try {
+            switch (this.method) {
+                case 'find':
+                    await this.getCharactersPage(this._schema.url);
+                    return await this._getAll(this.options);
+                case 'findByName':
+                    return await this._getByName(this.name, { base64: this.options.base64 || false, withId: this.options.withId || true, attributes: this.options.attributes || [] });
+                case 'findById':
+                    return await this._getById(this.id, { base64: this.options.base64 || false, attributes: this.options.attributes || [] });
+                default:
+                    throw new Error('Invalid method');
+            }
         } catch (err) {
             console.error(err);
         }
@@ -196,12 +381,13 @@ export class FandomScraper {
      * ```ts
      * const character = await scraper.getByName({ name: 'Goku', base64: true, withId: true });
      * ```
+     * @deprecated Use the findByName method instead.
      */
     public async getByName(options: IGetCharacterOptions = { name: '', base64: false, withId: true }): Promise<IData | undefined> {
         try {
-            if (options.name?.trim()?.length == 0) throw new Error('Name must be provided');
+            if (options.name?.trim()?.length === 0) throw new Error('Name must be provided');
 
-            const name = formatName(options.name);
+            const name = formatName(options.name || '');
             const url = this.getWikiUrl() + formatForUrl(name);
             const data: any = {
                 name: name,
@@ -231,6 +417,37 @@ export class FandomScraper {
         }
     }
 
+    public async _getByName(name: string, options: { base64: boolean, withId: boolean, attributes?: string[] }): Promise<IData | undefined> {
+        try {
+            const url = this.getWikiUrl() + formatForUrl(name);
+            const data: any = {
+                name: name,
+                url: this.getWikiUrl() + formatForUrl(name),
+            }
+            return this.fetchPage(url).then(async page => {
+                const characterData = await this.formatCharacterData(page, options, data);
+                if (!this.isValidCharacterPage(options.withId || false, characterData.data || null)) {
+                    const switchName = formatName(name.split(' ').reverse().join(' '));
+                    const url = this.getWikiUrl() + formatForUrl(switchName);
+                    return this.fetchPage(url).then(async page => {
+                        const retryData = await this.formatCharacterData(page, options, data);
+                        if (!this.isValidCharacterPage(options.withId || false, retryData.data || null)) {
+                            throw new Error(`This character does not exists: ${name}`);
+                        }
+                        data.url = url;
+                        return retryData;
+                    }).catch(err => {
+                        throw new Error(`Error while fetching ${url}: ${err}`);
+                    });
+                } else {
+                    return characterData;
+                }
+            });
+        } catch(err) {
+            console.error(err);
+        }
+    };
+
     /**
      * Get a character of the current wiki by its id, considering the options provided.
      * @param {number} id - The id of the character.
@@ -243,30 +460,36 @@ export class FandomScraper {
      * const scraper = new FandomScraper({ name: 'dragon-ball' });
      * const character = await scraper.getById(1, { base64: true, withId: true });
      * ```
+     * @deprecated Use the findById method instead.
      */
     public async getById(id: number, options: IGetCharacterOptions = { name: '', base64: false, withId: true }): Promise<any> {
         try {
             if (id < 1) throw new Error('Id must be greater than 0');
-
-            const url = this.getWikiUrl() + `?curid=${id}`;
-            const data: any = {
-                url: url,
-            }
             
-            return this.fetchPage(url).then(async page => {
-                const name = page.querySelector('.mw-page-title-main')?.textContent || '';
-                data.name = name;
-                const characterData = await this.formatCharacterData(page, options, data);
-                
-                if (!this.isValidCharacterPage(options.withId || false, characterData.data || null)) {
-                    throw new Error(`This character with this id does not exists: ${id}`);
-                }
-                return characterData;
-            });
+            return this._getById(id, options);
         } catch(err) {
             console.error(err);
         }
     }
+
+    public async _getById(id: number, options: { base64?: boolean, withId?: boolean, attributes?: string[] }): Promise<any> {
+
+        const url = this.getWikiUrl() + `?curid=${id}`;
+        const data: any = {
+            url: url,
+        };
+
+        return this.fetchPage(url).then(async page => {
+            const name = page.querySelector('.mw-page-title-main')?.textContent || '';
+            data.name = name;
+            const characterData = await this.formatCharacterData(page, options, data);
+            
+            if (!this.isValidCharacterPage(options.withId || false, characterData.data || null)) {
+                throw new Error(`This character with this id does not exists: ${id}`);
+            }
+            return characterData;
+        });
+    };
 
 
 
@@ -281,7 +504,7 @@ export class FandomScraper {
 
 
     private async _getOne(page: Document, options: IGetCharacterOptions): Promise<IData> {
-        const characterData = await this.parseCharacterPage(page, options.base64);
+        const characterData = await this.parseCharacterPage(page, options.base64, options.attributes);
         if (options.withId) {
             const allScripts = page.getElementsByTagName('script');
             const script = Array.from(allScripts).find(script => script.textContent?.includes('pageId'));
@@ -305,7 +528,7 @@ export class FandomScraper {
     /**
      * Get all the characters of the current wiki, considering the options provided.
      * Works only for the classic characters page format.
-     * @param {IGetCharactersOptions} [options] - The options of the getCharacters method.
+     * @param {IGetCharactersOptionsDeprecated} [options] - The options of the getCharacters method.
      * @returns The characters of the wiki.
      */
     private async _getAll(options: IGetCharactersOptions): Promise<any[]> {
@@ -327,7 +550,7 @@ export class FandomScraper {
                     if (options.recursive || options.withId) {
                         const characterPage = await this.fetchPage(new URL(url, this.getWikiUrl()).href);
                         if (options.recursive) {
-                            characterData = await this.parseCharacterPage(characterPage, options.base64);
+                            characterData = await this.parseCharacterPage(characterPage, options.base64, options.attributes);
                         }
 
                         if (options.withId) {
@@ -407,12 +630,23 @@ export class FandomScraper {
         return count;
     }
 
-    private async parseCharacterPage(page: Document, getBase64: boolean | undefined): Promise<any> {
+    private async parseCharacterPage(page: Document, getBase64: boolean | undefined, attributes?: string[]): Promise<any> {
         const format: IDataSource = this._schema.dataSource;
         const data: any = {};
+
+        // remove attributes elements that are not in the format
+        if (attributes) {
+            attributes = attributes.filter(attribute => Object.keys(format).includes(attribute));
+        }
+
+        // if attributes is length 0, set it to the default attributes of the format
+        if (!attributes || attributes.length === 0) {
+            attributes = Object.keys(format);
+        }
+
         // for each key in format, get the value from the page according to the attribute data-source=key and get the value
         for (const key in format) {
-            if (Object.prototype.hasOwnProperty.call(format, key)) {
+            if (attributes.includes(key)) {
                 const sourceKey = format[key as keyof IDataSource];
                 if (!sourceKey) {
                     continue;
@@ -584,7 +818,7 @@ export class FandomScraper {
     private getWikiUrl(): string {
         const parts = this._schema.url.split('/');
         const baseParts = parts.slice(0, 3);
-        return baseParts.join('/');
+        return baseParts.join('/') + '/';
     };
 
     private getDataUrl(href: string | null): string {
