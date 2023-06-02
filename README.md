@@ -34,7 +34,7 @@ Make sure to adjust the import statement according to your project's setup.
 
 2.  Create an instance of `FandomScraper` by providing the wiki name and language in the constructor:
 ```js
-const scraper = new FandomScraper({ name: 'shiki', language: 'en' });
+const scraper = new FandomScraper('shiki', { lang: 'en' });
 ```
 -   The `name` property should be the name of the wiki you want to scrape from. First, check if the wiki is available. To know the list of the current available wikis, use the following method:
 ```js
@@ -47,48 +47,78 @@ const wikis = scraper.getAvailableWikis();
 ---
 -   **Get all characters of the current wiki:**
 ```js
-const allCharacters = await scraper.getAll({
-    limit: 100,
-    offset: 0,
-    base64: false,
-    withId: true,
-    recursive: true,
-    ignore: ['muroi']
-  });
-```
--   The `limit` option sets the maximum number of characters to return.
+const allCharacters = await scraper.findAll({ base64: false, withId: true, recursive: true })
+	.limit(100)
+	.offset(5)
+	.attr('age kanji status episode images')
+	.ignore(['muroi'])
+	.exec();
+``` 
+This method allows you to retrieve all characters from the wiki.
+
+-   The `findAll()` method takes an options object as an argument, which can be used to customize the query. It supports the following options:
     
--   The `offset` option sets the starting point for retrieving characters.
+    -   `base64`: A boolean value that determines whether to return character images in base64 format.
+    -   `withId`: A boolean value that indicates whether to include the character's ID (corresponding to the wikia's `pageId` value).
+    -   `recursive`: A boolean value that specifies whether to retrieve additional information from the character's infobox along with their name, URL, and optional ID.
+-   The `limit()` method is used to set the maximum number of characters to return. In the example above, it's `.limit(100)`.
     
--   The `base64` option determines whether to return character images in base64 format.
+-   The `offset()` method is used to set the starting point for retrieving characters. In the example above, it's `.offset(5)`.
     
--   The `withId` option indicates whether to include the character's ID (corresponding to the wikia's pageId value).
+-   The `attr()` method is used to specify which properties (keys) from the data source schema should be returned in the query result. It takes a string as an argument, where each property is separated by a space. In the example above, it's `.attr('age kanji status episode images')`.
     
--   The `recursive` option specifies whether to retrieve additional informations from the character's infobox along with their name, URL, and optional ID.
+-   The `ignore()` method is used to specify substrings. Characters whose names contain any of the specified substrings will be ignored. It takes an array of strings as an argument. In the example above, it's `.ignore(['muroi'])`.
     
--   The `ignore` option is an array that allows you to specify substrings. Characters whose names contain any of the specified substrings will be ignored.
+-   The `exec()` method must be called at the end of the query chain to execute the query and retrieve the result.
+
+Make sure to adjust the options, methods, and property names according to your specific use case and schema.
+
+
 ---
 -   **Get a character by name:**
 ```js
-const character = await scraper.getByName({
-  name: 'toshio ozaki',
-  withId: true,
-  base64: false,
-});
+const character = await scraper
+	.findByName('toshio ozaki', { base64:  false, withId:  true })
+	.attr('age kanji status episode images')
+	.exec();
 ```
--   The `name` property should be the name of the character, not the wiki.
+
+This method allows you to retrieve a character from the wiki based on their name.
+-   The `findByName()` method takes two arguments:
+    
+    -   The first argument is the name of the character you want to find. In the example above, it's `'toshio ozaki'`.
+    -   The second argument is an options object that can be used to customize the query. It supports the following options:
+        -   `base64`: A boolean value that determines whether to return character images in base64 format.
+        -   `withId`: A boolean value that indicates whether to include the character's ID (corresponding to the wikia's `pageId` value).
+-   The `attr()` method is used to specify which properties (keys) from the data source schema should be returned in the query result. It takes a string as an argument, where each property is separated by a space. In the example above, it's `.attr('age kanji status episode images')`.
+    
+-   The `exec()` method must be called at the end of the query chain to execute the query and retrieve the result.
+
+Make sure to adjust the options, methods, and property names according to your specific use case and schema.
+
 ---
 
 -   **Get a character by ID:**
 ```js
-const characterById = await scraper.getById(2049, {
-  base64: false,
-  withId: true,
-});
+const characterById = await scraper
+	.findById(24013, { base64:  false, withId:  true })
+	.attr('name kanji age affiliations')
+	.exec();
 ```
--   The first argument is the ID of the character retrieved from the pageId value from the wikia.
--   The `base64` option determines whether to return the character images in base64 format.
--   The `withId` option indicates whether to include the character's ID in the returned data.
+This method allows you to retrieve a character from the wiki based on their ID.
+
+-   The `findById()` method takes two arguments:
+    
+    -   The first argument is the ID of the character you want to find. In the example above, it's `24013`.
+    -   The second argument is an options object that can be used to customize the query. It supports the following options:
+        -   `base64`: A boolean value that determines whether to return character images in base64 format.
+        -   `withId`: A boolean value that indicates whether to include the character's ID (corresponding to the wikia's `pageId` value).
+-   The `attr()` method is used to specify which properties (keys) from the data source schema should be returned in the query result. It takes a string as an argument, where each property is separated by a space. In the example above, it's `.attr('name kanji age affiliations')`.
+    
+-   The `exec()` method must be called at the end of the query chain to execute the query and retrieve the result.
+
+Make sure to adjust the options, methods, and property names according to your specific use case and schema.
+
 ---
 
 -   **Get the total count of characters in the wiki:**
