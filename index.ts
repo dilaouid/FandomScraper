@@ -417,7 +417,7 @@ export class FandomScraper {
         }
     }
 
-    public async _getByName(name: string, options: { base64: boolean, withId: boolean, attributes?: string[] }): Promise<IData | undefined> {
+    private async _getByName(name: string, options: { base64: boolean, withId: boolean, attributes?: string[] }): Promise<IData | undefined> {
         try {
             const url = this.getWikiUrl() + formatForUrl(name);
             const data: any = {
@@ -472,7 +472,7 @@ export class FandomScraper {
         }
     }
 
-    public async _getById(id: number, options: { base64?: boolean, withId?: boolean, attributes?: string[] }): Promise<any> {
+    private async _getById(id: number, options: { base64?: boolean, withId?: boolean, attributes?: string[] }): Promise<any> {
 
         const url = this.getWikiUrl() + `?curid=${id}`;
         const data: any = {

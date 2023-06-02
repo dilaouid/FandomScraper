@@ -228,11 +228,7 @@ export declare class FandomScraper {
      * @deprecated Use the findByName method instead.
      */
     getByName(options?: IGetCharacterOptions): Promise<IData | undefined>;
-    _getByName(name: string, options: {
-        base64: boolean;
-        withId: boolean;
-        attributes?: string[];
-    }): Promise<IData | undefined>;
+    private _getByName;
     /**
      * Get a character of the current wiki by its id, considering the options provided.
      * @param {number} id - The id of the character.
@@ -248,11 +244,7 @@ export declare class FandomScraper {
      * @deprecated Use the findById method instead.
      */
     getById(id: number, options?: IGetCharacterOptions): Promise<any>;
-    _getById(id: number, options: {
-        base64?: boolean;
-        withId?: boolean;
-        attributes?: string[];
-    }): Promise<any>;
+    private _getById;
     /**
      * Get all the available wikis of the FandomScraper class.
      * @returns The available wikis.
