@@ -311,11 +311,15 @@ export class FandomScraper {
      * ```
      */
     public findByName(name: string, options: { base64: boolean, withId: boolean }): this {
+        this.reset();
+
         if (name.trim().length == 0) throw new Error('Name must be provided');
         this.name = formatName(name);
         this.method = 'findByName';
 
-        this.reset();
+        this.options.base64 = options.base64;
+        this.options.withId = options.withId;
+
         return this;
     };
 
@@ -337,6 +341,7 @@ export class FandomScraper {
         this.method = 'findById';
 
         this.reset();
+        this.options.base64 = options.base64;
         return this;
     };
 
@@ -356,7 +361,7 @@ export class FandomScraper {
                     await this.getCharactersPage(this._schema.url);
                     return await this._getAll(this.options);
                 case 'findByName':
-                    return await this._getByName(this.name, { base64: this.options.base64 || false, withId: this.options.withId || true, attributes: this.options.attributes || [] });
+                    return await this._getByName(this.name, { base64: this.options.base64 ?? false, withId: this.options.withId ?? true, attributes: this.options.attributes ?? [] });
                 case 'findById':
                     return await this._getById(this.id, { base64: this.options.base64 || false, attributes: this.options.attributes || [] });
                 default:
