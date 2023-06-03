@@ -11,8 +11,15 @@ const DemonSlayerFRDataSource = {
         },
     },
     episode: 'anime',
+    manga: 'manga',
     age: 'âge',
-    affiliation: 'affiliation'
+    affiliation: 'affiliation',
+    height: 'taille',
+    weight: 'poids',
+    birthday: 'anniversaire',
+    occupations: 'occupation',
+    relatives: 'relation',
+    seiyu: 'japonais'
 };
 const DemonSlayerENDataSource = {
     kanji: 'kanji',
@@ -27,8 +34,16 @@ const DemonSlayerENDataSource = {
         },
     },
     episode: 'anime_debut',
+    manga: 'manga_debut',
     age: 'age',
-    affiliation: 'affiliation'
+    affiliation: 'affiliation',
+    occupations: 'occupation',
+    relatives: 'relative(s)',
+    birthday: 'birthday',
+    height: 'height',
+    weight: 'weight',
+    seiyu: 'japanese_va',
+    voiceActor: 'english_va',
 };
 export { DemonSlayerFRDataSource, DemonSlayerENDataSource };
 //# sourceMappingURL=data-source.js.map

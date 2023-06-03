@@ -12,7 +12,15 @@ const JojoFRDataSource: IDataSource = {
         },
     },
     episode: 'Début anime',
+    manga: 'Début manga',
     age: 'Âge',
+    birthday: 'Date de naissance',
+    zodiac: "Signe",
+    height: 'Taille',
+    weight: 'Poids',
+    hairColor: 'Couleur de cheveux',
+    eyeColor: 'Couleur des yeux',
+    occupations: 'Profession',
     affiliation: 'Profession'
 };
 
@@ -27,9 +35,19 @@ const JojoENDataSource: IDataSource = {
             return page.querySelectorAll(this.identifier);
         },
     },
-    episode: 'anime_debut',
+    episode: 'animedebut',
+    manga: 'mangadebut',
     age: 'age',
-    affiliation: 'affiliation'
+    birthday: 'birthday',
+    zodiac: 'zodiac',
+    height: 'height',
+    weight: 'weight',
+    occupations: 'occupation',
+    hairColor: 'hair',
+    eyeColor: 'eyes',
+    affiliation: 'affiliation',
+    seiyu: 'seiyuu',
+    voiceActor: 'voiceactor'
 };
 
 export { JojoFRDataSource, JojoENDataSource };

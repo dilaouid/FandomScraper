@@ -13,7 +13,7 @@ import { availableWikis } from './types/index.cjs';
 export class FandomScraper {
     /**
      * Constructs a FandomScraper instance.
-     * @param {IConstructor} constructor - The constructor options.
+     * @param { name: TAvailableWikis, options?: { lang: 'en' | 'fr' | null } } options - The options of the constructor.
      * @throws Error if an invalid wiki name is provided.
      * @example
      * ```ts
@@ -21,7 +21,6 @@ export class FandomScraper {
      * ```
      */
     constructor(name, options) {
-        this.properties = [];
         this.options = {
             base64: false,
             recursive: false,
@@ -33,10 +32,10 @@ export class FandomScraper {
         };
         this.name = '';
         this.id = 0;
+        this.keysAttrToArray = [];
         if (!Object.keys(Schemas).includes(name))
             throw new Error(`Invalid wiki name provided: ${name}`);
         this._schema = Schemas[name][options?.lang || 'en'];
-        this.properties = Object.keys(this._schema.dataSource);
     }
     /**
      * Get the schema of the current wiki.
@@ -115,6 +114,23 @@ export class FandomScraper {
         attributes = attributes.replace(/\s\s+/g, ' ')?.trim();
         // split the string into an array
         this.options.attributes = attributes.split(' ');
+        return this;
+    }
+    ;
+    /**
+     * Set the keys of the attributes that should be converted to an array instead of a string. Default: []
+     * @param {string} attributes - The keys of the attributes that should be converted to an array instead of a string.
+     * @throws Error if the attributes parameter is not a string.
+     * @example
+     * ```ts
+     * await scraper.findAll({ base64: true, recursive: true, withId: true }).attrToArray('age height voiceActor').exec();
+     * ```
+     */
+    attrToArray(attributes) {
+        if (typeof attributes !== 'string')
+            throw new Error('Attributes to array parameter must be a string');
+        attributes = attributes.replace(/\s\s+/g, ' ')?.trim();
+        this.keysAttrToArray = attributes.split(' ');
         return this;
     }
     ;
@@ -531,7 +547,7 @@ export class FandomScraper {
         }
         // for each key in format, get the value from the page according to the attribute data-source=key and get the value
         for (const key in format) {
-            if (attributes.includes(key)) {
+            if (attributes.includes(key) || this.keysAttrToArray.includes(key)) {
                 const sourceKey = format[key];
                 if (!sourceKey) {
                     continue;
@@ -575,15 +591,31 @@ export class FandomScraper {
                         continue;
                     }
                     // get the value from the value element
-                    const value = element.textContent;
-                    if (!value) {
+                    const value = this.setValue(element, this.keysAttrToArray.includes(key));
+                    if (!value || value.length === 0) {
                         continue;
                     }
-                    data[key] = removeBrackets(value);
+                    data[key] = value;
                 }
             }
         }
         return data;
+    }
+    setValue(element, inAttrToArray) {
+        if (inAttrToArray) {
+            const value = element.innerHTML.split('<br>').map(value => removeBrackets(value));
+            // remove inner tags from the value
+            for (let i = 0; i < value.length; i++) {
+                const element = value[i];
+                value[i] = element.replace(/<[^>]*>?/gm, '').trim();
+            }
+            // remove empty values
+            const filteredValue = value.filter(value => value !== '');
+            return filteredValue;
+        }
+        else {
+            return removeBrackets(element.textContent || '');
+        }
     }
     /**
      * Convert the image from the given URL to a base64 string

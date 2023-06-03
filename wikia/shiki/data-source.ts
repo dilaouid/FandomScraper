@@ -16,7 +16,7 @@ const ShikiENDataSource: IDataSource = {
     },
     episode: 'Anime Debut',
     age: 'Age',
-    affiliation: 'Occupation'
+    occupations: 'Occupation'
 };
 
 export { ShikiENDataSource };

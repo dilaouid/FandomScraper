@@ -12,7 +12,13 @@ const DeathNoteFRDataSource = {
     },
     episode: 'anime',
     age: 'âge',
-    affiliation: 'affiliation'
+    birthday: 'Naissance',
+    affiliation: 'affiliation',
+    bloodType: 'Groupe sanguin',
+    occupations: 'Activité(s)',
+    height: 'Taille',
+    weight: 'Poids',
+    relatives: 'Famille'
 };
 const DeathNoteENDataSource = {
     kanji: 'name',
@@ -25,8 +31,17 @@ const DeathNoteENDataSource = {
         },
     },
     episode: 'anime',
+    manga: 'manga',
     age: 'age',
-    affiliation: 'organization'
+    birthday: 'birth',
+    bloodType: 'blood',
+    height: 'height',
+    weight: 'weight',
+    affiliation: 'organization',
+    occupations: 'occupation',
+    relatives: 'family',
+    seiyu: 'japanese',
+    voiceActor: 'english'
 };
 export { DeathNoteFRDataSource, DeathNoteENDataSource };
 //# sourceMappingURL=data-source.js.map

@@ -11,7 +11,12 @@ const OnePieceFRDataSource = {
         },
     },
     episode: 'première',
-    affiliation: 'affiliation'
+    affiliation: 'affiliation',
+    occupations: 'occupation',
+    height: 'taille',
+    bloodType: 'groupe sanguin',
+    seiyu: 'voj',
+    voiceActor: 'vof'
 };
 const OnePieceENDataSource = {
     name: 'ename',
@@ -26,7 +31,12 @@ const OnePieceENDataSource = {
         },
     },
     episode: 'first',
-    affiliation: 'affiliation'
+    affiliation: 'affiliation',
+    occupations: 'occupation',
+    bloodType: 'blood type',
+    height: 'height',
+    seiyu: 'jva',
+    voiceActor: 'Odex eva'
 };
 export { OnePieceFRDataSource, OnePieceENDataSource };
 //# sourceMappingURL=data-source.js.map

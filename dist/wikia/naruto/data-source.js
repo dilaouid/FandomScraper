@@ -9,8 +9,16 @@ const NarutoFRDataSource = {
         },
     },
     episode: 'Début anime',
+    manga: 'Début manga',
     age: 'Âge',
-    affiliation: 'Affiliation'
+    affiliation: 'Affiliation',
+    birthday: 'Naissance',
+    height: 'Taille',
+    weight: 'Poids',
+    relatives: 'Famille',
+    bloodType: 'Groupe Sanguin',
+    seiyu: 'Seiyû',
+    voiceActor: 'Doubleur Français'
 };
 // DOM version of the english data-source is bad, so WIP to find a solution
 const NarutoENDataSource = {};

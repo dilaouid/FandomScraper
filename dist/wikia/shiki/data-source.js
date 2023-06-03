@@ -13,7 +13,7 @@ const ShikiENDataSource = {
     },
     episode: 'Anime Debut',
     age: 'Age',
-    affiliation: 'Occupation'
+    occupations: 'Occupation'
 };
 export { ShikiENDataSource };
 //# sourceMappingURL=data-source.js.map

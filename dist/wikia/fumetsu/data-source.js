@@ -12,8 +12,13 @@ const FumetsuENDataSource = {
         },
     },
     episode: 'Anime',
+    manga: 'Manga',
     age: 'Age',
-    affiliation: 'Affiliation'
+    affiliation: 'Affiliation',
+    birthday: 'Birthday',
+    relatives: 'Relatives',
+    seiyu: 'Japanese Voice',
+    voiceActor: 'English Voice'
 };
 export { FumetsuENDataSource };
 //# sourceMappingURL=data-source.js.map

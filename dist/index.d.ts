@@ -56,14 +56,14 @@ interface IGetCharacterOptions {
 export declare class FandomScraper {
     protected _schema: ISchema;
     private _CharactersPage;
-    private properties;
     private options;
     private method;
     private name;
     private id;
+    private keysAttrToArray;
     /**
      * Constructs a FandomScraper instance.
-     * @param {IConstructor} constructor - The constructor options.
+     * @param { name: TAvailableWikis, options?: { lang: 'en' | 'fr' | null } } options - The options of the constructor.
      * @throws Error if an invalid wiki name is provided.
      * @example
      * ```ts
@@ -118,6 +118,16 @@ export declare class FandomScraper {
      * ```
      */
     attr(attributes: string): this;
+    /**
+     * Set the keys of the attributes that should be converted to an array instead of a string. Default: []
+     * @param {string} attributes - The keys of the attributes that should be converted to an array instead of a string.
+     * @throws Error if the attributes parameter is not a string.
+     * @example
+     * ```ts
+     * await scraper.findAll({ base64: true, recursive: true, withId: true }).attrToArray('age height voiceActor').exec();
+     * ```
+     */
+    attrToArray(attributes: string): this;
     private reset;
     /**
      * Get the characters page of the current wiki.
@@ -252,6 +262,7 @@ export declare class FandomScraper {
      */
     count(): Promise<number>;
     private parseCharacterPage;
+    private setValue;
     /**
      * Convert the image from the given URL to a base64 string
      * Due to somes issues about CORS, this method is sometimes necessary to print the image in your application

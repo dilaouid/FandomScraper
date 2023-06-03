@@ -95,7 +95,6 @@ export class FandomScraper {
 
     protected _schema: ISchema;
     private _CharactersPage!: Document;
-    private properties: string[] = [];
     private options: IGetCharactersOptions = {
         base64: false,
         recursive: false,
@@ -108,10 +107,11 @@ export class FandomScraper {
     private method: 'find' | 'findByName' | 'findById' | undefined;
     private name: string = '';
     private id: number = 0;
+    private keysAttrToArray: string[] = [];
 
     /**
      * Constructs a FandomScraper instance.
-     * @param {IConstructor} constructor - The constructor options.
+     * @param { name: TAvailableWikis, options?: { lang: 'en' | 'fr' | null } } options - The options of the constructor.
      * @throws Error if an invalid wiki name is provided.
      * @example
      * ```ts
@@ -121,8 +121,6 @@ export class FandomScraper {
     constructor(name: TAvailableWikis, options?: { lang: 'en' | 'fr' | null }) {
         if (!Object.keys(Schemas).includes(name)) throw new Error(`Invalid wiki name provided: ${name}`);
         this._schema = Schemas[name][options?.lang || 'en'];
-            
-        this.properties = Object.keys(this._schema.dataSource);
     }
 
 
@@ -208,6 +206,24 @@ export class FandomScraper {
 
         // split the string into an array
         this.options.attributes = attributes.split(' ');
+        return this;
+    };
+
+    /**
+     * Set the keys of the attributes that should be converted to an array instead of a string. Default: []
+     * @param {string} attributes - The keys of the attributes that should be converted to an array instead of a string.
+     * @throws Error if the attributes parameter is not a string.
+     * @example
+     * ```ts
+     * await scraper.findAll({ base64: true, recursive: true, withId: true }).attrToArray('age height voiceActor').exec();
+     * ```
+     */
+    public attrToArray(attributes: string): this {
+        if (typeof attributes !== 'string')
+            throw new Error('Attributes to array parameter must be a string');
+        attributes = attributes.replace(/\s\s+/g, ' ')?.trim();
+
+        this.keysAttrToArray = attributes.split(' ');
         return this;
     };
 
@@ -634,6 +650,7 @@ export class FandomScraper {
         const format: IDataSource = this._schema.dataSource;
         const data: any = {};
 
+
         // remove attributes elements that are not in the format
         if (attributes) {
             attributes = attributes.filter(attribute => Object.keys(format).includes(attribute));
@@ -646,7 +663,7 @@ export class FandomScraper {
 
         // for each key in format, get the value from the page according to the attribute data-source=key and get the value
         for (const key in format) {
-            if (attributes.includes(key)) {
+            if (attributes.includes(key) || this.keysAttrToArray.includes(key)) {
                 const sourceKey = format[key as keyof IDataSource];
                 if (!sourceKey) {
                     continue;
@@ -686,22 +703,39 @@ export class FandomScraper {
                     }
                     data[key] = images;
                 } else {
-                    const element = this.getDataAccordingToVersion(page, sourceKey);
+                    const element: Element | null = this.getDataAccordingToVersion(page, sourceKey);
                     if (!element) {
                         continue;
                     }
     
                     // get the value from the value element
-                    const value: string | null = element.textContent;
-                    if (!value) {
+                    const value: string[] | string = this.setValue(element, this.keysAttrToArray.includes(key));
+                    if (!value || value.length === 0) {
                         continue;
                     }
-                    
-                    data[key] = removeBrackets(value);
+                    data[key] = value;
                 }
             }
         }
         return data;
+    }
+
+
+    private setValue(element: Element, inAttrToArray: boolean) {
+        if (inAttrToArray) {
+            const value = element.innerHTML.split('<br>').map(value => removeBrackets(value));
+            // remove inner tags from the value
+            for (let i = 0; i < value.length; i++) {
+                const element = value[i];
+                value[i] = element.replace(/<[^>]*>?/gm, '').trim();
+            }
+
+            // remove empty values
+            const filteredValue = value.filter(value => value !== '');
+            return filteredValue;
+        } else {
+            return removeBrackets(element.textContent || '');
+        }
     }
 
     /**
