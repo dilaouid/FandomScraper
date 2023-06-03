@@ -9,24 +9,6 @@ import { allCharactersPage } from './utils/allCharactersPage';
 import { formatForUrl, formatName, removeBrackets } from './func/parsing';
 import { TAvailableWikis, availableWikis } from './types';
 
-/**
- * The constructor options.
- * @typedef {Object} IConstructor
- * @property {TAvailableWikis} name - The name of the fiction you want to scrape from the Fandom wiki (ex: 'dragon-ball')
- * @property {'en' | 'fr' | null} [language] - The language of the wiki you want to scrape from the Fandom wiki (optional). Default: 'en'
- */
-interface IConstructor {
-    /**
-     * The name of the fiction you want to scrape from the Fandom wiki (ex: 'dragon-ball')
-     */
-    name: TAvailableWikis;
-
-    /**
-     * The language of the wiki you want to scrape from the Fandom wiki (optional). Default: 'en'
-     */
-    language?: 'en' | 'fr' | null;
-};
-
 interface IGetCharactersOptions {
     
     /**
@@ -410,22 +392,23 @@ export class FandomScraper {
                 url: this.getWikiUrl() + formatForUrl(name),
             }
             return this.fetchPage(url).then(async page => {
-                const characterData = await this.formatCharacterData(page, options, data);
-                if (!this.isValidCharacterPage(options.withId || false, characterData.data || null)) {
+                const isValidCharacter: boolean = this.isValidCharacterPage(page);
+                if (!isValidCharacter) {
                     const switchName = formatName(name.split(' ').reverse().join(' '));
                     const url = this.getWikiUrl() + formatForUrl(switchName);
                     return this.fetchPage(url).then(async page => {
-                        const retryData = await this.formatCharacterData(page, options, data);
-                        if (!this.isValidCharacterPage(options.withId || false, retryData.data || null)) {
+                        const isValidCharacter: boolean = this.isValidCharacterPage(page);
+                        if (!isValidCharacter) {
                             throw new Error(`This character does not exists: ${name}`);
+                        } else {
+                            data.url = url;
+                            return await this.formatCharacterData(page, options, data);
                         }
-                        data.url = url;
-                        return retryData;
                     }).catch(err => {
                         throw new Error(`Error while fetching ${url}: ${err}`);
                     });
                 } else {
-                    return characterData;
+                    return await this.formatCharacterData(page, options, data);
                 }
             });
         } catch(err) {
@@ -441,22 +424,23 @@ export class FandomScraper {
                 url: this.getWikiUrl() + formatForUrl(name),
             }
             return this.fetchPage(url).then(async page => {
-                const characterData = await this.formatCharacterData(page, options, data);
-                if (!this.isValidCharacterPage(options.withId || false, characterData.data || null)) {
+                const isValidCharacter: boolean = this.isValidCharacterPage(page);
+                if (!isValidCharacter) {
                     const switchName = formatName(name.split(' ').reverse().join(' '));
                     const url = this.getWikiUrl() + formatForUrl(switchName);
                     return this.fetchPage(url).then(async page => {
-                        const retryData = await this.formatCharacterData(page, options, data);
-                        if (!this.isValidCharacterPage(options.withId || false, retryData.data || null)) {
+                        const isValidCharacter: boolean = this.isValidCharacterPage(page);
+                        if (!isValidCharacter) {
                             throw new Error(`This character does not exists: ${name}`);
+                        } else {
+                            data.url = url;
+                            return await this.formatCharacterData(page, options, data);
                         }
-                        data.url = url;
-                        return retryData;
                     }).catch(err => {
                         throw new Error(`Error while fetching ${url}: ${err}`);
                     });
                 } else {
-                    return characterData;
+                    return await this.formatCharacterData(page, options, data);
                 }
             });
         } catch(err) {
@@ -500,7 +484,7 @@ export class FandomScraper {
             data.name = name;
             const characterData = await this.formatCharacterData(page, options, data);
             
-            if (!this.isValidCharacterPage(options.withId || false, characterData.data || null)) {
+            if (!this.isValidCharacterPage(page)) {
                 throw new Error(`This character with this id does not exists: ${id}`);
             }
             return characterData;
@@ -522,10 +506,7 @@ export class FandomScraper {
     private async _getOne(page: Document, options: IGetCharacterOptions): Promise<IData> {
         const characterData = await this.parseCharacterPage(page, options.base64, options.attributes);
         if (options.withId) {
-            const allScripts = page.getElementsByTagName('script');
-            const script = Array.from(allScripts).find(script => script.textContent?.includes('pageId'));
-            
-            const id: number = this.extractPageId(script?.textContent || '');
+            const id: number = this.extractPageId(page);
             characterData.id = id;
         }
         return characterData;
@@ -570,10 +551,7 @@ export class FandomScraper {
                         }
 
                         if (options.withId) {
-                            const allScripts = characterPage.getElementsByTagName('script');
-                            const script = Array.from(allScripts).find(script => script.textContent?.includes('pageId'));
-                            
-                            const id: number = this.extractPageId(script?.textContent || '');
+                            const id: number = this.extractPageId(characterPage);
                             data.push({ id: id, url: url, name: name, data: characterData });
                         } else {
                             data.push({ url: url, name: name, data: characterData });
@@ -792,9 +770,15 @@ export class FandomScraper {
         }
     }
 
-    private extractPageId(scriptContent: string): number {
+    private extractPageId(page: Document): number {
+        const allScripts = page.getElementsByTagName('script');
+        const script = Array.from(allScripts).find(script => script.textContent?.includes('pageId'))?.textContent;
+        if (!script) {
+            return 0;
+        }
+
         const regex = /"pageId":(\d+)/;
-        const match = scriptContent.match(regex);
+        const match = script.match(regex);
         if (match && match.length > 1)
             return parseInt(match[1], 10);
         return 0;
@@ -838,11 +822,12 @@ export class FandomScraper {
         return '';
     }
 
-    private isValidCharacterPage(withId: boolean, data: IDataset | null): boolean {
-        if (!data) {
+    private isValidCharacterPage(page: Document): boolean {
+        if (!page) {
             return false;
-        } 
-        return data && ( !(withId && Object.keys(data).length === 2) || !(!withId && Object.keys(data).length === 1) );
+        }
+        const id = this.extractPageId(page);
+        return id !== 0;
     }
 
     private isOldVersion(page: Document): boolean {
