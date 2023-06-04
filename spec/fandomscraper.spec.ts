@@ -1,4 +1,4 @@
-import { FandomScraper } from "../index"
+import { FandomScraper } from "../index" 
 import { expect } from "chai";
 
 describe("FandomScraper Demon Slayer", () => {
