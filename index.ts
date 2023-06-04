@@ -114,6 +114,17 @@ export class FandomScraper {
         return this._schema;
     }
 
+
+    /**
+     * Set the url of the characters page of the wiki in the schema.
+     * @param {string} url - The url of the characters page.
+     * @returns The FandomScraper instance.
+     */
+    public setCharactersPage(url: string): this {
+        this._schema.url = url;
+        return this;
+    }
+
     /**
      * Set the limit of characters to get. Default: 50
      * @param {number} limit - The limit of characters to get.
