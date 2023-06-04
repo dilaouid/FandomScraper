@@ -34,7 +34,7 @@ Make sure to adjust the import statement according to your project's setup.
 2. Create an instance of `FandomScraper` by providing the wiki name and language in the constructor:
 
 ```js
-const scraper =  new  FandomScraper({ name:  'shiki', language:  'en' });
+const scraper =  new  FandomScraper('shiki', { lang:  'en' });
 ```
 
 - The `name` property should be the name of the wiki you want to scrape from. First, check if the wiki is available. To know the list of the current available wikis, use the following method:
@@ -43,6 +43,11 @@ const scraper =  new  FandomScraper({ name:  'shiki', language:  'en' });
 const wikis = scraper.getAvailableWikis();
 ```
 - The `language` property represents the language of the wiki (e.g., 'fr' for French or 'en' for English).
+
+Please note that you can still change the characters page url with the method `setCharactersPage(url)` like this:
+```js
+scraper.setCharactersPage('https://shiki.fandom.com/wiki/Category:Characters');
+```
 
 3. Use the available methods to retrieve the desired information. Here are some examples:
 ---
