@@ -44,6 +44,11 @@ const wikis = scraper.getAvailableWikis();
 ```
 - The `language` property represents the language of the wiki (e.g., 'fr' for French or 'en' for English).
 
+Please note that you can still change the characters page url with the method `setCharactersPage(url)` like this:
+```js
+scraper.setCharactersPage('https://shiki.fandom.com/wiki/Category:Characters');
+```
+
 3. Use the available methods to retrieve the desired information. Here are some examples:
 ---
 

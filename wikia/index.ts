@@ -1,15 +1,15 @@
 import { TAvailableWikis } from '../types';
 
-import { DeathNote } from './death-note';
-import { DemonSlayer } from './demon-slayer';
-import { DragonBall } from './dragon-ball';
-import { Fumetsu } from './fumetsu';
-import { Naruto } from './naruto';
-import { OnePiece } from './one-piece';
-import { Shiki } from './shiki';
-import { PromisedNeverland } from './promised-neverland';
-import { Berserk } from './berserk';
-import { Jojo } from './jojo';
+import { DeathNote } from './death-note/index';
+import { DemonSlayer } from './demon-slayer/index';
+import { DragonBall } from './dragon-ball/index';
+import { Fumetsu } from './fumetsu/index';
+import { Naruto } from './naruto/index';
+import { OnePiece } from './one-piece/index';
+import { Shiki } from './shiki/index';
+import { PromisedNeverland } from './promised-neverland/index';
+import { Berserk } from './berserk/index';
+import { Jojo } from './jojo/index';
 
 export const Schemas: Record<TAvailableWikis, any> = {
     'demon-slayer': DemonSlayer,

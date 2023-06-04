@@ -3,11 +3,11 @@ import { JSDOM } from 'jsdom';
 import { IData, IDataSource, IDataset, IImage } from "./interfaces/datasets";
 import { ISchema } from './interfaces/schemas';
 
-import { Schemas } from './wikia';
+import { Schemas } from './wikia/index';
 
 import { allCharactersPage } from './utils/allCharactersPage';
 import { formatForUrl, formatName, removeBrackets } from './func/parsing';
-import { TAvailableWikis, availableWikis } from './types';
+import { TAvailableWikis, availableWikis } from './types/index';
 
 interface IGetCharactersOptions {
     
