@@ -10,7 +10,7 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "scripts": {
-    "build": "tsc --project tsconfig.json",
+    "build": "tsc --project tsconfig.json && node ./bundle.cjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
