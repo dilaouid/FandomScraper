@@ -736,19 +736,29 @@ export class FandomScraper {
             return false;
         }
         const id = this.extractPageId(page);
-        return id !== 0;
+        if (id === 0) {
+            return false;
+        }
+        const pageString = page.documentElement.innerHTML;
+        const parsedUrl = new URL(this._schema.url);
+        const path = parsedUrl.pathname;
+        if (!pageString.includes(path)) {
+            return false;
+        }
+        return true;
     }
     isOldVersion(page) {
         return page.querySelector('.pi-data-value') === null;
     }
     getWikiUrl() {
-        const parts = this._schema.url.split('/');
-        const baseParts = parts.slice(0, 3);
-        return baseParts.join('/') + '/';
+        const urlParts = this._schema.url.split('/');
+        urlParts.pop();
+        return urlParts.join('/') + '/';
     }
     ;
     getDataUrl(href) {
-        return this.getWikiUrl() + href;
+        const domain = new URL(this._schema.url).origin;
+        return domain + href;
     }
     ;
 }

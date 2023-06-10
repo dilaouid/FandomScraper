@@ -843,7 +843,20 @@ export class FandomScraper {
             return false;
         }
         const id = this.extractPageId(page);
-        return id !== 0;
+        if (id === 0) {
+            return false;
+        }
+
+        const pageString = page.documentElement.innerHTML;
+
+        const parsedUrl = new URL(this._schema.url);
+        const path = parsedUrl.pathname;
+        
+        if (!pageString.includes(path)) {
+            return false;
+        }
+
+        return true;
     }
 
     private isOldVersion(page: Document): boolean {
@@ -851,13 +864,14 @@ export class FandomScraper {
     }
 
     private getWikiUrl(): string {
-        const parts = this._schema.url.split('/');
-        const baseParts = parts.slice(0, 3);
-        return baseParts.join('/') + '/';
+        const urlParts = this._schema.url.split('/');
+        urlParts.pop();
+        return urlParts.join('/') + '/';
     };
 
     private getDataUrl(href: string | null): string {
-        return this.getWikiUrl() + href;
+        const domain = new URL(this._schema.url).origin;
+        return domain + href;
     };
 
 }
