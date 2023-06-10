@@ -740,7 +740,6 @@ export class FandomScraper {
             return false;
         }
         const pageString = page.documentElement.innerHTML;
-        // remove the domain name from the schema url
         const parsedUrl = new URL(this._schema.url);
         const path = parsedUrl.pathname;
         if (!pageString.includes(path)) {
@@ -758,7 +757,8 @@ export class FandomScraper {
     }
     ;
     getDataUrl(href) {
-        return this.getWikiUrl() + href;
+        const domain = new URL(this._schema.url).origin;
+        return domain + href;
     }
     ;
 }

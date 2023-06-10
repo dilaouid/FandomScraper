@@ -848,7 +848,7 @@ export class FandomScraper {
         }
 
         const pageString = page.documentElement.innerHTML;
-        
+
         const parsedUrl = new URL(this._schema.url);
         const path = parsedUrl.pathname;
         
@@ -870,7 +870,8 @@ export class FandomScraper {
     };
 
     private getDataUrl(href: string | null): string {
-        return this.getWikiUrl() + href;
+        const domain = new URL(this._schema.url).origin;
+        return domain + href;
     };
 
 }
