@@ -721,11 +721,19 @@ export class FandomScraper {
 
     private setValue(element: Element, inAttrToArray: boolean) {
         if (inAttrToArray) {
-            const value = element.innerHTML.split('<br>').map(value => removeBrackets(value));
+            let value = [element.innerHTML];
+
+            // Split by <br>, <br />, and <li> elements
+            value = value.flatMap((item) =>
+            item.split(/<br\s*\/?>|<li[^>]*>/).map((value) => removeBrackets(value))
+            );
             // remove inner tags from the value
             for (let i = 0; i < value.length; i++) {
-                const element = value[i];
-                value[i] = element.replace(/<[^>]*>?/gm, '').trim();
+                const decodedValue = value[i]
+                    .replace(/<[^>]*>?/gm, '') // Remove inner tags
+                    .replace(/&nbsp;/g, ' ') // Replace &nbsp; with a space
+                    .replace(/&lt;br\s*\/?&gt;/g, ''); // Remove HTML line break entity
+                value[i] = decodedValue.trim();
             }
 
             // remove empty values
