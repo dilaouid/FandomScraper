@@ -843,7 +843,20 @@ export class FandomScraper {
             return false;
         }
         const id = this.extractPageId(page);
-        return id !== 0;
+        if (id === 0) {
+            return false;
+        }
+
+        const pageString = page.documentElement.innerHTML;
+        
+        const parsedUrl = new URL(this._schema.url);
+        const path = parsedUrl.pathname;
+        
+        if (!pageString.includes(path)) {
+            return false;
+        }
+
+        return true;
     }
 
     private isOldVersion(page: Document): boolean {

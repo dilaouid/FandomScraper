@@ -736,7 +736,17 @@ export class FandomScraper {
             return false;
         }
         const id = this.extractPageId(page);
-        return id !== 0;
+        if (id === 0) {
+            return false;
+        }
+        const pageString = page.documentElement.innerHTML;
+        // remove the domain name from the schema url
+        const parsedUrl = new URL(this._schema.url);
+        const path = parsedUrl.pathname;
+        if (!pageString.includes(path)) {
+            return false;
+        }
+        return true;
     }
     isOldVersion(page) {
         return page.querySelector('.pi-data-value') === null;
