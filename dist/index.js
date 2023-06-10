@@ -742,9 +742,9 @@ export class FandomScraper {
         return page.querySelector('.pi-data-value') === null;
     }
     getWikiUrl() {
-        const parts = this._schema.url.split('/');
-        const baseParts = parts.slice(0, 3);
-        return baseParts.join('/') + '/';
+        const urlParts = this._schema.url.split('/');
+        urlParts.pop();
+        return urlParts.join('/') + '/';
     }
     ;
     getDataUrl(href) {

@@ -851,9 +851,9 @@ export class FandomScraper {
     }
 
     private getWikiUrl(): string {
-        const parts = this._schema.url.split('/');
-        const baseParts = parts.slice(0, 3);
-        return baseParts.join('/') + '/';
+        const urlParts = this._schema.url.split('/');
+        urlParts.pop();
+        return urlParts.join('/') + '/';
     };
 
     private getDataUrl(href: string | null): string {
