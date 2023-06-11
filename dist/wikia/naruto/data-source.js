@@ -25,13 +25,9 @@ const NarutoENDataSource = {
     status: 'Status',
     gender: 'Sex',
     images: {
-        identifier: '.mw-parser-output table img',
+        identifier: '.mw-parser-output .imagecell img',
         get: function (page) {
-            const elements = page.querySelectorAll(this.identifier);
-            // remove every image that contains .svg
-            return Array.from(elements).filter((element) => {
-                return element.getAttribute('src')?.includes('.svg') === false;
-            });
+            return page.querySelectorAll(this.identifier);
         },
     },
     episode: 'Anime',
