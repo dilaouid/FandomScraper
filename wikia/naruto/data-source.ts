@@ -24,6 +24,27 @@ const NarutoFRDataSource: IDataSource = {
 };
 
 // DOM version of the english data-source is bad, so WIP to find a solution
-const NarutoENDataSource: IDataSource = { };
+const NarutoENDataSource: IDataSource = {
+    status: 'Status',
+    gender: 'Sex',
+    images: {
+        identifier: '.mw-parser-output .imagecell img',
+        get: function(page: Document) {
+            return page.querySelectorAll(this.identifier);
+        },
+    },
+    episode: 'Anime',
+    manga: 'Manga',
+    age: 'Age',
+    affiliation: 'Affiliation',
+    occupations: 'Occupation',
+    birthday: 'Birthdate',
+    height: 'Height',
+    weight: 'Weight',
+    relatives: 'Famille',
+    bloodType: 'Blood type',
+    seiyu: 'Japanese',
+    voiceActor: 'English'
+};
 
 export { NarutoFRDataSource, NarutoENDataSource };

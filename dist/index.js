@@ -32,6 +32,7 @@ export class FandomScraper {
         this.name = '';
         this.id = 0;
         this.keysAttrToArray = [];
+        this.isOldVersion = false;
         if (!Object.keys(Schemas).includes(name))
             throw new Error(`Invalid wiki name provided: ${name}`);
         this._schema = Schemas[name][options?.lang || 'en'];
@@ -167,6 +168,7 @@ export class FandomScraper {
      */
     async getCharactersPage(url) {
         this._CharactersPage = await this.fetchPage(url);
+        this.isOldVersion = this.setPageVersion(this._CharactersPage);
     }
     async fetchPage(url) {
         const text = await fetch(url).then(async (res) => {
@@ -556,6 +558,7 @@ export class FandomScraper {
         if (!attributes || attributes.length === 0) {
             attributes = Object.keys(format);
         }
+        this.isOldVersion = this.setPageVersion(page);
         // for each key in format, get the value from the page according to the attribute data-source=key and get the value
         for (const key in format) {
             if (attributes.includes(key) || this.keysAttrToArray.includes(key)) {
@@ -614,11 +617,16 @@ export class FandomScraper {
     }
     setValue(element, inAttrToArray) {
         if (inAttrToArray) {
-            const value = element.innerHTML.split('<br>').map(value => removeBrackets(value));
+            let value = [element.innerHTML];
+            // Split by <br>, <br />, and <li> elements
+            value = value.flatMap((item) => item.split(/<br\s*\/?>|<li[^>]*>/).map((value) => removeBrackets(value)));
             // remove inner tags from the value
             for (let i = 0; i < value.length; i++) {
-                const element = value[i];
-                value[i] = element.replace(/<[^>]*>?/gm, '').trim();
+                const decodedValue = value[i]
+                    .replace(/<[^>]*>?/gm, '') // Remove inner tags
+                    .replace(/&nbsp;/g, ' ') // Replace &nbsp; with a space
+                    .replace(/&lt;br\s*\/?&gt;/g, ''); // Remove HTML line break entity
+                value[i] = decodedValue.trim();
             }
             // remove empty values
             const filteredValue = value.filter(value => value !== '');
@@ -670,11 +678,21 @@ export class FandomScraper {
      *
      */
     getDataAccordingToVersion(page, key) {
-        if (this.isOldVersion(page)) {
-            const tdElement = Array.from(page.querySelectorAll('.mw-parser-output td')).find((td) => {
+        if (this.isOldVersion) {
+            const identifier = '.mw-parser-output';
+            const tdElement = Array.from(page.querySelectorAll(identifier + ' td')).find((td) => {
                 return td?.textContent?.includes(String(key));
             });
-            return tdElement?.nextElementSibling || null;
+            if (tdElement?.nextElementSibling) {
+                return tdElement?.nextElementSibling;
+            }
+            const thElement = Array.from(page.querySelectorAll(identifier + ' th')).find((th) => {
+                return th?.textContent?.includes(String(key));
+            });
+            if (thElement?.nextElementSibling) {
+                return thElement.nextElementSibling;
+            }
+            return null;
         }
         else {
             return page.querySelector(`[data-source="${key}"] .pi-data-value`);
@@ -747,8 +765,8 @@ export class FandomScraper {
         }
         return true;
     }
-    isOldVersion(page) {
-        return page.querySelector('.pi-data-value') === null;
+    setPageVersion(page) {
+        return page.querySelectorAll('.pi-data-value') === null || page.querySelectorAll('.pi-data-value').length < 2;
     }
     getWikiUrl() {
         const urlParts = this._schema.url.split('/');
