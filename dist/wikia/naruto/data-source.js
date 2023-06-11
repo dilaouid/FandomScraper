@@ -21,6 +21,31 @@ const NarutoFRDataSource = {
     voiceActor: 'Doubleur Français'
 };
 // DOM version of the english data-source is bad, so WIP to find a solution
-const NarutoENDataSource = {};
+const NarutoENDataSource = {
+    status: 'Status',
+    gender: 'Sex',
+    images: {
+        identifier: '.mw-parser-output table img',
+        get: function (page) {
+            const elements = page.querySelectorAll(this.identifier);
+            // remove every image that contains .svg
+            return Array.from(elements).filter((element) => {
+                return element.getAttribute('src')?.includes('.svg') === false;
+            });
+        },
+    },
+    episode: 'Anime',
+    manga: 'Manga',
+    age: 'Age',
+    affiliation: 'Affiliation',
+    occupations: 'Occupation',
+    birthday: 'Birthdate',
+    height: 'Height',
+    weight: 'Weight',
+    relatives: 'Famille',
+    bloodType: 'Blood type',
+    seiyu: 'Japanese',
+    voiceActor: 'English'
+};
 export { NarutoFRDataSource, NarutoENDataSource };
 //# sourceMappingURL=data-source.js.map

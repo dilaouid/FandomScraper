@@ -6,7 +6,7 @@ const NarutoFR = {
 };
 // DOM version of the english data-source is bad, so WIP to find a solution
 const NarutoEN = {
-    url: '',
+    url: 'https://naruto.fandom.com/wiki/Category:Characters',
     pageFormat: 'classic',
     dataSource: NarutoENDataSource
 };
