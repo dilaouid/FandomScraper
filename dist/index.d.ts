@@ -61,6 +61,7 @@ export declare class FandomScraper {
     private name;
     private id;
     private keysAttrToArray;
+    private isOldVersion;
     /**
      * Constructs a FandomScraper instance.
      * @param { name: TAvailableWikis, options?: { lang: 'en' | 'fr' | null } } options - The options of the constructor.
@@ -297,7 +298,7 @@ export declare class FandomScraper {
     private getElementAccordingToFormat;
     private getUrlAccordingToFormat;
     private isValidCharacterPage;
-    private isOldVersion;
+    private setPageVersion;
     private getWikiUrl;
     private getDataUrl;
 }

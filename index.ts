@@ -887,7 +887,6 @@ export class FandomScraper {
     }
 
     private setPageVersion(page: Document): boolean {
-        console.log(page.querySelectorAll('.pi-data-value') === null || page.querySelectorAll('.pi-data-value').length < 2);
         return page.querySelectorAll('.pi-data-value') === null || page.querySelectorAll('.pi-data-value').length < 2;
     }
 
