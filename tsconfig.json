@@ -12,6 +12,6 @@
         "baseUrl": ".",
         "sourceMap": true
     },
-    "exclude": ["node_modules", "dist", "spec"],
+    "exclude": ["node_modules", "dist", "spec", "pages"],
     "include": ["./*.ts", "./**/*.ts"]
 }
