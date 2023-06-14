@@ -3,14 +3,41 @@ import { expect } from "chai";
 
 describe("FandomScraper Demon Slayer", () => {
     let scraper: FandomScraper
+    let metadatas: any;
     
-    beforeEach(() => {
+    beforeEach(async () => {
         scraper = new FandomScraper("demon-slayer", { lang: "en" });
+        metadatas = await scraper.getMetadata();
     });
 
-    it("should get more than 0 characters", async () => {
-        const count = await scraper.count();
-        expect(count).to.be.greaterThan(0);
+    describe("Checking metadatas", () => {
+        it("should have valid metadatas", () => {
+            expect(metadatas).to.be.an('object');
+        });
+
+        it("metadata should have name, language, attributes and count", () => {
+            expect(metadatas.name).to.be.a('string');
+            expect(metadatas.language).to.be.a('string');
+            expect(metadatas.attributes).to.be.an('array');
+            expect(metadatas.count).to.be.a('number');
+        });
+
+        it("metadata name should be 'demon-slayer'", () => {
+            expect(metadatas.name).to.equal("demon-slayer");
+        });
+
+        it("metadata language should be 'en'", () => {
+            expect(metadatas.language).to.equal("en");
+        });
+
+        it("metadata attributes should be an array of string", () => {
+            expect(metadatas.attributes.length).to.be.greaterThan(0);
+            expect(metadatas.attributes[0]).to.be.a('string');
+        });
+
+        it("metadata count should be greater than 1", () => {
+            expect(metadatas.count).to.be.greaterThan(1);
+        });
     });
 
     describe("FindAll", () => {
@@ -151,14 +178,41 @@ describe("FandomScraper Demon Slayer", () => {
 
 describe("FandomScraper One Piece", () => {
     let scraper: FandomScraper
+    let metadatas: any;
     
-    beforeEach(() => {
+    beforeEach(async() => {
         scraper = new FandomScraper("one-piece", { lang: "en" });
+        metadatas = await scraper.getMetadata();
     });
 
-    it("should get more than 0 characters", async () => {
-        const count = await scraper.count();
-        expect(count).to.be.greaterThan(0);
+    describe("Checking metadatas", () => {
+        it("should have valid metadatas", () => {
+            expect(metadatas).to.be.an('object');
+        });
+
+        it("metadata should have name, language, attributes and count", () => {
+            expect(metadatas.name).to.be.a('string');
+            expect(metadatas.language).to.be.a('string');
+            expect(metadatas.attributes).to.be.an('array');
+            expect(metadatas.count).to.be.a('number');
+        });
+
+        it("metadata name should be 'one-piece'", () => {
+            expect(metadatas.name).to.equal("one-piece");
+        });
+
+        it("metadata language should be 'en'", () => {
+            expect(metadatas.language).to.equal("en");
+        });
+
+        it("metadata attributes should be an array of string", () => {
+            expect(metadatas.attributes.length).to.be.greaterThan(0);
+            expect(metadatas.attributes[0]).to.be.a('string');
+        });
+
+        it("metadata count should be greater than 1", () => {
+            expect(metadatas.count).to.be.greaterThan(1);
+        });
     });
 
     describe("FindAll", () => {
