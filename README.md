@@ -147,7 +147,30 @@ Make sure to adjust the options, methods, and property names according to your s
 
 ---
 
-  
+-  **Get the metadatas of the wiki:**
+
+```js
+const metadatas =  await scraper.getMetadata();
+```
+
+This method returns an object specifying global informations about the scrapped wikias. The returned object follows this interface:
+```ts
+interface IMetaData {
+    // the name of the wiki
+    name: string;
+
+    // the language of the wiki
+    language: 'en' | 'fr';
+
+    // the available attributes of the wiki
+    attributes: string[];
+
+    // the number of characters in the wiki
+    count: number;
+};
+```
+
+---
 
 -  **Get the total count of characters in the wiki:**
 

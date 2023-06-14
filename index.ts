@@ -69,6 +69,20 @@ interface IGetCharacterOptions {
     attributes?: string[];
 };
 
+interface IMetaData {
+    // the name of the wiki
+    name: string;
+
+    // the language of the wiki
+    language: 'en' | 'fr';
+
+    // the available attributes of the wiki
+    attributes: string[];
+
+    // the number of characters in the wiki
+    count: number;
+};
+
 /**
  * FandomScraper is a class that allows you to scrape a Fandom wiki, and get all the characters of a fiction.
  * The list of available wikis can be found in the TAvailableWikis type.
@@ -88,6 +102,7 @@ export class FandomScraper {
     };
     private method: 'find' | 'findByName' | 'findById' | undefined;
     private name: string = '';
+    private wikiaParameters: {name: string, lang: 'fr' | 'en'};
     private id: number = 0;
     private keysAttrToArray: string[] = [];
     private isOldVersion: boolean = false;
@@ -104,6 +119,10 @@ export class FandomScraper {
     constructor(name: TAvailableWikis, options?: { lang: 'en' | 'fr' | null }) {
         if (!Object.keys(Schemas).includes(name)) throw new Error(`Invalid wiki name provided: ${name}`);
         this._schema = Schemas[name][options?.lang || 'en'];
+        this.wikiaParameters = {
+            name: name,
+            lang: options?.lang || 'en'
+        };
     }
 
 
@@ -114,6 +133,19 @@ export class FandomScraper {
     public getSchema(): ISchema {
         return this._schema;
     }
+
+    /**
+     * Get metadata about the current wiki. (availables attributes, language, etc...)
+     * @returns The metadata of the wiki.
+     */
+    public async getMetadata(): Promise<IMetaData> {
+        return {
+            name: this.wikiaParameters.name,
+            count: await this.count(),
+            attributes: Object.keys(this._schema.dataSource),
+            language: this.wikiaParameters.lang
+        };
+    };
 
 
     /**

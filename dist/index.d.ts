@@ -49,6 +49,12 @@ interface IGetCharacterOptions {
      */
     attributes?: string[];
 }
+interface IMetaData {
+    name: string;
+    language: 'en' | 'fr';
+    attributes: string[];
+    count: number;
+}
 /**
  * FandomScraper is a class that allows you to scrape a Fandom wiki, and get all the characters of a fiction.
  * The list of available wikis can be found in the TAvailableWikis type.
@@ -59,6 +65,7 @@ export declare class FandomScraper {
     private options;
     private method;
     private name;
+    private wikiaParameters;
     private id;
     private keysAttrToArray;
     private isOldVersion;
@@ -79,6 +86,11 @@ export declare class FandomScraper {
      * @returns The schema of the wiki.
      */
     getSchema(): ISchema;
+    /**
+     * Get metadata about the current wiki. (availables attributes, language, etc...)
+     * @returns The metadata of the wiki.
+     */
+    getMetadata(): Promise<IMetaData>;
     /**
      * Set the url of the characters page of the wiki in the schema.
      * @param {string} url - The url of the characters page.

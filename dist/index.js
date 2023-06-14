@@ -5,6 +5,7 @@ import { formatForUrl, formatName, removeBrackets  } from './func/parsing.js';
 import { availableWikis  } from './types/index.cjs';
 ;
 ;
+;
 /**
  * FandomScraper is a class that allows you to scrape a Fandom wiki, and get all the characters of a fiction.
  * The list of available wikis can be found in the TAvailableWikis type.
@@ -36,6 +37,10 @@ export class FandomScraper {
         if (!Object.keys(Schemas).includes(name))
             throw new Error(`Invalid wiki name provided: ${name}`);
         this._schema = Schemas[name][options?.lang || 'en'];
+        this.wikiaParameters = {
+            name: name,
+            lang: options?.lang || 'en'
+        };
     }
     /**
      * Get the schema of the current wiki.
@@ -44,6 +49,19 @@ export class FandomScraper {
     getSchema() {
         return this._schema;
     }
+    /**
+     * Get metadata about the current wiki. (availables attributes, language, etc...)
+     * @returns The metadata of the wiki.
+     */
+    async getMetadata() {
+        return {
+            name: this.wikiaParameters.name,
+            count: await this.count(),
+            attributes: Object.keys(this._schema.dataSource),
+            language: this.wikiaParameters.lang
+        };
+    }
+    ;
     /**
      * Set the url of the characters page of the wiki in the schema.
      * @param {string} url - The url of the characters page.
