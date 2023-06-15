@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@astrojs/netlify": "^2.3.0",
-    "astro": "^2.6.0",
-    "fandomscraper": "^1.0.34"
+    "astro": "^2.6.4",
+    "fandomscraper": "^1.0.35"
   }
 }
