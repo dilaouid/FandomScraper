@@ -81,6 +81,9 @@ interface IMetaData {
 
     // the number of characters in the wiki
     count: number;
+
+    // the available languages of the wiki
+    availableLanguages: string[];
 };
 
 /**
@@ -139,11 +142,14 @@ export class FandomScraper {
      * @returns The metadata of the wiki.
      */
     public async getMetadata(): Promise<IMetaData> {
+        const schema = Schemas[this.wikiaParameters.name];
+        
         return {
             name: this.wikiaParameters.name,
             count: await this.count(),
             attributes: Object.keys(this._schema.dataSource),
-            language: this.wikiaParameters.lang
+            language: this.wikiaParameters.lang,
+            availableLanguages: Object.keys(schema)
         };
     };
 
