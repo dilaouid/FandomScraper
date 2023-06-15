@@ -53,15 +53,19 @@ export class FandomScraper {
      * Get metadata about the current wiki. (availables attributes, language, etc...)
      * @returns The metadata of the wiki.
      */
-    async getMetadata() {
+    async getMetadata(options = { withCount: true }) {
         const schema = Schemas[this.wikiaParameters.name];
-        return {
+        const count = options.withCount ? await this.count() : 0;
+        const data = {
             name: this.wikiaParameters.name,
-            count: await this.count(),
+            count: count,
             attributes: Object.keys(this._schema.dataSource),
             language: this.wikiaParameters.lang,
             availableLanguages: Object.keys(schema)
         };
+        if (!options.withCount)
+            delete data.count;
+        return data;
     }
     ;
     /**
