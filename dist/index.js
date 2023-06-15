@@ -54,11 +54,13 @@ export class FandomScraper {
      * @returns The metadata of the wiki.
      */
     async getMetadata() {
+        const schema = Schemas[this.wikiaParameters.name];
         return {
             name: this.wikiaParameters.name,
             count: await this.count(),
             attributes: Object.keys(this._schema.dataSource),
-            language: this.wikiaParameters.lang
+            language: this.wikiaParameters.lang,
+            availableLanguages: Object.keys(schema)
         };
     }
     ;
