@@ -92,7 +92,7 @@ export declare class FandomScraper {
      * @returns The metadata of the wiki.
      */
     getMetadata(options?: {
-        withCount: true;
+        withCount: boolean;
     }): Promise<IMetaData>;
     /**
      * Set the url of the characters page of the wiki in the schema.
