@@ -53,7 +53,7 @@ interface IMetaData {
     name: string;
     language: 'en' | 'fr';
     attributes: string[];
-    count: number;
+    count?: number;
     availableLanguages: string[];
 }
 /**
@@ -91,7 +91,9 @@ export declare class FandomScraper {
      * Get metadata about the current wiki. (availables attributes, language, etc...)
      * @returns The metadata of the wiki.
      */
-    getMetadata(): Promise<IMetaData>;
+    getMetadata(options?: {
+        withCount: true;
+    }): Promise<IMetaData>;
     /**
      * Set the url of the characters page of the wiki in the schema.
      * @param {string} url - The url of the characters page.
