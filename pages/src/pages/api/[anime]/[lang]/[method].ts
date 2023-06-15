@@ -1,11 +1,13 @@
 import { FandomScraper } from "fandomscraper";
 
-export async function get({ params }: { params: { anime: string, method: string, lang: 'fr' | 'en' } }) {
+type TLanguages = 'fr' | 'en';
+
+export async function get({ params }: { params: { anime: string, method: string, lang: TLanguages } }) {
     try {
         const anime = params.anime;
-        const lang: 'fr' | 'en' = params.lang;
-        const mie = new FandomScraper(anime, {lang: lang}) ?? null;
-        const metadatas = await mie.getMetadata({withCount: false});
+        const lang: TLanguages = params.lang;
+        const fandomscraper = new FandomScraper(anime, {lang: lang}) ?? null;
+        const metadatas = await fandomscraper.getMetadata();
 
         return new Response(JSON.stringify(metadatas), {
           status: 200
@@ -17,5 +19,4 @@ export async function get({ params }: { params: { anime: string, method: string,
           statusText: 'Not found'
         });
     }
-
 }
