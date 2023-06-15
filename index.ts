@@ -80,7 +80,7 @@ interface IMetaData {
     attributes: string[];
 
     // the number of characters in the wiki
-    count: number;
+    count?: number;
 
     // the available languages of the wiki
     availableLanguages: string[];
@@ -141,16 +141,21 @@ export class FandomScraper {
      * Get metadata about the current wiki. (availables attributes, language, etc...)
      * @returns The metadata of the wiki.
      */
-    public async getMetadata(): Promise<IMetaData> {
+    public async getMetadata(options: { withCount: true} = {withCount: true}): Promise<IMetaData> {
         const schema = Schemas[this.wikiaParameters.name];
-        
-        return {
+        const count = options.withCount ? await this.count() : 0;
+        const data: IMetaData = {
             name: this.wikiaParameters.name,
-            count: await this.count(),
+            count: count,
             attributes: Object.keys(this._schema.dataSource),
             language: this.wikiaParameters.lang,
             availableLanguages: Object.keys(schema)
         };
+        
+        if (!options.withCount) 
+            delete data.count;
+            
+        return data;
     };
 
 
