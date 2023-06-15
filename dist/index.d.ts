@@ -54,6 +54,7 @@ interface IMetaData {
     language: 'en' | 'fr';
     attributes: string[];
     count: number;
+    availableLanguages: string[];
 }
 /**
  * FandomScraper is a class that allows you to scrape a Fandom wiki, and get all the characters of a fiction.
