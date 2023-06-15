@@ -141,7 +141,7 @@ export class FandomScraper {
      * Get metadata about the current wiki. (availables attributes, language, etc...)
      * @returns The metadata of the wiki.
      */
-    public async getMetadata(options: { withCount: true} = {withCount: true}): Promise<IMetaData> {
+    public async getMetadata(options: { withCount: boolean} = {withCount: true}): Promise<IMetaData> {
         const schema = Schemas[this.wikiaParameters.name];
         const count = options.withCount ? await this.count() : 0;
         const data: IMetaData = {
