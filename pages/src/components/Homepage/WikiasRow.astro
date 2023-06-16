@@ -1,0 +1,21 @@
+---
+import { availableWikis } from "fandomscraper";
+import WikiasCol from "./WikiasCol.astro";
+---
+<div class="image-grid">
+    {availableWikis.map(wiki => (
+        <WikiasCol title={wiki} />
+    ))}
+</div>
+<style>
+
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  /* only 5 columns */
+    align-items: center;
+    justify-content: center;
+
+}
+
+</style>
