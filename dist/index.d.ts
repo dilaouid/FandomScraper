@@ -1,6 +1,6 @@
 import { IData } from "./interfaces/datasets";
 import { ISchema } from './interfaces/schemas';
-import { TAvailableWikis } from './types/index';
+import { TAvailableWikis, availableWikis } from './types/index';
 interface IGetCharactersOptions {
     /**
      * The limit of characters to get (optional). Default: 100000
@@ -324,4 +324,4 @@ export declare class FandomScraper {
 export declare class FandomPersonalScraper extends FandomScraper {
     constructor(schema: ISchema);
 }
-export {};
+export { availableWikis };
