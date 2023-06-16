@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom';
 
-import { IData, IDataSource, IDataset, IImage } from "./interfaces/datasets";
+import { IData, IDataSource, IImage } from "./interfaces/datasets";
 import { ISchema } from './interfaces/schemas';
 
 import { Schemas } from './wikia/index';
@@ -970,3 +970,5 @@ export class FandomPersonalScraper extends FandomScraper {
         this._schema = schema;
     }
 }
+
+export { availableWikis }

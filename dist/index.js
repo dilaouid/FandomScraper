@@ -824,4 +824,5 @@ export class FandomPersonalScraper extends FandomScraper {
         this._schema = schema;
     }
 }
+export { availableWikis };
 //# sourceMappingURL=index.js.map

@@ -165,7 +165,7 @@ interface IMetaData {
     // the available attributes of the wiki
     attributes: string[];
 
-    // the number of characters in the wiki
+	// the number of characters in the wiki
     count?: number;
 
 	// the available languages of the wiki
