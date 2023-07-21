@@ -1,0 +1,24 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { availableWikis } from "fandomscraper";
+import { Box } from "@chakra-ui/react"
+
+
+const { anime } = Astro.params;
+const wiki = availableWikis.find(wiki => wiki === anime);
+if (!wiki) {
+    return Astro.redirect("/404");
+}
+
+// first letters to uppercase and replace - with space
+const animeName = anime?.replace(/(^\w{1})|(\-\w{1})/g, letter => letter.toUpperCase()).replace('-', ' ');
+
+---
+
+<Layout title={"FandomScraper - " + animeName} />
+    <img src={"/assets/img/animes/" + anime + ".jpg"} alt={animeName} />
+    <Box
+        backgroundImage={"url(/assets/img/animes/" + anime + ".jpg)"}
+        display="grid" gridGap={2} gridAutoFlow="row dense"
+        />
+</Layout>
