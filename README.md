@@ -14,11 +14,11 @@
 You can install the FandomScraper library using either npm or Yarn.
 #### npm
 ```shell
-npm  install  fandomscraper
+npm install fandomscraper
 ```
 #### yarn
 ```shell
-yarn  add  fandomscraper
+yarn add fandomscraper
 ```
 
 ### How to use
@@ -26,7 +26,7 @@ yarn  add  fandomscraper
 #### FandomScraper
 1. Once installed, you can import the `FandomScraper` class into your project as follows:
 ```js
-import { FandomScraper } from  'fandomscraper';
+import { FandomScraper } from 'fandomscraper';
 ```
 
 Make sure to adjust the import statement according to your project's setup.
@@ -34,7 +34,7 @@ Make sure to adjust the import statement according to your project's setup.
 2. Create an instance of `FandomScraper` by providing the wiki name and language in the constructor:
 
 ```js
-const scraper =  new  FandomScraper('shiki', { lang:  'en' });
+const scraper = new FandomScraper('shiki', { lang:  'en' });
 ```
 
 - The `name` property should be the name of the wiki you want to scrape from. First, check if the wiki is available. To know the list of the current available wikis, use the following method:
@@ -55,7 +55,7 @@ scraper.setCharactersPage('https://shiki.fandom.com/wiki/Category:Characters');
 -  **Get all characters of the current wiki:**
 
 ```js
-const allCharacters =  await scraper
+const allCharacters = await scraper
 	.findAll({ base64:  false, withId:  true, recursive:  true })
 	.limit(100)
 	.offset(5)
@@ -150,7 +150,7 @@ Make sure to adjust the options, methods, and property names according to your s
 -  **Get the metadatas of the wiki:**
 
 ```js
-const metadatas =  await scraper.getMetadata({withCount: true});
+const metadatas = await scraper.getMetadata({withCount: true});
 ```
 
 This method returns an object specifying global informations about the scrapped wikias. The returned object follows this interface:
@@ -178,7 +178,7 @@ interface IMetaData {
 -  **Get the total count of characters in the wiki:**
 
 ```js
-const characterCount =  await scraper.count();
+const characterCount = await scraper.count();
 ```
 
 This method returns the total number of characters in the specified wikia.
@@ -189,23 +189,23 @@ This method returns the total number of characters in the specified wikia.
 
 ```ts
 interface  IData {
-	id?:  number;
-	name:  string;
-	url:  string;
-	data?:  IDataset;
+	id?: number;
+	name: string;
+	url: string;
+	data?: IDataset;
 }
 
 interface  IDataset {
-	name?:  string;
-	kanji?:  string;
-	romaji?:  string;
-	status?:  string;
-	species?:  string;
-	gender?:  string;
-	images?:  string[];
-	episode?:  string[];
-	age?:  string;
-	affiliation?:  string;
+	name?: string;
+	kanji?: string;
+	romaji?: string;
+	status?: string;
+	species?: string;
+	gender?: string;
+	images?: string[];
+	episode?: string[];
+	age?: string;
+	affiliation?: string;
 }
 
 ```
@@ -224,32 +224,32 @@ To use FandomPersonalScraper, follow these steps:
 
 1.  Import the `FandomPersonalScraper` class into your project:
 ```js
-import { FandomPersonalScraper } from  'fandomscraper';
+import { FandomPersonalScraper } from 'fandomscraper';
 ```
 Make sure to adjust the import statement according to your project's setup.
 
 2.  Create an instance of `FandomPersonalScraper` by providing the scraper schema in the constructor:
 
 ```js
-const personalScraper = new  FandomPersonalScraper({
-	url:  'https://mywikia.fandom.com/wiki/Category:Characters',
-	pageFormat:  'classic',
+const personalScraper = new FandomPersonalScraper({
+	url: 'https://mywikia.fandom.com/wiki/Category:Characters',
+	pageFormat: 'classic',
 	dataSource: {
 		name: 'Name',
 		age: 'Age',
 		kanji: 'Kanji',
 		romaji: 'Romaji',
 		status: 'Status',
-		gender:  'Gender',
-		species:  'Kind',
+		gender: 'Gender',
+		species: 'Kind',
 		images: {
-			identifier:  '.mw-parser-output table img',
-			get:  function(page) {
+			identifier: '.mw-parser-output table img',
+			get: function(page) {
 				return  page.querySelectorAll(this.identifier);
 			}
 		},
-		episode:  'First appearance',
-		affiliation:  'Affiliations'
+		episode: 'First appearance',
+		affiliation: 'Affiliations'
 	}
 });
 ```
@@ -258,9 +258,9 @@ The constructor of `FandomPersonalScraper` expects an object that adheres to the
 ```ts
 type TPageFormats = 'classic' | 'table-1' | 'table-2';
 
-interface  IImage {
-	identifier:  string;
-	get:  Function;
+interface IImage {
+	identifier: string;
+	get: Function;
 };
 
 // Interface of where to scrap the page to get the data of the characters (data-source)
@@ -290,7 +290,7 @@ interface IDataSource {
     bloodType?: string;
 };
 
-interface  ISchema {
+interface ISchema {
 	// the url of the wiki characters list to scrape (ex: 'https://dragonball.fandom.com/wiki/Characters')
 	url:  string;
 
