@@ -8,7 +8,7 @@ const { title } = Astro.props;
     <div class="main-container">
         <div class="poster-container">
             <a href={`/${title}`}>
-                <img class="poster" src={`/assets/img/animes/${title}.jpg`} alt={title} />
+                <img class="poster" src={`/assets/img/animes/${title}.jpg`} alt={title + " poster"} />
             </a>
         </div>
     </div>
@@ -32,7 +32,6 @@ const { title } = Astro.props;
 	position: absolute;
 	top: 0;
 	left: 20px;
-	z-index: 9999;
     transition-property: transform filter;
     transition: .2s ease-in-out;
 }
