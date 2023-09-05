@@ -13,8 +13,8 @@ For example:
 import { IDataSource } from  "../../interfaces/datasets";
 
 const  BerserkENDataSource: IDataSource  = {
-	gender:  'Gender',
-	species:  'Kind',
+	gender: 'Gender',
+	species: 'Kind',
 	images: {
 		identifier:  '.mw-parser-output table img',
 		get:  function(page:  Document) {
