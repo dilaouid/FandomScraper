@@ -132,4 +132,4 @@ out
 .pnp.*
 
 pnpm-lock.yaml
-pages-old
+pages-old/
