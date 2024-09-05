@@ -18,7 +18,7 @@
     "url": "git+https://github.com/dilaouid/FandomScraper.git"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org"
   },
   "keywords": [
     "fandom",
