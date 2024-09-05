@@ -5,14 +5,17 @@ export interface Props {
 
 const { title } = Astro.props;
 ---
-    <div class="main-container">
-        <div class="poster-container">
-            <a href={`/${title}`}>
-                <img class="poster" src={`/assets/img/animes/${title}.jpg`} alt={title + " poster"} />
-            </a>
-        </div>
+<div class="main-container">
+    <div class="poster-container">
+        <a href={`/${title}`}>
+            <img class="poster" src={`/assets/img/animes/${title}.jpg`} alt={title + " poster"} />
+        </a>
     </div>
+</div>
     
+<script type="module">
+    import "/assets/js/hoverCard.js"
+</script>
 
 <style>
 * {
@@ -20,43 +23,32 @@ const { title } = Astro.props;
 	padding: 0;
 	margin: 0;
 }
+
 .main-container {
+	display: flex;
+	justify-content: center;
 	width: 270px;
-	height: 540px;
-	position: relative;
-    margin-bottom: -100px;
+    margin-bottom: -80px;
+    transition: transform 0.5s ease;
 }
 
 .poster-container {
-	width: 230px;
-	position: absolute;
-	top: 0;
-	left: 20px;
-    transition-property: transform filter;
-    transition: .2s ease-in-out;
+    width: 230px;
+    margin-bottom: 100px;
 }
 
 .poster-container:hover .poster {
     transform: scale(1.1);
     filter: grayscale(0%);
-    transition: .2s ease-in-out;
-}
-
-.poster-container .poster {
-  transition: .2s ease-in-out;
-    /* black and white */
-    filter: grayscale(80%);
-    /* give a red tint */
-}
-
-.poster-container:not(:hover) .poster {
-  transform: none;
+    opacity: 1;
 }
 
 .poster {
-	width: 100%;
-	box-shadow: 0 5px 20px 3px rgba(0, 0, 0, 0.6);
+    width: 100%;
+    filter: grayscale(80%);  /* Initial black and white */
+    box-shadow: 0 5px 20px 3px rgba(0, 0, 0, 0.6);
     border-radius: 30px 30px 0 0;
+    transition: transform .5s ease-in-out, filter .2s ease-in-out;
+    opacity: .5;
 }
-
 </style>

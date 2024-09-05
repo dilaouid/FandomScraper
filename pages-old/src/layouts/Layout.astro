@@ -17,6 +17,7 @@ const { title } = Astro.props;
 		<title>{title}</title>
 	</head>
 	<body>
+		<div id="overlay" style="display:none;"></div>
 		<div id="background"></div>
 		<slot />
 	</body>
@@ -29,7 +30,20 @@ const { title } = Astro.props;
 	html {
 		font-family: system-ui, sans-serif;
 		overflow-x: hidden;
+    	overflow-y: hidden;
 	}
+	#overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 0;
+		background-size: cover;
+		opacity: 0;
+		transition: opacity 0.5s ease-in-out;
+	}
+
 	#background {
 		z-index: -1	;
 		position: fixed;
@@ -39,7 +53,6 @@ const { title } = Astro.props;
 		height: 100%;
 		background-image: url("/assets/img/bg.jpg");
 		background-size: cover;
-		background-repeat: repeat-x;
 		animation: wave 300s linear infinite;
 	}
 	@keyframes wave {
