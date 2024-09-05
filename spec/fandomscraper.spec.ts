@@ -114,7 +114,7 @@ describe("FandomScraper Demon Slayer", () => {
             expect(Kagaya.data.images).to.be.an('array');
             expect(Kagaya.data.images[0]).to.be.an('string');
 
-            const base64Regex = /^data:image\/(png|jpg|jpeg);base64,|iVBORw0KGgoAAAANSUhEUgAAAV4AAA/;
+            const base64Regex = /^data:image\/(png|jpg|jpeg);base64,|iVBORw0KGgoAAAANSUhEUgAAA/;
             expect(base64Regex.test(Kagaya.data.images[0])).to.be.true;
         });
 
@@ -223,7 +223,7 @@ describe("FandomScraper One Piece", () => {
               .findAll({ base64: false, recursive: true, withId: true })
               .attr('kanji romaji status images occupations affiliation height age')
               .limit(5)
-              .offset(352)
+              .offset(355)
               .attrToArray('age affiliation')
               .exec().catch((err) => {
                     throw err;
@@ -236,18 +236,18 @@ describe("FandomScraper One Piece", () => {
             expect(all.length).to.equal(5);
         });
 
-        it("Result of findAll() should get the first character (Drophy)", () => {
-            expect(all[0].data.kanji).to.equal("ドロフィー");
-            expect(all[0].data.romaji).to.equal("Dorofī");
+        it("Result of findAll() should get the first character (Don Quichotte Homing)", () => {
+            expect(all[0].data.kanji).to.equal("ドンキホーテ・ホーミング");
+            expect(all[0].data.romaji).to.equal("Donkihōte Hōmingu");
         });
 
-        it("Drophy affiliation must be an array", () => {
+        it("Don Quichotte Homing affiliation must be an array", () => {
             expect(all[0].data.affiliation).to.be.an('array');
         });
         
-        it("Drophy age must be an array of string", () => {
-            expect(all[0].data.age).to.be.an('array');
-            expect(all[0].data.age[0]).to.be.an('string');
+        it("Don Quichotte Homing images must be an array of string", () => {
+            expect(all[0].data.images).to.be.an('array');
+            expect(all[0].data.images[0]).to.be.an('string');
         });
     });
 

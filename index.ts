@@ -141,7 +141,7 @@ export class FandomScraper {
      * Get metadata about the current wiki. (availables attributes, language, etc...)
      * @returns The metadata of the wiki.
      */
-    public async getMetadata(options: { withCount: boolean} = {withCount: true}): Promise<IMetaData> {
+    public async getMetadata(options: { withCount: boolean } = {withCount: true}): Promise<IMetaData> {
         const schema = Schemas[this.wikiaParameters.name];
         const count = options.withCount ? await this.count() : 0;
         const data: IMetaData = {
@@ -882,6 +882,8 @@ export class FandomScraper {
             return this._CharactersPage.querySelectorAll('table.wikitable td:nth-child(2) a');
         } else if (this._schema.pageFormat === 'table-2') {
             return this._CharactersPage.querySelectorAll('small > b');
+        } else if (this._schema.pageFormat === 'table-3') {
+            return this._CharactersPage.querySelectorAll('table.fandom-table td:nth-child(2)');
         }
 
         throw new Error('Invalid page format');
@@ -897,6 +899,13 @@ export class FandomScraper {
             if (!url) throw new Error('No URL found');
             return url;
         } else if (this._schema.pageFormat === 'table-2') {
+            const aElement = element.querySelector('a');
+            if (!aElement) throw new Error('No <a> element found');
+
+            const url = this.getDataUrl(aElement.getAttribute('href'));
+            if (!url) throw new Error('No URL found');
+            return url;
+        } else if  (this._schema.pageFormat === 'table-3') {
             const aElement = element.querySelector('a');
             if (!aElement) throw new Error('No <a> element found');
 

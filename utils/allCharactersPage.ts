@@ -23,6 +23,13 @@ const allCharactersPage = {
             type: '',
             value: ''
         }
+    },
+    'table-3': {
+        banList: [],
+        next: {
+            type: '',
+            value: ''
+        }
     }
 }
 

@@ -24,5 +24,12 @@ declare const allCharactersPage: {
             value: string;
         };
     };
+    'table-3': {
+        banList: never[];
+        next: {
+            type: string;
+            value: string;
+        };
+    };
 };
 export { allCharactersPage };

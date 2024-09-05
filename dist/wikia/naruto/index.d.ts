@@ -1,4 +1,4 @@
 export declare const Naruto: {
-    fr: import("../../interfaces/schemas").ISchema;
-    en: import("../../interfaces/schemas").ISchema;
+    fr: import("../../interfaces").ISchema;
+    en: import("../../interfaces").ISchema;
 };

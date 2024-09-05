@@ -256,7 +256,7 @@ const personalScraper = new FandomPersonalScraper({
 The constructor of `FandomPersonalScraper` expects an object that adheres to the `ISchema` interface.
 
 ```ts
-type TPageFormats = 'classic' | 'table-1' | 'table-2';
+type TPageFormats = 'classic' | 'table-1' | 'table-2' | 'table-3';
 
 interface IImage {
 	identifier: string;

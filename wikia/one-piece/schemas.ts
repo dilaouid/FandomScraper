@@ -9,7 +9,7 @@ const OnePieceFR: ISchema = {
 
 const OnePieceEN: ISchema = {
     url: 'https://onepiece.fandom.com/wiki/List_of_Canon_Characters',
-    pageFormat: 'table-1',
+    pageFormat: 'table-3',
     dataSource: OnePieceENDataSource
 };
 

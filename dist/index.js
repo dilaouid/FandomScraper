@@ -747,6 +747,9 @@ export class FandomScraper {
         else if (this._schema.pageFormat === 'table-2') {
             return this._CharactersPage.querySelectorAll('small > b');
         }
+        else if (this._schema.pageFormat === 'table-3') {
+            return this._CharactersPage.querySelectorAll('table.fandom-table td:nth-child(2)');
+        }
         throw new Error('Invalid page format');
     }
     getUrlAccordingToFormat(element) {
@@ -763,6 +766,15 @@ export class FandomScraper {
             return url;
         }
         else if (this._schema.pageFormat === 'table-2') {
+            const aElement = element.querySelector('a');
+            if (!aElement)
+                throw new Error('No <a> element found');
+            const url = this.getDataUrl(aElement.getAttribute('href'));
+            if (!url)
+                throw new Error('No URL found');
+            return url;
+        }
+        else if (this._schema.pageFormat === 'table-3') {
             const aElement = element.querySelector('a');
             if (!aElement)
                 throw new Error('No <a> element found');
