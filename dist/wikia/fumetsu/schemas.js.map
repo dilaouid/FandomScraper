@@ -1,1 +1,0 @@
-{"version":3,"file":"schemas.js","sourceRoot":"","sources":["../../../wikia/fumetsu/schemas.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,mBAAmB,EAAE,MAAM,eAAe,CAAC;AAEpD,MAAM,SAAS,GAAY;IACvB,GAAG,EAAE,6DAA6D;IAClE,UAAU,EAAE,SAAS;IACrB,UAAU,EAAE,mBAAmB;CAClC,CAAC;AAEF,OAAO,EAAE,SAAS,EAAE,CAAC"}

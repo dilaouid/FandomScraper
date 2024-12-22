@@ -1,17 +1,14 @@
 {
-    "compilerOptions": {
-        "target": "ES2020",
-        "module": "ES2020",
-        "moduleResolution": "node",
-        "outDir": "./dist",
-        "rootDir": ".",
-        "strict": true,
-        "esModuleInterop": true,
-        "declaration": true,
-        "allowJs": true,
-        "baseUrl": ".",
-        "sourceMap": true
-    },
-    "exclude": ["node_modules", "dist", "spec"],
-    "include": ["./*.ts", "./**/*.ts"]
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
+  }
 }
