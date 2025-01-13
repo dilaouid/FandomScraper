@@ -236,16 +236,16 @@ describe("FandomScraper One Piece", () => {
             expect(all.length).to.equal(5);
         });
 
-        it("Result of findAll() should get the first character (Don Quichotte Homing)", () => {
-            expect(all[0].data.kanji).to.equal("ドンキホーテ・ホーミング");
-            expect(all[0].data.romaji).to.equal("Donkihōte Hōmingu");
+        it("Result of findAll() should get the first character (Disuko)", () => {
+            expect(all[0].data.kanji).to.equal("ディスコ");
+            expect(all[0].data.romaji).to.equal("Disuko");
         });
 
-        it("Don Quichotte Homing affiliation must be an array", () => {
+        it("Disuko affiliation must be an array", () => {
             expect(all[0].data.affiliation).to.be.an('array');
         });
         
-        it("Don Quichotte Homing images must be an array of string", () => {
+        it("Disuko images must be an array of string", () => {
             expect(all[0].data.images).to.be.an('array');
             expect(all[0].data.images[0]).to.be.an('string');
         });
