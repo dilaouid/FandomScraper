@@ -11,7 +11,6 @@
         "allowJs": true,
         "baseUrl": ".",
         "sourceMap": true,
-        "typeRoots": ["./types"],
         "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,
         "verbatimModuleSyntax": false
