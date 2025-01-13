@@ -1,4 +1,3 @@
-import { ISchema } from "../../interfaces/schemas";
 import { FumetsuENDataSource } from "./data-source";
 
 const FumetsuEN: ISchema = {

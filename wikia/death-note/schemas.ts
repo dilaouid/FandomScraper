@@ -1,4 +1,3 @@
-import { ISchema } from "../../interfaces/schemas";
 import { DeathNoteFRDataSource, DeathNoteENDataSource } from "./data-source";
 
 const DeathNoteFR: ISchema = {

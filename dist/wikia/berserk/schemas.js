@@ -1,4 +1,4 @@
-import { BerserkENDataSource  } from './data-source.js';
+import { BerserkENDataSource } from "./data-source";
 // Berserk (FR) schema not available yet on Fandom
 const BerserkEN = {
     url: 'https://berserk.fandom.com/wiki/Category:Fantasia_Arc_Characters',

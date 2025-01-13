@@ -1,13 +1,12 @@
 import { JSDOM } from 'jsdom';
 
-import { IData, IDataSource, IImage } from "./interfaces/datasets";
-import { ISchema } from './interfaces/schemas';
-
 import { Schemas } from './wikia/index';
 
 import { allCharactersPage } from './utils/allCharactersPage';
 import { formatForUrl, formatName, removeBrackets } from './func/parsing';
-import { TAvailableWikis, availableWikis } from './types/index';
+import { availableWikis } from './types/dynamic.types';
+
+import type { TAvailableWikis } from './types/dynamic.types';
 
 interface IGetCharactersOptions {
     

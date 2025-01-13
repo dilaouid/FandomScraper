@@ -1,6 +1,5 @@
-import { IData } from "./interfaces/datasets";
-import { ISchema } from './interfaces/schemas';
-import { TAvailableWikis, availableWikis } from './types/index';
+import { availableWikis } from './types/dynamic.types';
+import type { TAvailableWikis } from './types/dynamic.types';
 interface IGetCharactersOptions {
     /**
      * The limit of characters to get (optional). Default: 100000

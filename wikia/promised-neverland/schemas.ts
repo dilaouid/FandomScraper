@@ -1,4 +1,3 @@
-import { ISchema } from "../../interfaces/schemas";
 import { PromisedNeverlandFRDataSource, PromisedNeverlandENDataSource } from "./data-source";
 
 const PromisedNeverlandFR: ISchema = {

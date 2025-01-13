@@ -12,12 +12,4 @@ const availableWikis = fs.readdirSync(schemaDirectory, { withFileTypes: true })
 // the type of the available wikis is the list of the different folders in the schemas folder
 type TAvailableWikis = typeof availableWikis[number];
 
-// the different formats available of pages
-type TPageFormats = 'classic' | 'table-1' | 'table-2' | 'table-3';
-/*
-    classic: the classic page with the list of characters names
-    table-1: the table with the image on the left
-    table-2: the sorted table with the different categories
-*/
-
-export { TAvailableWikis, TPageFormats, availableWikis };
+export { TAvailableWikis, availableWikis };

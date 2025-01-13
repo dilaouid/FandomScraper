@@ -1,4 +1,4 @@
-import { DemonSlayerFRDataSource, DemonSlayerENDataSource  } from './data-source.js';
+import { DemonSlayerFRDataSource, DemonSlayerENDataSource } from "./data-source";
 const DemonSlayerFR = {
     url: 'https://kimetsu-no-yaiba.fandom.com/fr/wiki/Catégorie:Personnages',
     pageFormat: 'classic',

@@ -1,4 +1,3 @@
-import { ISchema } from "../../interfaces/schemas";
 import { JojoFRDataSource, JojoENDataSource } from "./data-source";
 
 const JojoFR: ISchema = {

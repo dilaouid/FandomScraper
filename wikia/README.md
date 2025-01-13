@@ -10,8 +10,6 @@ This file defines the data source for each supported language in the wikia. It c
 
 For example:
 ```ts
-import { IDataSource } from  "../../interfaces/datasets";
-
 const  BerserkENDataSource: IDataSource  = {
 	gender: 'Gender',
 	species: 'Kind',
@@ -33,7 +31,6 @@ This file defines the schemas for each supported wikia, one per language. Each s
 
 For example:
 ```ts
-import { ISchema } from  "../../interfaces/schemas";
 import { DemonSlayerFRDataSource, DemonSlayerENDataSource } from "./data-source";
 
 const  DemonSlayerFR: ISchema = {
@@ -67,8 +64,6 @@ This file is of paramount importance as it serves as the main entry point for ac
 ## The index file
 Outside the "wikia" folders, there is the "`index.ts`" file that serves as a central index for all supported wikias. It imports each individual wikia's "`index.ts`" file and exports them as a Record with keys corresponding to the names of the wikia folders. For example:
 ```ts
-import { TAvailableWikis } from '../types';
-
 import { DeathNote } from './death-note/index';
 import { DemonSlayer } from './demon-slayer/index';
 import { DragonBall } from './dragon-ball/index';

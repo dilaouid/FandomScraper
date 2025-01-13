@@ -1,5 +1,3 @@
-import { IDataSource } from "../../interfaces/datasets";
-
 const PromisedNeverlandFRDataSource: IDataSource = {
     kanji: 'kanji',
     romaji: 'rōmaji',

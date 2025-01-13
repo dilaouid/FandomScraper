@@ -1,4 +1,4 @@
-import { FumetsuENDataSource  } from './data-source.js';
+import { FumetsuENDataSource } from "./data-source";
 const FumetsuEN = {
     url: 'https://fumetsunoanatae.fandom.com/wiki/Category:Characters',
     pageFormat: 'classic',

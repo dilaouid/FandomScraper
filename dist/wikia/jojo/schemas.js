@@ -1,4 +1,4 @@
-import { JojoFRDataSource, JojoENDataSource  } from './data-source.js';
+import { JojoFRDataSource, JojoENDataSource } from "./data-source";
 const JojoFR = {
     url: 'https://jjba.fandom.com/fr/wiki/Catégorie:Personnages',
     pageFormat: 'classic',

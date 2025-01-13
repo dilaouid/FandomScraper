@@ -10,8 +10,9 @@
         "declaration": true,
         "allowJs": true,
         "baseUrl": ".",
-        "sourceMap": true
+        "sourceMap": true,
+        "typeRoots": ["./types"]
     },
     "exclude": ["node_modules", "dist", "spec"],
-    "include": ["./*.ts", "./**/*.ts"]
+    "include": ["./*.ts", "./**/*.ts", "types/**/*.d.ts"]
 }

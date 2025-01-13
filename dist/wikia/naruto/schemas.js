@@ -1,4 +1,4 @@
-import { NarutoFRDataSource, NarutoENDataSource  } from './data-source.js';
+import { NarutoFRDataSource, NarutoENDataSource } from "./data-source";
 const NarutoFR = {
     url: 'https://naruto.fandom.com/fr/wiki/Catégorie:Personnages',
     pageFormat: 'classic',

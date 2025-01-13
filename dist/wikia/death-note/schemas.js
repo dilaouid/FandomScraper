@@ -1,4 +1,4 @@
-import { DeathNoteFRDataSource, DeathNoteENDataSource  } from './data-source.js';
+import { DeathNoteFRDataSource, DeathNoteENDataSource } from "./data-source";
 const DeathNoteFR = {
     url: 'https://deathnote.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages',
     pageFormat: 'classic',

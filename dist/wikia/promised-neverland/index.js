@@ -1,4 +1,4 @@
-import { PromisedNeverlandFR, PromisedNeverlandEN  } from './schemas.js';
+import { PromisedNeverlandFR, PromisedNeverlandEN } from "./schemas";
 export const PromisedNeverland = {
     fr: PromisedNeverlandFR,
     en: PromisedNeverlandEN

@@ -1,4 +1,4 @@
-import { PromisedNeverlandFRDataSource, PromisedNeverlandENDataSource  } from './data-source.js';
+import { PromisedNeverlandFRDataSource, PromisedNeverlandENDataSource } from "./data-source";
 const PromisedNeverlandFR = {
     url: 'https://the-promised-neverland.fandom.com/fr/wiki/Catégorie:Personnages',
     pageFormat: 'classic',

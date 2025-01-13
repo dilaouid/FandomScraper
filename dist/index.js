@@ -1,8 +1,8 @@
 import { JSDOM } from 'jsdom';
-import { Schemas  } from './wikia/index.js';
-import { allCharactersPage  } from './utils/allCharactersPage.js';
-import { formatForUrl, formatName, removeBrackets  } from './func/parsing.js';
-import { availableWikis  } from './types/index.cjs';
+import { Schemas } from './wikia/index';
+import { allCharactersPage } from './utils/allCharactersPage';
+import { formatForUrl, formatName, removeBrackets } from './func/parsing';
+import { availableWikis } from './types/dynamic.types';
 ;
 ;
 ;

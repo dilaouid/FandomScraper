@@ -1,4 +1,3 @@
-import { ISchema } from "../../interfaces/schemas";
 import { OnePieceFRDataSource, OnePieceENDataSource } from "./data-source";
 
 const OnePieceFR: ISchema = {

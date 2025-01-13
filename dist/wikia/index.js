@@ -1,13 +1,13 @@
-import { DeathNote  } from './death-note/index.js';
-import { DemonSlayer  } from './demon-slayer/index.js';
-import { DragonBall  } from './dragon-ball/index.js';
-import { Fumetsu  } from './fumetsu/index.js';
-import { Naruto  } from './naruto/index.js';
-import { OnePiece  } from './one-piece/index.js';
-import { Shiki  } from './shiki/index.js';
-import { PromisedNeverland  } from './promised-neverland/index.js';
-import { Berserk  } from './berserk/index.js';
-import { Jojo  } from './jojo/index.js';
+import { DeathNote } from './death-note/index';
+import { DemonSlayer } from './demon-slayer/index';
+import { DragonBall } from './dragon-ball/index';
+import { Fumetsu } from './fumetsu/index';
+import { Naruto } from './naruto/index';
+import { OnePiece } from './one-piece/index';
+import { Shiki } from './shiki/index';
+import { PromisedNeverland } from './promised-neverland/index';
+import { Berserk } from './berserk/index';
+import { Jojo } from './jojo/index';
 export const Schemas = {
     'demon-slayer': DemonSlayer,
     'naruto': Naruto,

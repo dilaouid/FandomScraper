@@ -1,5 +1,3 @@
-import { IDataSource } from "../../interfaces/datasets";
-
 const DemonSlayerFRDataSource: IDataSource = {
     kanji: 'kanji',
     romaji: 'rômaji',

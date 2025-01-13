@@ -1,5 +1,3 @@
-import { IDataSource } from "../../interfaces/datasets";
-
 const JojoFRDataSource: IDataSource = {
     kanji: 'Kanji',
     romaji: 'Romaji',

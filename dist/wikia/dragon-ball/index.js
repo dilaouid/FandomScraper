@@ -1,4 +1,4 @@
-import { DragonBallEN, DragonBallFR  } from './schemas.js';
+import { DragonBallEN, DragonBallFR } from "./schemas";
 export const DragonBall = {
     fr: DragonBallFR,
     en: DragonBallEN

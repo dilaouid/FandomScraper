@@ -1,4 +1,4 @@
-import { ShikiENDataSource  } from './data-source.js';
+import { ShikiENDataSource } from "./data-source";
 const ShikiEN = {
     url: 'https://shiki.fandom.com/wiki/Category:Characters',
     pageFormat: 'classic',

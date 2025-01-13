@@ -1,4 +1,4 @@
-import { NarutoFR, NarutoEN  } from './schemas.js';
+import { NarutoFR, NarutoEN } from "./schemas";
 export const Naruto = {
     fr: NarutoFR,
     en: NarutoEN

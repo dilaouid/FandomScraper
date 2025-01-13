@@ -1,5 +1,3 @@
-import { IDataSource } from "../../interfaces/datasets";
-
 const NarutoFRDataSource: IDataSource = {
     name: 'Nom',
     status: 'Statut',

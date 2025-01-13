@@ -1,4 +1,4 @@
-import { OnePieceFRDataSource, OnePieceENDataSource  } from './data-source.js';
+import { OnePieceFRDataSource, OnePieceENDataSource } from "./data-source";
 const OnePieceFR = {
     url: 'https://onepiece.fandom.com/fr/wiki/Liste_des_Personnages_Canon',
     pageFormat: 'table-1',

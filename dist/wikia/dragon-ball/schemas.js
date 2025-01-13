@@ -1,4 +1,4 @@
-import { DragonBallFRDataSource, DragonBallENDataSource  } from './data-source.js';
+import { DragonBallFRDataSource, DragonBallENDataSource } from "./data-source";
 const DragonBallFR = {
     url: 'https://dragonball.fandom.com/fr/wiki/Catégorie:Personnages',
     pageFormat: 'classic',

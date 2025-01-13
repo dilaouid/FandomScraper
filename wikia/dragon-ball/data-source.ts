@@ -1,5 +1,3 @@
-import { IDataSource } from "../../interfaces/datasets";
-
 const DragonBallFRDataSource: IDataSource = {
     kanji: 'Nom Original',
     status: 'Statut',

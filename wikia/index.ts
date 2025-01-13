@@ -1,4 +1,4 @@
-import { TAvailableWikis } from '../types';
+import type { TAvailableWikis } from '../types/dynamic.types';
 
 import { DeathNote } from './death-note/index';
 import { DemonSlayer } from './demon-slayer/index';

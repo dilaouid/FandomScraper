@@ -1,5 +1,3 @@
-import { IDataSource } from "../../interfaces/datasets";
-
 const OnePieceFRDataSource: IDataSource = {
     name: 'nomf',
     kanji: 'nomj',

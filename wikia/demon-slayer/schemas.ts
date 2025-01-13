@@ -1,4 +1,3 @@
-import { ISchema } from "../../interfaces/schemas";
 import { DemonSlayerFRDataSource, DemonSlayerENDataSource } from "./data-source";
 
 const DemonSlayerFR: ISchema = {

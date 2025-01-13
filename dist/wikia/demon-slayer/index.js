@@ -1,4 +1,4 @@
-import { DemonSlayerFR, DemonSlayerEN  } from './schemas.js';
+import { DemonSlayerFR, DemonSlayerEN } from "./schemas";
 export const DemonSlayer = {
     fr: DemonSlayerFR,
     en: DemonSlayerEN

@@ -1,4 +1,3 @@
-import { ISchema } from "../../interfaces/schemas";
 import { BerserkENDataSource } from "./data-source";
 
 // Berserk (FR) schema not available yet on Fandom
