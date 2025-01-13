@@ -12,4 +12,5 @@ const availableWikis = fs.readdirSync(schemaDirectory, { withFileTypes: true })
 // the type of the available wikis is the list of the different folders in the schemas folder
 type TAvailableWikis = typeof availableWikis[number];
 
-export { TAvailableWikis, availableWikis };
+export type { TAvailableWikis };
+export { availableWikis }

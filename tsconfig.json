@@ -11,7 +11,13 @@
         "allowJs": true,
         "baseUrl": ".",
         "sourceMap": true,
-        "typeRoots": ["./types"]
+        "typeRoots": ["./types"],
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
+        "verbatimModuleSyntax": false
+    },
+    "ts-node": {
+        "esm": true
     },
     "exclude": ["node_modules", "dist", "spec"],
     "include": ["./*.ts", "./**/*.ts", "types/**/*.d.ts"]

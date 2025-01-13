@@ -1,10 +1,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
-// the different wikis available to scrape are the different folders in the schemas folder
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const schemaDirectory = path.join(__dirname, '../wikia');
-// get the list of available wikis by getting the list of folders in the schemas folder
 const availableWikis = fs.readdirSync(schemaDirectory, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
     .map((dirent) => dirent.name);
+
 export { availableWikis };
-//# sourceMappingURL=dynamic.types.js.map

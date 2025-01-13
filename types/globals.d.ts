@@ -1,5 +1,3 @@
-export {};
-
 // Ensure TypeScript treats this file as global
 declare global {
     
@@ -88,3 +86,5 @@ declare global {
         dataSource: IDataSource;
     }
 }
+
+export {};
