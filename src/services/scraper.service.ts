@@ -19,8 +19,8 @@ export const scraper = {
         const instance = getScraper(wiki)
         const query = instance.findAll({
             base64: false,
-            withId: options.withId,
-            recursive: options.recursive
+            withId: options.withId ?? false,
+            recursive: options.recursive ?? false,
         })
 
         if (options.limit) query.limit(options.limit)
@@ -37,7 +37,7 @@ export const scraper = {
         const instance = getScraper(wiki)
         const query = instance.findByName(name, {
             base64: false,
-            withId: options.withId
+            withId: options.withId ?? false,
         })
 
         if (options.fields?.length) {
@@ -51,8 +51,7 @@ export const scraper = {
     findById: async (wiki: string, id: number, options: ScraperOptions = {}) => {
         const instance = getScraper(wiki)
         const query = instance.findById(id, {
-            base64: false,
-            withId: options.withId
+            base64: false
         })
 
         if (options.fields?.length) {

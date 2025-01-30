@@ -12,8 +12,8 @@ importers:
         specifier: ^1.13.7
         version: 1.13.7(hono@4.6.19)
       fandomscraper:
-        specifier: ^1.0.7
-        version: 1.0.7
+        specifier: ^1.0.71
+        version: 1.0.71
       hono:
         specifier: ^4.6.14
         version: 4.6.19
@@ -240,8 +240,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  fandomscraper@1.0.7:
-    resolution: {integrity: sha512-l/3CdTMqca6HlotCp1R2Lhl+DMnT2MtVlVe2OJFPLxQh5mcURmVeaQstx3hQ1W9E+iw1caxWMDFqZzcTQy5gbg==}
+  fandomscraper@1.0.71:
+    resolution: {integrity: sha512-idYEs0XQmyRhbLvY5k1gAch/inkyk6BOSUMtyWg04+G/erPmOUug3IUxj1ppOI7HQ3vpTt9vGA0b7kh6mgvlog==}
 
   form-data@4.0.1:
     resolution: {integrity: sha512-tzN8e4TX8+kkxGPK8D5u0FNmjPUjw3lwC9lSLxxoB/+GtsJG91CO8bSWy73APlgAZzZbXEYZJuxjkHH2w+Ezhw==}
@@ -547,7 +547,7 @@ snapshots:
       '@esbuild/win32-ia32': 0.23.1
       '@esbuild/win32-x64': 0.23.1
 
-  fandomscraper@1.0.7:
+  fandomscraper@1.0.71:
     dependencies:
       jsdom: 22.1.0
     transitivePeerDependencies:
