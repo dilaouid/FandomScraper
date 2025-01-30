@@ -2,10 +2,8 @@ import { FandomScraper } from 'fandomscraper'
 
 import type { ScraperOptions } from '../types'
 
-// Stockage des instances FandomScraper
 const scraperInstances = new Map<string, FandomScraper>()
 
-// Obtenir ou créer une instance de scraper
 const getScraper = (wiki: string): FandomScraper => {
     if (!scraperInstances.has(wiki)) {
         scraperInstances.set(wiki, new FandomScraper(wiki, { lang: 'en' }))
@@ -15,51 +13,62 @@ const getScraper = (wiki: string): FandomScraper => {
 
 export const scraper = {
     // Rechercher tous les personnages
-    findAll: async (wiki: string, options: ScraperOptions = {}) => {
+    findAll: async (wiki: string, options: Partial<ScraperOptions> = {}) => {
         const instance = getScraper(wiki)
         const query = instance.findAll({
             base64: false,
             withId: options.withId ?? false,
-            recursive: options.recursive ?? false,
+            recursive: options.recursive ?? false
         })
-
+    
         if (options.limit) query.limit(options.limit)
         if (options.offset) query.offset(options.offset)
         if (options.fields?.length) {
             query.attr(options.fields.join(' '))
         }
-
+        if (options.arrayFields?.length) {
+            query.attrToArray(options.arrayFields.join(' '))
+        }
+    
         return query.exec()
     },
+    
 
     // Rechercher par nom
-    findByName: async (wiki: string, name: string, options: ScraperOptions = {}) => {
+    findByName: async (wiki: string, name: string, options: Partial<ScraperOptions> = {}) => {
         const instance = getScraper(wiki)
         const query = instance.findByName(name, {
             base64: false,
-            withId: options.withId ?? false,
+            withId: options.withId ?? false
         })
-
+    
         if (options.fields?.length) {
             query.attr(options.fields.join(' '))
         }
-
+        if (options.arrayFields?.length) {
+            query.attrToArray(options.arrayFields.join(' '))
+        }
+    
         return query.exec()
     },
-
+    
     // Rechercher par ID
-    findById: async (wiki: string, id: number, options: ScraperOptions = {}) => {
+    findById: async (wiki: string, id: number, options: Partial<ScraperOptions> = {}) => {
         const instance = getScraper(wiki)
         const query = instance.findById(id, {
             base64: false
         })
-
+    
         if (options.fields?.length) {
             query.attr(options.fields.join(' '))
         }
-
+        if (options.arrayFields?.length) {
+            query.attrToArray(options.arrayFields.join(' '))
+        }
+    
         return query.exec()
     },
+    
 
     // Obtenir les métadonnées
     getMetadata: async (wiki: string, { withCount = false } = {}) => {

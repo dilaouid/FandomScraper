@@ -1,17 +1,18 @@
 import { type Context } from 'hono'
+import type { ScraperOptions } from '../types'
 import { scraper } from '../services/scraper.service'
 
-// Handlers purs pour les routes
 export const handlers = {
     // GET /:wiki/characters
     findAll: async (c: Context) => {
         const wiki = c.req.param('wiki')
         const query = c.req.query()
-
-        const options = {
+        
+        const options: Partial<ScraperOptions> = {
             limit: Number(query.limit) || 100,
             offset: Number(query.offset) || 0,
             fields: query.fields?.split(','),
+            arrayFields: query.arrayFields?.split(','),
             withId: query.withId === 'true',
             recursive: query.recursive === 'true'
         }
@@ -20,18 +21,23 @@ export const handlers = {
         return c.json(characters)
     },
 
+
     // GET /:wiki/characters/name/:name
     findByName: async (c: Context) => {
         const { wiki, name } = c.req.param()
-        const { fields, withId = 'true' } = c.req.query()
-
-        const character = await scraper.findByName(wiki, name, {
-            fields: fields?.split(','),
-            withId: withId === 'true'
-        })
-
+        const query = c.req.query()
+        
+        const options: Partial<ScraperOptions> = {
+            fields: query.fields?.split(','),
+            arrayFields: query.arrayFields?.split(','),
+            withId: query.withId === 'true',
+            recursive: query.recursive === 'true'
+        }
+        
+        const character = await scraper.findByName(wiki, name, options)
         return character ? c.json(character) : c.notFound()
     },
+
 
     // GET /:wiki/characters/id/:id
     findById: async (c: Context) => {

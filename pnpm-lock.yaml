@@ -12,20 +12,20 @@ importers:
         specifier: ^1.13.7
         version: 1.13.7(hono@4.6.19)
       fandomscraper:
-        specifier: ^1.0.71
-        version: 1.0.71
+        specifier: ^1.0.72
+        version: 1.0.72
       hono:
-        specifier: ^4.6.14
+        specifier: ^4.6.19
         version: 4.6.19
       zod:
         specifier: ^3.24.1
         version: 3.24.1
     devDependencies:
       '@types/node':
-        specifier: ^20.11.17
+        specifier: ^20.17.16
         version: 20.17.16
       tsx:
-        specifier: ^4.7.1
+        specifier: ^4.19.2
         version: 4.19.2
 
 packages:
@@ -240,8 +240,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  fandomscraper@1.0.71:
-    resolution: {integrity: sha512-idYEs0XQmyRhbLvY5k1gAch/inkyk6BOSUMtyWg04+G/erPmOUug3IUxj1ppOI7HQ3vpTt9vGA0b7kh6mgvlog==}
+  fandomscraper@1.0.72:
+    resolution: {integrity: sha512-wquMWYNilk0NyG9O6ohmZ+k4BMwBMhAWQQq0ze7wo9z2zxFNBmBNYJRmDRxQDrY8iz0o2M5+1v0tO6PsBR6qSQ==}
 
   form-data@4.0.1:
     resolution: {integrity: sha512-tzN8e4TX8+kkxGPK8D5u0FNmjPUjw3lwC9lSLxxoB/+GtsJG91CO8bSWy73APlgAZzZbXEYZJuxjkHH2w+Ezhw==}
@@ -547,7 +547,7 @@ snapshots:
       '@esbuild/win32-ia32': 0.23.1
       '@esbuild/win32-x64': 0.23.1
 
-  fandomscraper@1.0.71:
+  fandomscraper@1.0.72:
     dependencies:
       jsdom: 22.1.0
     transitivePeerDependencies:

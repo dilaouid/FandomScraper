@@ -6,7 +6,7 @@ import { characterRoutes } from './routes/router'
 const app = new Hono()
 
 // app.onError(errorHandler)
-app.route('/api', characterRoutes)
+app.route('/', characterRoutes)
 
 serve(app, () => {
   console.log('Server running on http://localhost:3000')
