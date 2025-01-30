@@ -329,4 +329,4 @@ declare class FandomPersonalScraper extends FandomScraper {
     constructor(schema: ISchema);
 }
 
-export { FandomPersonalScraper, FandomScraper, availableWikis };
+export { FandomPersonalScraper, FandomScraper, type TAvailableWikis, availableWikis };
