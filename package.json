@@ -5,8 +5,8 @@
   "description": "A package to scrap fandoms wikis characters page. Only scraps the characters info section and the list of all repertoried characters.",
   "typings": "./dist/types/globals.d.ts",
   "files": [
-    "./dist/",
-    "./dist/**/*"
+    "dist",
+    "wikia"
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,7 +14,8 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    }
+    },
+    "./wikia/*": "./wikia/*"
   },
   "module": "./dist/index.js",
   "scripts": {
