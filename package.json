@@ -1,18 +1,26 @@
 {
   "name": "fandomscraper",
-  "version": "1.0.7",
+  "version": "1.0.71",
   "type": "module",
   "description": "A package to scrap fandoms wikis characters page. Only scraps the characters info section and the list of all repertoried characters.",
-  "types": "./dist/index.d.ts",
   "typings": "./dist/types/globals.d.ts",
   "files": [
     "./dist/",
-    "./dist/types/globals.d.ts"
+    "./dist/**/*"
   ],
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "module": "./dist/index.js",
   "scripts": {
-    "build": "rimraf dist && tsc --project tsconfig.json",
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc --project tsconfig.json",
+    "prepublishOnly": "npm run build",
     "test": "npx jest --config=jest.config.cjs"
   },
   "repository": {

@@ -8,6 +8,7 @@
         "strict": true,
         "esModuleInterop": true,
         "declaration": true,
+        "declarationDir": "./dist",
         "allowJs": true,
         "baseUrl": ".",
         "sourceMap": true,
