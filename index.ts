@@ -987,4 +987,4 @@ export class FandomPersonalScraper extends FandomScraper {
     }
 }
 
-export { availableWikis }
+export { availableWikis, TAvailableWikis }
