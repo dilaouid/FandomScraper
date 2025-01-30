@@ -1,35 +1,566 @@
 import { JSDOM } from 'jsdom';
 
-var __glob = (map) => (path) => {
-  var fn = map[path];
-  if (fn) return fn();
-  throw new Error("Module not found in bundle: " + path);
+// index.ts
+
+// wikia/death-note/data-source.ts
+var DeathNoteFRDataSource = {
+  gender: "Sexe",
+  images: {
+    identifier: ".mw-parser-output table img",
+    get: function(page) {
+      const elements = page.querySelectorAll(this.identifier);
+      const filteredElements = Array.from(elements).filter((element) => {
+        return element.getAttribute("alt") !== "Tete" && element.getAttribute("alt") !== "Pomme";
+      });
+      return filteredElements;
+    }
+  },
+  episode: "anime",
+  age: "\xE2ge",
+  birthday: "Naissance",
+  affiliation: "affiliation",
+  bloodType: "Groupe sanguin",
+  occupations: "Activit\xE9(s)",
+  height: "Taille",
+  weight: "Poids",
+  relatives: "Famille"
+};
+var DeathNoteENDataSource = {
+  kanji: "name",
+  species: "species",
+  gender: "gender",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "anime",
+  manga: "manga",
+  age: "age",
+  birthday: "birth",
+  bloodType: "blood",
+  height: "height",
+  weight: "weight",
+  affiliation: "organization",
+  occupations: "occupation",
+  relatives: "family",
+  seiyu: "japanese",
+  voiceActor: "english"
 };
 
-// types/dynamic.types.ts
-var availableWikis = [
-  "demon-slayer",
-  "naruto",
-  "shiki",
-  "death-note",
-  "fumetsu",
-  "one-piece",
-  "dragon-ball",
-  "promised-neverland",
-  "berserk",
-  "jojo"
-];
+// wikia/death-note/schemas.ts
+var DeathNoteFR = {
+  url: "https://deathnote.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages",
+  pageFormat: "classic",
+  dataSource: DeathNoteFRDataSource
+};
+var DeathNoteEN = {
+  url: "https://deathnote.fandom.com/wiki/Category:Manga_characters",
+  pageFormat: "classic",
+  dataSource: DeathNoteENDataSource
+};
 
-// require("./**/*/index.js") in wikia/index.ts
-var globRequire_index_js = __glob({});
+// wikia/death-note/index.ts
+var DeathNote = {
+  fr: DeathNoteFR,
+  en: DeathNoteEN
+};
+
+// wikia/demon-slayer/data-source.ts
+var DemonSlayerFRDataSource = {
+  kanji: "kanji",
+  romaji: "r\xF4maji",
+  status: "statut",
+  species: "race",
+  gender: "genre",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "anime",
+  manga: "manga",
+  age: "\xE2ge",
+  affiliation: "affiliation",
+  height: "taille",
+  weight: "poids",
+  birthday: "anniversaire",
+  occupations: "occupation",
+  relatives: "relation",
+  seiyu: "japonais"
+};
+var DemonSlayerENDataSource = {
+  kanji: "kanji",
+  romaji: "r\u014Dmaji",
+  status: "status",
+  species: "race",
+  gender: "gender",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "anime_debut",
+  manga: "manga_debut",
+  age: "age",
+  affiliation: "affiliation",
+  occupations: "occupation",
+  relatives: "relative(s)",
+  birthday: "birthday",
+  height: "height",
+  weight: "weight",
+  seiyu: "japanese_va",
+  voiceActor: "english_va"
+};
+
+// wikia/demon-slayer/schemas.ts
+var DemonSlayerFR = {
+  url: "https://kimetsu-no-yaiba.fandom.com/fr/wiki/Cat\xE9gorie:Personnages",
+  pageFormat: "classic",
+  dataSource: DemonSlayerFRDataSource
+};
+var DemonSlayerEN = {
+  url: "https://kimetsu-no-yaiba.fandom.com/wiki/Characters#Manga",
+  pageFormat: "table-2",
+  dataSource: DemonSlayerENDataSource
+};
+
+// wikia/demon-slayer/index.ts
+var DemonSlayer = {
+  fr: DemonSlayerFR,
+  en: DemonSlayerEN
+};
+
+// wikia/dragon-ball/data-source.ts
+var DragonBallFRDataSource = {
+  kanji: "Nom Original",
+  status: "Statut",
+  species: "Race",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "Premi\xE8re apparition Anime",
+  manga: "Premi\xE8re apparition Manga",
+  birthday: "Naissance",
+  height: "Taille",
+  weight: "Poids",
+  seiyu: "Voix Japonaise",
+  voiceActor: "Voix Fran\xE7aise",
+  relatives: "Famille"
+};
+var DragonBallENDataSource = {
+  kanji: "JapName",
+  romaji: "RomName",
+  gender: "Gender",
+  species: "Race",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "anime debut",
+  affiliation: "Allegiance",
+  manga: "manga debut",
+  height: "Height",
+  weight: "Weight",
+  occupations: "Occupation",
+  relatives: "FamConnect",
+  birthday: "Date of birth"
+};
+
+// wikia/dragon-ball/schemas.ts
+var DragonBallFR = {
+  url: "https://dragonball.fandom.com/fr/wiki/Cat\xE9gorie:Personnages",
+  pageFormat: "classic",
+  dataSource: DragonBallFRDataSource
+};
+var DragonBallEN = {
+  url: "https://dragonball.fandom.com/wiki/Characters",
+  pageFormat: "classic",
+  dataSource: DragonBallENDataSource
+};
+
+// wikia/dragon-ball/index.ts
+var DragonBall = {
+  fr: DragonBallFR,
+  en: DragonBallEN
+};
+
+// wikia/fumetsu/data-source.ts
+var FumetsuENDataSource = {
+  kanji: "Kanji",
+  status: "Status",
+  species: "Race",
+  gender: "Sex",
+  images: {
+    identifier: ".mw-parser-output table img",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "Anime",
+  manga: "Manga",
+  age: "Age",
+  affiliation: "Affiliation",
+  birthday: "Birthday",
+  relatives: "Relatives",
+  seiyu: "Japanese Voice",
+  voiceActor: "English Voice"
+};
+
+// wikia/fumetsu/schemas.ts
+var FumetsuEN = {
+  url: "https://fumetsunoanatae.fandom.com/wiki/Category:Characters",
+  pageFormat: "classic",
+  dataSource: FumetsuENDataSource
+};
+
+// wikia/fumetsu/index.ts
+var Fumetsu = {
+  fr: FumetsuEN,
+  en: FumetsuEN
+};
+
+// wikia/naruto/data-source.ts
+var NarutoFRDataSource = {
+  name: "Nom",
+  status: "Statut",
+  gender: "Genre",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "D\xE9but anime",
+  manga: "D\xE9but manga",
+  age: "\xC2ge",
+  affiliation: "Affiliation",
+  birthday: "Naissance",
+  height: "Taille",
+  weight: "Poids",
+  relatives: "Famille",
+  bloodType: "Groupe Sanguin",
+  seiyu: "Seiy\xFB",
+  voiceActor: "Doubleur Fran\xE7ais"
+};
+var NarutoENDataSource = {
+  status: "Status",
+  gender: "Sex",
+  images: {
+    identifier: ".mw-parser-output .imagecell img",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "Anime",
+  manga: "Manga",
+  age: "Age",
+  affiliation: "Affiliation",
+  occupations: "Occupation",
+  birthday: "Birthdate",
+  height: "Height",
+  weight: "Weight",
+  relatives: "Famille",
+  bloodType: "Blood type",
+  seiyu: "Japanese",
+  voiceActor: "English"
+};
+
+// wikia/naruto/schemas.ts
+var NarutoFR = {
+  url: "https://naruto.fandom.com/fr/wiki/Cat\xE9gorie:Personnages",
+  pageFormat: "classic",
+  dataSource: NarutoFRDataSource
+};
+var NarutoEN = {
+  url: "https://naruto.fandom.com/wiki/Category:Characters",
+  pageFormat: "classic",
+  dataSource: NarutoENDataSource
+};
+
+// wikia/naruto/index.ts
+var Naruto = {
+  fr: NarutoFR,
+  en: NarutoEN
+};
+
+// wikia/one-piece/data-source.ts
+var OnePieceFRDataSource = {
+  name: "nomf",
+  kanji: "nomj",
+  romaji: "nomr",
+  status: "statut",
+  age: "\xE2ge",
+  images: {
+    identifier: ".wds-tab__content img",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "premi\xE8re",
+  affiliation: "affiliation",
+  occupations: "occupation",
+  height: "taille",
+  bloodType: "groupe sanguin",
+  seiyu: "voj",
+  voiceActor: "vof"
+};
+var OnePieceENDataSource = {
+  name: "ename",
+  kanji: "jname",
+  romaji: "rname",
+  status: "status",
+  age: "age",
+  images: {
+    identifier: ".wds-tab__content img",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "first",
+  affiliation: "affiliation",
+  occupations: "occupation",
+  bloodType: "blood type",
+  height: "height",
+  seiyu: "jva",
+  voiceActor: "Odex eva"
+};
+
+// wikia/one-piece/schemas.ts
+var OnePieceFR = {
+  url: "https://onepiece.fandom.com/fr/wiki/Liste_des_Personnages_Canon",
+  pageFormat: "table-1",
+  dataSource: OnePieceFRDataSource
+};
+var OnePieceEN = {
+  url: "https://onepiece.fandom.com/wiki/List_of_Canon_Characters",
+  pageFormat: "table-3",
+  dataSource: OnePieceENDataSource
+};
+
+// wikia/one-piece/index.ts
+var OnePiece = {
+  fr: OnePieceFR,
+  en: OnePieceEN
+};
+
+// wikia/shiki/data-source.ts
+var ShikiENDataSource = {
+  kanji: "Name Kanji",
+  status: "Status",
+  species: "Race",
+  gender: "Gender",
+  images: {
+    identifier: ".mw-parser-output table img",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "Anime Debut",
+  age: "Age",
+  occupations: "Occupation"
+};
+
+// wikia/shiki/schemas.ts
+var ShikiEN = {
+  url: "https://shiki.fandom.com/wiki/Category:Characters",
+  pageFormat: "classic",
+  dataSource: ShikiENDataSource
+};
+
+// wikia/shiki/index.ts
+var Shiki = {
+  fr: ShikiEN,
+  en: ShikiEN
+};
+
+// wikia/promised-neverland/data-source.ts
+var PromisedNeverlandFRDataSource = {
+  kanji: "kanji",
+  romaji: "r\u014Dmaji",
+  gender: "genre",
+  species: "esp\xE8ce",
+  images: {
+    identifier: ".mw-parser-output table img",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "premi\xE8re_apparition",
+  status: "statut",
+  age: "\xE2ge",
+  birthday: "anniversaire",
+  eyeColor: "yeux",
+  hairColor: "cheveux",
+  height: "taille",
+  affiliation: "Affiliations",
+  relatives: "famille",
+  seiyu: "doubleur"
+};
+var PromisedNeverlandENDataSource = {
+  kanji: "Kanji",
+  romaji: "R\u014Dmaji",
+  gender: "Gender",
+  species: "Species",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  manga: "Manga",
+  episode: "Episode",
+  status: "Status",
+  bloodType: "Blood Type",
+  age: "Age",
+  birthday: "Birthday",
+  eyeColor: "Eye Color",
+  hairColor: "Hair Color",
+  height: "Height",
+  affiliation: "Previous Affiliation",
+  voiceActor: "English VA",
+  seiyu: "Japanese VA"
+};
+
+// wikia/promised-neverland/schemas.ts
+var PromisedNeverlandFR = {
+  url: "https://the-promised-neverland.fandom.com/fr/wiki/Cat\xE9gorie:Personnages",
+  pageFormat: "classic",
+  dataSource: PromisedNeverlandFRDataSource
+};
+var PromisedNeverlandEN = {
+  url: "https://yakusokunoneverland.fandom.com/wiki/Category:Manga_characters",
+  pageFormat: "classic",
+  dataSource: PromisedNeverlandENDataSource
+};
+
+// wikia/promised-neverland/index.ts
+var PromisedNeverland = {
+  fr: PromisedNeverlandFR,
+  en: PromisedNeverlandEN
+};
+
+// wikia/berserk/data-source.ts
+var BerserkENDataSource = {
+  gender: "Gender",
+  species: "Kind",
+  images: {
+    identifier: ".mw-parser-output table img",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "First appearance",
+  status: "Status",
+  affiliation: "Affiliations",
+  occupations: "Occupation(s)",
+  relatives: "Relatives",
+  hairColor: "Hair color",
+  eyeColor: "Eye color"
+};
+
+// wikia/berserk/schemas.ts
+var BerserkEN = {
+  url: "https://berserk.fandom.com/wiki/Category:Fantasia_Arc_Characters",
+  pageFormat: "classic",
+  dataSource: BerserkENDataSource
+};
+
+// wikia/berserk/index.ts
+var Berserk = {
+  fr: BerserkEN,
+  en: BerserkEN
+};
+
+// wikia/jojo/data-source.ts
+var JojoFRDataSource = {
+  kanji: "Kanji",
+  romaji: "Romaji",
+  species: "Esp\xE8ce",
+  gender: "Genre",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "D\xE9but anime",
+  manga: "D\xE9but manga",
+  age: "\xC2ge",
+  birthday: "Date de naissance",
+  zodiac: "Signe",
+  height: "Taille",
+  weight: "Poids",
+  hairColor: "Couleur de cheveux",
+  eyeColor: "Couleur des yeux",
+  occupations: "Profession",
+  affiliation: "Profession"
+};
+var JojoENDataSource = {
+  kanji: "ja_kanji",
+  romaji: "ja_romaji",
+  status: "status",
+  gender: "gender",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "animedebut",
+  manga: "mangadebut",
+  age: "age",
+  birthday: "birthday",
+  zodiac: "zodiac",
+  height: "height",
+  weight: "weight",
+  occupations: "occupation",
+  hairColor: "hair",
+  eyeColor: "eyes",
+  affiliation: "affiliation",
+  seiyu: "seiyuu",
+  voiceActor: "voiceactor"
+};
+
+// wikia/jojo/schemas.ts
+var JojoFR = {
+  url: "https://jjba.fandom.com/fr/wiki/Cat\xE9gorie:Personnages",
+  pageFormat: "classic",
+  dataSource: JojoFRDataSource
+};
+var JojoEN = {
+  url: "https://jojo.fandom.com/wiki/Category:Characters",
+  pageFormat: "classic",
+  dataSource: JojoENDataSource
+};
+
+// wikia/jojo/index.ts
+var Jojo = {
+  fr: JojoFR,
+  en: JojoEN
+};
 
 // wikia/index.ts
-var Schemas = Object.fromEntries(
-  availableWikis.map((wiki) => [
-    wiki,
-    globRequire_index_js(`./${wiki}/index.js`)[wiki.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join("")]
-  ])
-);
+var Schemas = {
+  "demon-slayer": DemonSlayer,
+  "naruto": Naruto,
+  "shiki": Shiki,
+  "death-note": DeathNote,
+  "fumetsu": Fumetsu,
+  "one-piece": OnePiece,
+  "dragon-ball": DragonBall,
+  "promised-neverland": PromisedNeverland,
+  "berserk": Berserk,
+  "jojo": Jojo
+};
 
 // utils/allCharactersPage.ts
 var allCharactersPage = {
@@ -81,6 +612,20 @@ var formatName = (name) => {
 var formatForUrl = (name) => {
   return name.replace(/ /g, "_");
 };
+
+// types/dynamic.types.ts
+var availableWikis = [
+  "demon-slayer",
+  "naruto",
+  "shiki",
+  "death-note",
+  "fumetsu",
+  "one-piece",
+  "dragon-ball",
+  "promised-neverland",
+  "berserk",
+  "jojo"
+];
 
 // index.ts
 var FandomScraper = class {
