@@ -85,6 +85,11 @@ interface IMetaData {
     availableLanguages: string[];
 };
 
+interface WikiaParameters {
+    name: TAvailableWikis;
+    lang: 'en' | 'fr';
+}
+
 /**
  * FandomScraper is a class that allows you to scrape a Fandom wiki, and get all the characters of a fiction.
  * The list of available wikis can be found in the TAvailableWikis type.
@@ -104,7 +109,7 @@ export class FandomScraper {
     };
     private method: 'find' | 'findByName' | 'findById' | undefined;
     private name: string = '';
-    private wikiaParameters: {name: string, lang: 'fr' | 'en'};
+    private wikiaParameters: WikiaParameters;
     private id: number = 0;
     private keysAttrToArray: string[] = [];
     private isOldVersion: boolean = false;
@@ -557,8 +562,11 @@ export class FandomScraper {
      * Get all the available wikis of the FandomScraper class.
      * @returns The available wikis.
      */
-    public getAvailableWikis(): string[] {
-        return availableWikis;
+    public getAvailableWikis(): WikiaParameters[] {
+        return availableWikis.map(wiki => ({
+            name: wiki,
+            lang: 'en'
+        }));
     };
 
 

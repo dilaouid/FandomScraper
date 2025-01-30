@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -9,16 +8,19 @@ const getCurrentPath = () => {
   return path.dirname(fileURLToPath(import.meta.url));
 };
 
-// the different wikis available to scrape are the different folders in the schemas folder
-const schemaDirectory = path.join(getCurrentPath(), '../wikia');
+// Liste statique des wikis disponibles
+export const availableWikis = [
+  'demon-slayer',
+  'naruto',
+  'shiki',
+  'death-note',
+  'fumetsu',
+  'one-piece',
+  'dragon-ball',
+  'promised-neverland',
+  'berserk',
+  'jojo'
+] as const;
 
-// get the list of available wikis by getting the list of folders in the schemas folder
-const availableWikis = fs.readdirSync(schemaDirectory, { withFileTypes: true })
-  .filter((dirent) => dirent.isDirectory())
-  .map((dirent) => dirent.name);
-
-// the type of the available wikis is the list of the different folders in the schemas folder
-type TAvailableWikis = typeof availableWikis[number];
-
-export type { TAvailableWikis };
-export { availableWikis };
+// Type basé sur la liste statique
+export type TAvailableWikis = typeof availableWikis[number];

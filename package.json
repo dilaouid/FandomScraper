@@ -1,6 +1,6 @@
 {
   "name": "fandomscraper",
-  "version": "1.0.72",
+  "version": "1.0.73",
   "type": "module",
   "description": "A package to scrap fandoms wikis characters page. Only scraps the characters info section and the list of all repertoried characters.",
   "typings": "./dist/types/globals.d.ts",
@@ -19,7 +19,8 @@
   "module": "./dist/index.js",
   "scripts": {
     "clean": "rimraf dist",
-    "build": "npm run clean && tsc --project tsconfig.json",
+    "build": "tsup src/index.ts --format esm --clean --treeshake",
+    "postbuild": "cp -r wikia dist/",
     "prepublishOnly": "npm run build",
     "test": "npx jest --config=jest.config.cjs"
   },
