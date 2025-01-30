@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/app.ts",
-    "build": "tsup src/app.ts --format esm --dts --clean",
+    "build": "tsup src/app.ts --format esm --clean",
     "start": "node --experimental-specifier-resolution=node dist/app.js"
   },
   "dependencies": {

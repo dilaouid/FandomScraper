@@ -1,6 +1,6 @@
 import { FandomScraper } from 'fandomscraper'
 
-import type { ScraperOptions } from '../types/index'
+import type { IMetadata, ScraperOptions } from '../types/index'
 
 const scraperInstances = new Map<string, FandomScraper>()
 
@@ -73,7 +73,7 @@ export const scraper = {
     // Obtenir les métadonnées
     getMetadata: async (wiki: string, { withCount = false } = {}) => {
         const instance = getScraper(wiki)
-        return instance.getMetadata({ withCount })
+        return instance.getMetadata({ withCount }) as Promise<IMetadata>
     },
 
     // Obtenir le nombre total
