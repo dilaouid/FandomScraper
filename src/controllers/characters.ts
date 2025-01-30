@@ -1,11 +1,12 @@
 import { type Context } from 'hono'
 import type { ScraperOptions } from '../types'
 import { scraper } from '../services/scraper.service'
+import { TAvailableWikis } from 'fandomscraper'
 
 export const handlers = {
     // GET /:wiki/characters
     findAll: async (c: Context) => {
-        const wiki = c.req.param('wiki')
+        const wiki = c.req.param('wiki') as TAvailableWikis
         const query = c.req.query()
         
         const options: Partial<ScraperOptions> = {
@@ -24,7 +25,7 @@ export const handlers = {
 
     // GET /:wiki/characters/name/:name
     findByName: async (c: Context) => {
-        const { wiki, name } = c.req.param()
+        const { wiki, name } = c.req.param() as { wiki: TAvailableWikis, name: string }
         const query = c.req.query()
         
         const options: Partial<ScraperOptions> = {
@@ -41,7 +42,7 @@ export const handlers = {
 
     // GET /:wiki/characters/id/:id
     findById: async (c: Context) => {
-        const { wiki, id } = c.req.param()
+        const { wiki, id } = c.req.param() as { wiki: TAvailableWikis, id: string }
         const { fields, withId = 'true' } = c.req.query()
 
         const character = await scraper.findById(wiki, Number(id), {
@@ -54,7 +55,7 @@ export const handlers = {
 
     // GET /:wiki/metadata
     getMetadata: async (c: Context) => {
-        const wiki = c.req.param('wiki')
+        const wiki = c.req.param('wiki') as TAvailableWikis
         const { withCount = 'false' } = c.req.query()
 
         const metadata = await scraper.getMetadata(wiki, {
@@ -66,7 +67,7 @@ export const handlers = {
 
     // GET /:wiki/count
     getCount: async (c: Context) => {
-        const wiki = c.req.param('wiki')
+        const wiki = c.req.param('wiki') as TAvailableWikis
         const count = await scraper.getCount(wiki)
         return c.json({ count })
     },

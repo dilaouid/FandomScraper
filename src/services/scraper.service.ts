@@ -1,10 +1,10 @@
-import { FandomScraper } from 'fandomscraper'
+import { FandomScraper, TAvailableWikis } from 'fandomscraper'
 
 import type { IMetadata, ScraperOptions } from '../types/index'
 
 const scraperInstances = new Map<string, FandomScraper>()
 
-const getScraper = (wiki: string): FandomScraper => {
+const getScraper = (wiki: TAvailableWikis): FandomScraper => {
     if (!scraperInstances.has(wiki)) {
         scraperInstances.set(wiki, new FandomScraper(wiki, { lang: 'en' }))
     }
@@ -13,7 +13,7 @@ const getScraper = (wiki: string): FandomScraper => {
 
 export const scraper = {
     // Rechercher tous les personnages
-    findAll: async (wiki: string, options: Partial<ScraperOptions> = {}) => {
+    findAll: async (wiki: TAvailableWikis, options: Partial<ScraperOptions> = {}) => {
         const instance = getScraper(wiki)
         const query = instance.findAll({
             base64: false,
@@ -35,7 +35,7 @@ export const scraper = {
     
 
     // Rechercher par nom
-    findByName: async (wiki: string, name: string, options: Partial<ScraperOptions> = {}) => {
+    findByName: async (wiki: TAvailableWikis, name: string, options: Partial<ScraperOptions> = {}) => {
         const instance = getScraper(wiki)
         const query = instance.findByName(name, {
             base64: false,
@@ -53,7 +53,7 @@ export const scraper = {
     },
     
     // Rechercher par ID
-    findById: async (wiki: string, id: number, options: Partial<ScraperOptions> = {}) => {
+    findById: async (wiki: TAvailableWikis, id: number, options: Partial<ScraperOptions> = {}) => {
         const instance = getScraper(wiki)
         const query = instance.findById(id, {
             base64: false
@@ -71,13 +71,13 @@ export const scraper = {
     
 
     // Obtenir les métadonnées
-    getMetadata: async (wiki: string, { withCount = false } = {}) => {
+    getMetadata: async (wiki: TAvailableWikis, { withCount = false } = {}) => {
         const instance = getScraper(wiki)
         return instance.getMetadata({ withCount }) as Promise<IMetadata>
     },
 
     // Obtenir le nombre total
-    getCount: async (wiki: string) => {
+    getCount: async (wiki: TAvailableWikis) => {
         const instance = getScraper(wiki)
         return instance.count()
     },
