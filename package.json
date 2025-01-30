@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/app.ts",
-    "build": "tsup src/app.ts --format cjs",
+    "build": "tsc",
     "start": "node dist/app.js"
   },
   "dependencies": {
@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.17.16",
-    "tsup": "^8.3.6",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
   }
 }
