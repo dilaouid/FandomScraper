@@ -1,6 +1,6 @@
 import { FandomScraper } from 'fandomscraper'
 
-import type { ScraperOptions } from '../types'
+import type { ScraperOptions } from '../types/index'
 
 const scraperInstances = new Map<string, FandomScraper>()
 
