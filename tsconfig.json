@@ -1,24 +1,7 @@
 {
-    "compilerOptions": {
-        "target": "ES2020",
-        "module": "ES2020",
-        "moduleResolution": "node",
-        "outDir": "./dist",
-        "rootDir": ".",
-        "strict": true,
-        "esModuleInterop": true,
-        "declaration": true,
-        "declarationDir": "./dist",
-        "allowJs": true,
-        "baseUrl": ".",
-        "sourceMap": true,
-        "allowSyntheticDefaultImports": true,
-        "resolveJsonModule": true,
-        "verbatimModuleSyntax": false
-    },
-    "ts-node": {
-        "esm": true
-    },
-    "exclude": ["node_modules", "dist", "spec"],
-    "include": ["./*.ts", "./**/*.ts", "types/**/*.d.ts"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }
