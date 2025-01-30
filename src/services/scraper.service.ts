@@ -1,4 +1,4 @@
-import FandomScraper from 'fandomscraper'
+import { FandomScraper } from 'fandomscraper'
 
 import type { ScraperOptions } from '../types'
 
