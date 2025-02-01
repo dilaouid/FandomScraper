@@ -7,6 +7,7 @@ import { formatForUrl, formatName, removeBrackets } from './func/parsing';
 import { availableWikis } from './types/dynamic.types';
 
 import type { TAvailableWikis } from './types/dynamic.types';
+import { extractImageURL } from 'utils/extractImageURL';
 
 interface IGetCharactersOptions {
     
@@ -746,7 +747,7 @@ export class FandomScraper {
                             const b64 = await this.convertImageToBase64(src);
                             images.push(b64);
                         } else {
-                            images.push(src);
+                            images.push(extractImageURL(src));
                         }
                     }
                     data[key] = images;
