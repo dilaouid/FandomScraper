@@ -1,25 +1,31 @@
 export type ArrayFields = 'affiliation' | 'occupations' | 'episode' | 'relatives' | 'images'
 
-export interface Character {
-    id?: number
+export interface Wiki {
+    id: string
     name: string
-    url: string
-    data?: CharacterData
+    imageUrl: string
 }
 
-export interface CharacterData {
-    name?: string
-    kanji?: string
-    romaji?: string
-    status?: string
-    species?: string
-    gender?: string
-    images?: string[]
-    episode?: string[]
-    age?: string
-    affiliation?: string[] | string
-    occupations?: string[] | string
-    // ... autres champs
+export interface Character {
+    id: number
+    name: string
+    url: string
+    data?: {
+        age?: string
+        kanji?: string
+        status?: string
+        species?: string
+        gender?: string
+        images?: string[]
+        episode?: string[]
+        affiliation?: string[]
+        occupations?: string[]
+    }
+}
+
+export interface ApiResponse<T> {
+    data: T
+    error?: string
 }
 
 export interface QueryParams {

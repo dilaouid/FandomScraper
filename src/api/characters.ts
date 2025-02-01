@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useInfiniteQuery } from '@tanstack/vue-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import type { Character, QueryParams } from '../types'
 
-const BASE_URL = import.meta.env.VITE_API_URL || '/api'
+const BASE_URL = 'https://fandomscraper-production.up.railway.app'
 
 interface CharacterResponse {
     data: Character[]
