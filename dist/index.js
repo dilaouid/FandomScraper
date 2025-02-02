@@ -686,7 +686,8 @@ var FandomScraper = class {
       count,
       attributes: Object.keys(this._schema.dataSource),
       language: this.wikiaParameters.lang,
-      availableLanguages: Object.keys(schema)
+      availableLanguages: Object.keys(schema),
+      url: this._schema.url
     };
     if (!options.withCount)
       delete data.count;
@@ -733,6 +734,25 @@ var FandomScraper = class {
     if (offset < 0)
       throw new Error("Offset must be greater than 0");
     this.options.offset = offset;
+    return this;
+  }
+  /**
+   * Set the language of the current wiki instance.
+   * @param {'en' | 'fr'} lang - The language to set
+   * @returns The FandomScraper instance
+   * @throws Error if the language is not available for this wiki
+   * @example
+   * ```ts
+   * await scraper.setLanguage('fr');
+   * ```
+  */
+  setLanguage(lang) {
+    const schema = Schemas[this.wikiaParameters.name];
+    if (!Object.keys(schema).includes(lang)) {
+      throw new Error(`Language ${lang} is not available for this wiki`);
+    }
+    this._schema = schema[lang];
+    this.wikiaParameters.lang = lang;
     return this;
   }
   /**

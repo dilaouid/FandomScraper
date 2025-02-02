@@ -55,6 +55,7 @@ interface IMetaData {
     attributes: string[];
     count?: number;
     availableLanguages: string[];
+    url: string;
 }
 interface WikiaParameters {
     name: TAvailableWikis;
@@ -124,6 +125,17 @@ declare class FandomScraper {
      * ```
      */
     offset(offset: number): this;
+    /**
+     * Set the language of the current wiki instance.
+     * @param {'en' | 'fr'} lang - The language to set
+     * @returns The FandomScraper instance
+     * @throws Error if the language is not available for this wiki
+     * @example
+     * ```ts
+     * await scraper.setLanguage('fr');
+     * ```
+    */
+    setLanguage(lang: 'en' | 'fr'): this;
     /**
      * Set the ignored substrings in the characters names. Default: []
      * @param {string[]} ignore - The substrings to ignore in the characters names.

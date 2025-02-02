@@ -10,7 +10,7 @@ import type { TAvailableWikis } from './types/dynamic.types';
 import { extractImageURL } from 'utils/extractImageURL';
 
 interface IGetCharactersOptions {
-    
+
     /**
      * The limit of characters to get (optional). Default: 100000
      */
@@ -57,7 +57,7 @@ interface IGetCharacterOptions {
      * If the scraper should get the images in base64 (optional). Default: false
      */
     base64?: boolean;
-    
+
     /**
      * If the scraper should get the id of the character (optional). The id is the pageId of the wikia. Default: true
      */
@@ -84,6 +84,9 @@ interface IMetaData {
 
     // the available languages of the wiki
     availableLanguages: string[];
+
+    // The url of the wiki
+    url: string;
 };
 
 interface WikiaParameters {
@@ -146,7 +149,7 @@ export class FandomScraper {
      * Get metadata about the current wiki. (availables attributes, language, etc...)
      * @returns The metadata of the wiki.
      */
-    public async getMetadata(options: { withCount: boolean } = {withCount: true}): Promise<IMetaData> {
+    public async getMetadata(options: { withCount: boolean } = { withCount: true }): Promise<IMetaData> {
         const schema = Schemas[this.wikiaParameters.name];
         const count = options.withCount ? await this.count() : 0;
         const data: IMetaData = {
@@ -154,12 +157,13 @@ export class FandomScraper {
             count: count,
             attributes: Object.keys(this._schema.dataSource),
             language: this.wikiaParameters.lang,
-            availableLanguages: Object.keys(schema)
-        };
-        
-        if (!options.withCount) 
+            availableLanguages: Object.keys(schema),
+            url: this._schema.url
+        };    
+
+        if (!options.withCount)
             delete data.count;
-            
+
         return data;
     };
 
@@ -209,6 +213,27 @@ export class FandomScraper {
         this.options.offset = offset;
         return this;
     };
+
+    /**
+     * Set the language of the current wiki instance.
+     * @param {'en' | 'fr'} lang - The language to set
+     * @returns The FandomScraper instance
+     * @throws Error if the language is not available for this wiki
+     * @example
+     * ```ts
+     * await scraper.setLanguage('fr');
+     * ```
+    */
+    public setLanguage(lang: 'en' | 'fr'): this {
+        const schema = Schemas[this.wikiaParameters.name];
+        if (!Object.keys(schema).includes(lang)) {
+            throw new Error(`Language ${lang} is not available for this wiki`);
+        }
+        this._schema = schema[lang];
+        this.wikiaParameters.lang = lang;
+        return this;
+    }
+
 
     /**
      * Set the ignored substrings in the characters names. Default: []
@@ -308,7 +333,7 @@ export class FandomScraper {
             throw new Error(`Error while fetching ${url}: ${err}`);
         }) as unknown as string;
 
-        return new JSDOM(text , { url: url, contentType: "text/html", referrer: url }).window.document;
+        return new JSDOM(text, { url: url, contentType: "text/html", referrer: url }).window.document;
     }
 
 
@@ -433,7 +458,7 @@ export class FandomScraper {
         }
         return [];
     };
-    
+
 
     /**
      * Get a character of the current wiki according to its name, considering the options provided.
@@ -477,7 +502,7 @@ export class FandomScraper {
                     return await this.formatCharacterData(page, options, data);
                 }
             });
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
     }
@@ -509,7 +534,7 @@ export class FandomScraper {
                     return await this.formatCharacterData(page, options, data);
                 }
             });
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
     };
@@ -531,9 +556,9 @@ export class FandomScraper {
     public async getById(id: number, options: IGetCharacterOptions = { name: '', base64: false, withId: true }): Promise<any> {
         try {
             if (id < 1) throw new Error('Id must be greater than 0');
-            
+
             return this._getById(id, options);
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
     }
@@ -549,7 +574,7 @@ export class FandomScraper {
             const name = page.querySelector('.mw-page-title-main')?.textContent || '';
             data.name = name;
             const characterData = await this.formatCharacterData(page, options, data);
-            
+
             if (!this.isValidCharacterPage(page)) {
                 throw new Error(`This character with this id does not exists: ${id}`);
             }
@@ -609,7 +634,7 @@ export class FandomScraper {
                 var characterData = {};
                 if (offset >= options.offset) {
                     const url = this.getUrlAccordingToFormat(element);
-            
+
                     const name = element.textContent;
                     if (!name) throw new Error('No name found');
 
@@ -630,7 +655,7 @@ export class FandomScraper {
                     }
 
                     count++;
-                    
+
                     if (!options.recursive) {
                         data[data.length - 1].data = undefined;
                     }
@@ -645,7 +670,7 @@ export class FandomScraper {
                 }
                 offset++;
             }
-          
+
             // Change the characters page according to the next button
             const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage[this._schema.pageFormat].next.value)[0];
             if (!nextElement) {
@@ -659,7 +684,7 @@ export class FandomScraper {
                 }
             }
         }
-          
+
         return data;
     }
 
@@ -687,7 +712,7 @@ export class FandomScraper {
                     }
                 }
             }
-        } catch(err) {
+        } catch (err) {
             console.error(err);
         }
         return count;
@@ -720,7 +745,7 @@ export class FandomScraper {
 
                 if (key === "images") {
                     const elements = format.images?.get(page);
-                    if (!elements) { 
+                    if (!elements) {
                         continue;
                     }
                     const images: string[] = [];
@@ -737,8 +762,8 @@ export class FandomScraper {
                                 }
                             }
                         }
-                        
-                        if (!src) { 
+
+                        if (!src) {
                             console.error(`No src found for key ${key}`);
                             continue;
                         }
@@ -759,7 +784,7 @@ export class FandomScraper {
                     if (!element) {
                         continue;
                     }
-    
+
                     // get the value from the value element
                     const value: string[] | string = this.setValue(element, this.keysAttrToArray.includes(key));
                     if (!value || value.length === 0) {
@@ -779,7 +804,7 @@ export class FandomScraper {
 
             // Split by <br>, <br />, and <li> elements
             value = value.flatMap((item) =>
-            item.split(/<br\s*\/?>|<li[^>]*>/).map((value) => removeBrackets(value))
+                item.split(/<br\s*\/?>|<li[^>]*>/).map((value) => removeBrackets(value))
             );
             // remove inner tags from the value
             for (let i = 0; i < value.length; i++) {
@@ -811,13 +836,13 @@ export class FandomScraper {
             const arrayBuffer = await response.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
             const base64Image = buffer.toString('base64');
-            return base64Image;        
+            return base64Image;
         } catch (error) {
             console.error('Error fetching or converting image:', error);
             throw error;
         }
     }
-    
+
 
     /**
      * Remove the elements from the characters list that contains one of the banned substring
@@ -843,7 +868,7 @@ export class FandomScraper {
      */
     private getDataAccordingToVersion(page: Document, key: string | IImage): Element | null {
         if (this.isOldVersion) {
-            
+
             const identifier = '.mw-parser-output';
 
             const tdElement = Array.from(page.querySelectorAll(identifier + ' td')).find((td) => {
@@ -916,7 +941,7 @@ export class FandomScraper {
             const url = this.getDataUrl(aElement.getAttribute('href'));
             if (!url) throw new Error('No URL found');
             return url;
-        } else if  (this._schema.pageFormat === 'table-3') {
+        } else if (this._schema.pageFormat === 'table-3') {
             const aElement = element.querySelector('a');
             if (!aElement) throw new Error('No <a> element found');
 
@@ -941,7 +966,7 @@ export class FandomScraper {
 
         const parsedUrl = new URL(this._schema.url);
         const path = parsedUrl.pathname;
-        
+
         if (!pageString.includes(path)) {
             return false;
         }
