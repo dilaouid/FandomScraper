@@ -2,7 +2,7 @@ const BerserkENDataSource: IDataSource = {
     gender: 'Gender',
     species: 'Kind',
     images: {
-        identifier: '.mw-parser-output table img',
+        identifier: '.mw-parser-output aside img',
         get: function(page: Document) {
             return page.querySelectorAll(this.identifier);
         }

@@ -8,6 +8,7 @@ const JojoFRDataSource: IDataSource = {
         get: function(page: Document) {
             return page.querySelectorAll(this.identifier);
         },
+        ignore: ['https://static.wikia.nocookie.net/jjba/images/d/d5/NoPicAvailable.png']
     },
     episode: 'Début anime',
     manga: 'Début manga',
@@ -28,10 +29,11 @@ const JojoENDataSource: IDataSource = {
     status: 'status',
     gender: 'gender',
     images: {
-        identifier: '.pi-image-thumbnail',
+        identifier: '.mw-parser-output aside img',
         get: function(page: Document) {
             return page.querySelectorAll(this.identifier);
         },
+        ignore: ['https://static.wikia.nocookie.net/jjba/images/d/d5/NoPicAvailable.png']
     },
     episode: 'animedebut',
     manga: 'mangadebut',

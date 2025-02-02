@@ -454,7 +454,7 @@ var BerserkENDataSource = {
   gender: "Gender",
   species: "Kind",
   images: {
-    identifier: ".mw-parser-output table img",
+    identifier: ".mw-parser-output aside img",
     get: function(page) {
       return page.querySelectorAll(this.identifier);
     }
@@ -491,7 +491,8 @@ var JojoFRDataSource = {
     identifier: ".pi-image-thumbnail",
     get: function(page) {
       return page.querySelectorAll(this.identifier);
-    }
+    },
+    ignore: ["https://static.wikia.nocookie.net/jjba/images/d/d5/NoPicAvailable.png"]
   },
   episode: "D\xE9but anime",
   manga: "D\xE9but manga",
@@ -511,10 +512,11 @@ var JojoENDataSource = {
   status: "status",
   gender: "gender",
   images: {
-    identifier: ".pi-image-thumbnail",
+    identifier: ".mw-parser-output aside img",
     get: function(page) {
       return page.querySelectorAll(this.identifier);
-    }
+    },
+    ignore: ["https://static.wikia.nocookie.net/jjba/images/d/d5/NoPicAvailable.png"]
   },
   episode: "animedebut",
   manga: "mangadebut",
