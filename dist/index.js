@@ -627,6 +627,13 @@ var availableWikis = [
   "jojo"
 ];
 
+// utils/extractImageURL.ts
+function extractImageURL(url) {
+  const regex = /^(https?:\/\/.*\.(?:png|jpe?g|gif|bmp|svg|webp|tiff?))(?=[\/?]|$)/i;
+  const match = url.match(regex);
+  return match ? match[1] : url;
+}
+
 // index.ts
 var FandomScraper = class {
   /**
@@ -1190,7 +1197,7 @@ var FandomScraper = class {
               const b64 = await this.convertImageToBase64(src);
               images.push(b64);
             } else {
-              images.push(src);
+              images.push(extractImageURL(src));
             }
           }
           data[key] = images;
