@@ -20,6 +20,7 @@ declare global {
     interface IImage {
         identifier: string;
         get: Function;
+        ignore?: string[];
     }
 
     interface IDataset {

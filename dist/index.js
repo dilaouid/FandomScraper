@@ -203,7 +203,8 @@ var FumetsuENDataSource = {
     identifier: ".mw-parser-output table img",
     get: function(page) {
       return page.querySelectorAll(this.identifier);
-    }
+    },
+    ignore: ["https://static.wikia.nocookie.net/fumetsunoanatae/images/0/03/Alert_4.png"]
   },
   episode: "Anime",
   manga: "Manga",
@@ -652,7 +653,7 @@ var FandomScraper = class {
       withId: true,
       limit: 50,
       offset: 0,
-      ignore: [],
+      ignore: ["User:", "Special:", "Template:", "Category:", "MediaWiki:", "Help:", "Forum:", "Blog:", "BlogComments:", "Message Wall:", "Board Thread:", "Thread:", "User blog comment:", "User blog:", "Module:", "Thread:"],
       attributes: []
     };
     this.name = "";
@@ -1193,11 +1194,14 @@ var FandomScraper = class {
               console.error(`No src found for key ${key}`);
               continue;
             }
+            src = extractImageURL(src);
+            if (format.images?.ignore?.includes(src))
+              continue;
             if (getBase64) {
               const b64 = await this.convertImageToBase64(src);
               images.push(b64);
             } else {
-              images.push(extractImageURL(src));
+              images.push(src);
             }
           }
           data[key] = images;

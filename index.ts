@@ -105,7 +105,7 @@ export class FandomScraper {
         withId: true,
         limit: 50,
         offset: 0,
-        ignore: [],
+        ignore: ['User:', 'Special:', 'Template:', 'Category:', 'MediaWiki:', 'Help:', 'Forum:', 'Blog:', 'BlogComments:', 'Message Wall:', 'Board Thread:', 'Thread:', 'User blog comment:', 'User blog:', 'Module:', 'Thread:'],
         attributes: []
     };
     private method: 'find' | 'findByName' | 'findById' | undefined;
@@ -737,17 +737,20 @@ export class FandomScraper {
                                 }
                             }
                         }
-
+                        
                         if (!src) { 
                             console.error(`No src found for key ${key}`);
                             continue;
                         }
+                        src = extractImageURL(src);
+                        if (format.images?.ignore?.includes(src))
+                            continue
 
                         if (getBase64) {
                             const b64 = await this.convertImageToBase64(src);
                             images.push(b64);
                         } else {
-                            images.push(extractImageURL(src));
+                            images.push(src);
                         }
                     }
                     data[key] = images;

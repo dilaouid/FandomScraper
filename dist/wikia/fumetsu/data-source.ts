@@ -11,6 +11,7 @@ const FumetsuENDataSource: IDataSource = {
             // get the image inside the second tr of the table
             return page.querySelectorAll(this.identifier)
         },
+        ignore: ['https://static.wikia.nocookie.net/fumetsunoanatae/images/0/03/Alert_4.png']
     },
     episode: 'Anime',
     manga: 'Manga',
