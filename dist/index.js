@@ -225,7 +225,6 @@ var FumetsuEN = {
 
 // wikia/fumetsu/index.ts
 var Fumetsu = {
-  fr: FumetsuEN,
   en: FumetsuEN
 };
 
@@ -379,7 +378,6 @@ var ShikiEN = {
 
 // wikia/shiki/index.ts
 var Shiki = {
-  fr: ShikiEN,
   en: ShikiEN
 };
 
@@ -477,7 +475,6 @@ var BerserkEN = {
 
 // wikia/berserk/index.ts
 var Berserk = {
-  fr: BerserkEN,
   en: BerserkEN
 };
 
@@ -516,7 +513,12 @@ var JojoENDataSource = {
     get: function(page) {
       return page.querySelectorAll(this.identifier);
     },
-    ignore: ["https://static.wikia.nocookie.net/jjba/images/d/d5/NoPicAvailable.png"]
+    ignore: [
+      "https://static.wikia.nocookie.net/jjba/images/d/d5/NoPicAvailable.png",
+      "https://static.wikia.nocookie.net/jjba/images/b/b1/NoPicAv.png",
+      "https://static.wikia.nocookie.net/jjba/images/9/9e/Flag_of_Japan.svg",
+      "https://static.wikia.nocookie.net/jjba/images/a/a4/Flag_of_the_United_States.svg"
+    ]
   },
   episode: "animedebut",
   manga: "mangadebut",
@@ -551,6 +553,41 @@ var Jojo = {
   en: JojoEN
 };
 
+// wikia/dororo/data-source.ts
+var DororoENDataSource = {
+  kanji: "japanese name",
+  age: "age",
+  gender: "gender",
+  species: "species",
+  status: "status",
+  height: "height",
+  weight: "weight",
+  eyeColor: "eyes",
+  hairColor: "hair",
+  images: {
+    identifier: ".pi-image img",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "debut",
+  relatives: "relatives",
+  voiceActor: "voice eng",
+  seiyu: "voice"
+};
+
+// wikia/dororo/schemas.ts
+var DororoEN = {
+  url: "https://dororo.fandom.com/wiki/Category:Characters",
+  pageFormat: "classic",
+  dataSource: DororoENDataSource
+};
+
+// wikia/dororo/index.ts
+var Dororo = {
+  en: DororoEN
+};
+
 // wikia/index.ts
 var Schemas = {
   "demon-slayer": DemonSlayer,
@@ -562,7 +599,8 @@ var Schemas = {
   "dragon-ball": DragonBall,
   "promised-neverland": PromisedNeverland,
   "berserk": Berserk,
-  "jojo": Jojo
+  "jojo": Jojo,
+  "dororo": Dororo
 };
 
 // utils/allCharactersPage.ts
@@ -627,7 +665,8 @@ var availableWikis = [
   "dragon-ball",
   "promised-neverland",
   "berserk",
-  "jojo"
+  "jojo",
+  "dororo"
 ];
 
 // utils/extractImageURL.ts
@@ -655,7 +694,7 @@ var FandomScraper = class {
       withId: true,
       limit: 50,
       offset: 0,
-      ignore: ["User:", "Special:", "Template:", "Category:", "MediaWiki:", "Help:", "Forum:", "Blog:", "BlogComments:", "Message Wall:", "Board Thread:", "Thread:", "User blog comment:", "User blog:", "Module:", "Thread:"],
+      ignore: ["Minor Characters", "Unnamed Characters", "Allies"],
       attributes: []
     };
     this.name = "";

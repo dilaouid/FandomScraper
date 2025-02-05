@@ -1,4 +1,4 @@
-declare const availableWikis: readonly ["demon-slayer", "naruto", "shiki", "death-note", "fumetsu", "one-piece", "dragon-ball", "promised-neverland", "berserk", "jojo"];
+declare const availableWikis: readonly ["demon-slayer", "naruto", "shiki", "death-note", "fumetsu", "one-piece", "dragon-ball", "promised-neverland", "berserk", "jojo", "dororo"];
 type TAvailableWikis = typeof availableWikis[number];
 
 interface IGetCharactersOptions {

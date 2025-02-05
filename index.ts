@@ -108,7 +108,7 @@ export class FandomScraper {
         withId: true,
         limit: 50,
         offset: 0,
-        ignore: ['User:', 'Special:', 'Template:', 'Category:', 'MediaWiki:', 'Help:', 'Forum:', 'Blog:', 'BlogComments:', 'Message Wall:', 'Board Thread:', 'Thread:', 'User blog comment:', 'User blog:', 'Module:', 'Thread:'],
+        ignore: ['Minor Characters', 'Unnamed Characters', 'Allies'],
         attributes: []
     };
     private method: 'find' | 'findByName' | 'findById' | undefined;
