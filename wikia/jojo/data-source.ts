@@ -5,7 +5,7 @@ const JojoFRDataSource: IDataSource = {
     gender: 'Genre',
     images: {
         identifier: '.pi-image-thumbnail',
-        get: function(page: Document) {
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
         },
         ignore: ['https://static.wikia.nocookie.net/jjba/images/d/d5/NoPicAvailable.png']
@@ -30,10 +30,15 @@ const JojoENDataSource: IDataSource = {
     gender: 'gender',
     images: {
         identifier: '.mw-parser-output aside img',
-        get: function(page: Document) {
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
         },
-        ignore: ['https://static.wikia.nocookie.net/jjba/images/d/d5/NoPicAvailable.png']
+        ignore: [
+            'https://static.wikia.nocookie.net/jjba/images/d/d5/NoPicAvailable.png',
+            'https://static.wikia.nocookie.net/jjba/images/b/b1/NoPicAv.png',
+            'https://static.wikia.nocookie.net/jjba/images/9/9e/Flag_of_Japan.svg',
+            'https://static.wikia.nocookie.net/jjba/images/a/a4/Flag_of_the_United_States.svg'
+        ]
     },
     episode: 'animedebut',
     manga: 'mangadebut',
