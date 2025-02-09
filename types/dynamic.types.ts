@@ -20,7 +20,8 @@ export const availableWikis = [
   'promised-neverland',
   'berserk',
   'jojo',
-  'dororo'
+  'dororo',
+  "shingeki-no-kyojin",
 ] as const;
 
 // Type basé sur la liste statique

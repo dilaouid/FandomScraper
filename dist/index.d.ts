@@ -1,4 +1,4 @@
-declare const availableWikis: readonly ["demon-slayer", "naruto", "shiki", "death-note", "fumetsu", "one-piece", "dragon-ball", "promised-neverland", "berserk", "jojo", "dororo"];
+declare const availableWikis: readonly ["demon-slayer", "naruto", "shiki", "death-note", "fumetsu", "one-piece", "dragon-ball", "promised-neverland", "berserk", "jojo", "dororo", "shingeki-no-kyojin"];
 type TAvailableWikis = typeof availableWikis[number];
 
 interface IGetCharactersOptions {
@@ -333,23 +333,39 @@ declare class FandomScraper {
     private getWikiUrl;
     private getDataUrl;
     /**
-     * Récupère les citations de la page spécifiée en utilisant la configuration définie dans le dataSource.
+     * Fetches a webpage from the specified URL and extracts quotes from it.
      *
-     * Si le dataSource définit 'quote' (sous forme d'objet IQuote ou de sélecteur CSS),
-     * cette configuration est utilisée pour trouver l'élément concerné.
-     * Sinon, on récupère tous les <blockquote> de la page.
+     * The method retrieves the page content using the provided URL and extracts quote data
+     * by using either a schema-defined selector or by querying for <blockquote> elements.
+     * It then processes the found elements using an extraction method, handling both string
+     * and array formats of the quote content, and returns a list of quotes as strings.
      *
-     * @param url - L'URL de la page à scraper pour les citations.
-     * @returns Un tableau d'objets contenant 'quote' (le texte) et 'source' (la source ou null).
+     * @param url - The URL of the webpage from which to extract quotes.
+     * @returns A promise that resolves to an array of quote strings.
+     *
+     * @throws Will throw an error if fetching the page or processing the quote extraction fails.
      */
     getQuotes(url: string): Promise<string[]>;
     /**
- * Extrait le texte d'une citation et sa source à partir d'un élément donné.
- * Si l'élément contient un <cite> ou <sup>, celui-ci sera retiré pour ne garder que le texte de la citation.
- *
- * @param element - L'élément contenant la citation.
- * @returns Un objet avec la propriété 'quote' (le texte nettoyé)
- */
+     * Extracts the quote text from a given DOM element.
+     *
+     * This function supports both individual elements and lists:
+     * - For a <ul> element, the function recursively extracts quotes from each <li> child,
+     *   accumulating them into an array.
+     * - For non-list elements, it attempts to remove any <cite> or <sup> content from a cloned version
+     *   of the element before retrieving its trimmed text content.
+     *
+     * @param element - The DOM element from which to extract the quote.
+     * @returns The extracted quote as a string, or an array of quotes if the element is a list.
+     *
+     * @example
+     * // Extracting from a paragraph element:
+     * const quote = extractQuoteFromElement(paragraphElement);
+     *
+     * @example
+     * // Extracting quotes from an unordered list:
+     * const quotes = extractQuoteFromElement(listElement);
+     */
     private extractQuoteFromElement;
 }
 /**

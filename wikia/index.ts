@@ -11,6 +11,7 @@ import { PromisedNeverland } from './promised-neverland';
 import { Berserk } from './berserk';
 import { Jojo } from './jojo';
 import { Dororo } from './dororo';
+import { Shingeki } from './shingeki-no-kyojin';
 
 export const Schemas: Record<TAvailableWikis, any> = {
     'demon-slayer': DemonSlayer,
@@ -23,5 +24,6 @@ export const Schemas: Record<TAvailableWikis, any> = {
     'promised-neverland': PromisedNeverland,
     'berserk': Berserk,
     'jojo': Jojo,
-    'dororo': Dororo
+    'dororo': Dororo,
+    'shingeki-no-kyojin': Shingeki,
 } as const;

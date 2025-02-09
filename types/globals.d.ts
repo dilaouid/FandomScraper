@@ -2,7 +2,7 @@
 declare global {
 
     // the different formats available of pages
-    type TPageFormats = 'classic' | 'table-1' | 'table-2' | 'table-3';
+    type TPageFormats = 'classic' | 'table-1' | 'table-2' | 'table-3' | 'table-4'
     /*
         classic: the classic page with the list of characters names
         table-1: the table with the image on the left

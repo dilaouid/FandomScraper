@@ -108,7 +108,7 @@ export class FandomScraper {
         withId: true,
         limit: 50,
         offset: 0,
-        ignore: ['Minor Characters', 'Unnamed Characters', 'Allies'],
+        ignore: ['Minor Characters', 'Unnamed Characters', 'Allies', 'Attack on Titan Character Encyclopedia FINAL/Civilians', 'Attack on Titan Character Encyclopedia FINAL/Garrison', 'Attack on Titan Character Encyclopedia FINAL/Marleyan military'],
         attributes: []
     };
     private method: 'find' | 'findByName' | 'findById' | undefined;
@@ -931,6 +931,8 @@ export class FandomScraper {
             return this._CharactersPage.querySelectorAll('small > b');
         } else if (this._schema.pageFormat === 'table-3') {
             return this._CharactersPage.querySelectorAll('table.fandom-table td:nth-child(2)');
+        } else if (this._schema.pageFormat === 'table-4') {
+            return this._CharactersPage.querySelectorAll('.characterbox th:nth-child(1) a');
         }
 
         throw new Error('Invalid page format');
@@ -957,6 +959,10 @@ export class FandomScraper {
             if (!aElement) throw new Error('No <a> element found');
 
             const url = this.getDataUrl(aElement.getAttribute('href'));
+            if (!url) throw new Error('No URL found');
+            return url;
+        } else if (this._schema.pageFormat === 'table-4') {
+            const url = this.getDataUrl(element.getAttribute('href'));
             if (!url) throw new Error('No URL found');
             return url;
         }

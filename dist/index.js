@@ -684,6 +684,68 @@ var Dororo = {
   en: DororoEN
 };
 
+// wikia/shingeki-no-kyojin/data-source.ts
+var ShingekiFRDataSource = {
+  name: "Nom",
+  gender: "Genre",
+  age: "\xC2ge",
+  kanji: "Kanji",
+  birthday: "Anniversaire",
+  height: "Taille",
+  weight: "Poids",
+  species: "Esp\xE8ces",
+  images: {
+    identifier: ".mw-parser-output aside img",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "Premi\xE8re Anim\xE9",
+  manga: "Premi\xE8re Manga",
+  seiyu: "Voix Anim\xE9",
+  voiceActor: "Voix Anim\xE9 fr",
+  status: "Statut",
+  affiliation: "Affiliation",
+  relatives: "Affili\xE9s"
+};
+var ShingekiENDataSource = {
+  gender: "Gender",
+  age: "Age",
+  kanji: "Kanji",
+  birthday: "Birthday",
+  height: "Height",
+  weight: "Weight",
+  relatives: "Relatives",
+  images: {
+    identifier: ".mw-parser-output aside img",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  manga: "Debut chapter",
+  seiyu: "Voice actor",
+  status: "Status",
+  affiliation: "Affiliation"
+};
+
+// wikia/shingeki-no-kyojin/schemas.ts
+var ShingekiFR = {
+  url: "https://attaque-des-titans.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages",
+  pageFormat: "classic",
+  dataSource: ShingekiFRDataSource
+};
+var ShingekiEN = {
+  url: "https://attackontitan.fandom.com/wiki/List_of_characters/Anime",
+  pageFormat: "table-4",
+  dataSource: ShingekiENDataSource
+};
+
+// wikia/shingeki-no-kyojin/index.ts
+var Shingeki = {
+  fr: ShingekiFR,
+  en: ShingekiEN
+};
+
 // wikia/index.ts
 var Schemas = {
   "demon-slayer": DemonSlayer,
@@ -696,7 +758,8 @@ var Schemas = {
   "promised-neverland": PromisedNeverland,
   "berserk": Berserk,
   "jojo": Jojo,
-  "dororo": Dororo
+  "dororo": Dororo,
+  "shingeki-no-kyojin": Shingeki
 };
 
 // utils/allCharactersPage.ts
@@ -732,6 +795,13 @@ var allCharactersPage = {
       type: "",
       value: ""
     }
+  },
+  "table-4": {
+    banList: [],
+    next: {
+      type: "",
+      value: ""
+    }
   }
 };
 
@@ -762,7 +832,8 @@ var availableWikis = [
   "promised-neverland",
   "berserk",
   "jojo",
-  "dororo"
+  "dororo",
+  "shingeki-no-kyojin"
 ];
 
 // utils/extractImageURL.ts
@@ -790,7 +861,7 @@ var FandomScraper = class {
       withId: true,
       limit: 50,
       offset: 0,
-      ignore: ["Minor Characters", "Unnamed Characters", "Allies"],
+      ignore: ["Minor Characters", "Unnamed Characters", "Allies", "Attack on Titan Character Encyclopedia FINAL/Civilians", "Attack on Titan Character Encyclopedia FINAL/Garrison", "Attack on Titan Character Encyclopedia FINAL/Marleyan military"],
       attributes: []
     };
     this.name = "";
@@ -1487,6 +1558,8 @@ var FandomScraper = class {
       return this._CharactersPage.querySelectorAll("small > b");
     } else if (this._schema.pageFormat === "table-3") {
       return this._CharactersPage.querySelectorAll("table.fandom-table td:nth-child(2)");
+    } else if (this._schema.pageFormat === "table-4") {
+      return this._CharactersPage.querySelectorAll(".characterbox th:nth-child(1) a");
     }
     throw new Error("Invalid page format");
   }
@@ -1509,6 +1582,10 @@ var FandomScraper = class {
       const aElement = element.querySelector("a");
       if (!aElement) throw new Error("No <a> element found");
       const url = this.getDataUrl(aElement.getAttribute("href"));
+      if (!url) throw new Error("No URL found");
+      return url;
+    } else if (this._schema.pageFormat === "table-4") {
+      const url = this.getDataUrl(element.getAttribute("href"));
       if (!url) throw new Error("No URL found");
       return url;
     }
@@ -1543,14 +1620,17 @@ var FandomScraper = class {
     return domain + href;
   }
   /**
-   * Récupère les citations de la page spécifiée en utilisant la configuration définie dans le dataSource.
+   * Fetches a webpage from the specified URL and extracts quotes from it.
    *
-   * Si le dataSource définit 'quote' (sous forme d'objet IQuote ou de sélecteur CSS), 
-   * cette configuration est utilisée pour trouver l'élément concerné.
-   * Sinon, on récupère tous les <blockquote> de la page.
+   * The method retrieves the page content using the provided URL and extracts quote data
+   * by using either a schema-defined selector or by querying for <blockquote> elements.
+   * It then processes the found elements using an extraction method, handling both string
+   * and array formats of the quote content, and returns a list of quotes as strings.
    *
-   * @param url - L'URL de la page à scraper pour les citations.
-   * @returns Un tableau d'objets contenant 'quote' (le texte) et 'source' (la source ou null).
+   * @param url - The URL of the webpage from which to extract quotes.
+   * @returns A promise that resolves to an array of quote strings.
+   *
+   * @throws Will throw an error if fetching the page or processing the quote extraction fails.
    */
   async getQuotes(url) {
     try {
@@ -1586,12 +1666,25 @@ var FandomScraper = class {
     }
   }
   /**
-  * Extrait le texte d'une citation et sa source à partir d'un élément donné.
-  * Si l'élément contient un <cite> ou <sup>, celui-ci sera retiré pour ne garder que le texte de la citation.
-  *
-  * @param element - L'élément contenant la citation.
-  * @returns Un objet avec la propriété 'quote' (le texte nettoyé)
-  */
+   * Extracts the quote text from a given DOM element.
+   *
+   * This function supports both individual elements and lists:
+   * - For a <ul> element, the function recursively extracts quotes from each <li> child,
+   *   accumulating them into an array.
+   * - For non-list elements, it attempts to remove any <cite> or <sup> content from a cloned version
+   *   of the element before retrieving its trimmed text content.
+   *
+   * @param element - The DOM element from which to extract the quote.
+   * @returns The extracted quote as a string, or an array of quotes if the element is a list.
+   *
+   * @example
+   * // Extracting from a paragraph element:
+   * const quote = extractQuoteFromElement(paragraphElement);
+   *
+   * @example
+   * // Extracting quotes from an unordered list:
+   * const quotes = extractQuoteFromElement(listElement);
+   */
   extractQuoteFromElement(element) {
     if (element.tagName.toLowerCase() === "ul") {
       const quotes = [];
