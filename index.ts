@@ -159,7 +159,7 @@ export class FandomScraper {
             language: this.wikiaParameters.lang,
             availableLanguages: Object.keys(schema),
             url: this._schema.url
-        };    
+        };
 
         if (!options.withCount)
             delete data.count;
@@ -779,6 +779,17 @@ export class FandomScraper {
                         }
                     }
                     data[key] = images;
+                } else if (key === "quote") {
+                    let quoteElement: Element | null = null;
+                    if (sourceKey && typeof sourceKey === "object" && "get" in sourceKey) {
+                        quoteElement = (sourceKey as IQuote).get(page);
+                    } else if (typeof sourceKey === "string") {
+                        quoteElement = page.querySelector(sourceKey);
+                    }
+                    if (quoteElement) {
+                        const quote = this.extractQuoteFromElement(quoteElement);
+                        data["quote"] = quote;
+                    }
                 } else {
                     const element: Element | null = this.getDataAccordingToVersion(page, sourceKey);
                     if (!element) {
@@ -989,6 +1000,101 @@ export class FandomScraper {
         return domain + href;
     };
 
+    /**
+     * Fetches a webpage from the specified URL and extracts quotes from it.
+     *
+     * The method retrieves the page content using the provided URL and extracts quote data
+     * by using either a schema-defined selector or by querying for <blockquote> elements.
+     * It then processes the found elements using an extraction method, handling both string
+     * and array formats of the quote content, and returns a list of quotes as strings.
+     *
+     * @param url - The URL of the webpage from which to extract quotes.
+     * @returns A promise that resolves to an array of quote strings.
+     *
+     * @throws Will throw an error if fetching the page or processing the quote extraction fails.
+     */
+    public async getQuotes(url: string): Promise<string[]> {
+        try {
+            const page = await this.fetchPage(url);
+            const quotes: string[] = [];
+            const dataSource = this._schema.dataSource.quote;
+            if (dataSource) {
+                let quoteElements: Element[] = [];
+                if (typeof dataSource === "object" && dataSource.get) {
+                    const element = dataSource.get(page);
+                    if (element) quoteElements.push(element);
+                } else if (typeof dataSource === "string") {
+                    const elements = page.querySelectorAll(dataSource);
+                    quoteElements = Array.from(elements);
+                }
+                for (const element of quoteElements) {
+                    const quote = this.extractQuoteFromElement(element);
+                    const finalQuote = typeof quote === 'string' ? quote : quote.join(' ');
+                    quotes.push(finalQuote);
+                }
+            } else {
+                const blockquotes = page.querySelectorAll('blockquote');
+                blockquotes.forEach((blockquote) => {
+                    const quote = this.extractQuoteFromElement(blockquote);
+                    const finalQuote = typeof quote === 'string' ? quote : quote.join(' ');
+                    quotes.push(finalQuote);
+                });
+            }
+            return quotes;
+        } catch (err) {
+            console.error('Erreur dans getQuotes:', err);
+            throw err;
+        }
+    }
+
+    /**
+     * Extracts the quote text from a given DOM element.
+     *
+     * This function supports both individual elements and lists:
+     * - For a <ul> element, the function recursively extracts quotes from each <li> child,
+     *   accumulating them into an array.
+     * - For non-list elements, it attempts to remove any <cite> or <sup> content from a cloned version
+     *   of the element before retrieving its trimmed text content.
+     *
+     * @param element - The DOM element from which to extract the quote.
+     * @returns The extracted quote as a string, or an array of quotes if the element is a list.
+     *
+     * @example
+     * // Extracting from a paragraph element:
+     * const quote = extractQuoteFromElement(paragraphElement);
+     *
+     * @example
+     * // Extracting quotes from an unordered list:
+     * const quotes = extractQuoteFromElement(listElement);
+     */
+    private extractQuoteFromElement(element: Element): string | string[] {
+        if (element.tagName.toLowerCase() === 'ul') {
+            const quotes: string[] = [];
+            element.querySelectorAll('li').forEach(li => {
+                const quote = this.extractQuoteFromElement(li);
+                if (typeof quote === 'string' && quote.length > 0) {
+                    quotes.push(quote);
+                } else if (Array.isArray(quote)) {
+                    quotes.push(...quote);
+                }
+            });
+            return quotes;
+        }
+
+        const citeElement = element.querySelector('cite, sup');
+        let quoteText: string;
+        if (citeElement) {
+            const clone = element.cloneNode(true) as HTMLElement;
+            const citeClone = clone.querySelector('cite, sup');
+            if (citeClone) {
+                citeClone.remove();
+            }
+            quoteText = clone.textContent?.trim() || '';
+        } else {
+            quoteText = element.textContent?.trim() || '';
+        }
+        return quoteText;
+    }
 }
 
 

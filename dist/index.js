@@ -35,6 +35,12 @@ var DeathNoteENDataSource = {
       return page.querySelectorAll(this.identifier);
     }
   },
+  quote: {
+    identifier: 'table[border="0"] tbody tr td div',
+    get: function(page) {
+      return page.querySelector('table[border="0"] tbody tr td div');
+    }
+  },
   episode: "anime",
   manga: "manga",
   age: "age",
@@ -80,6 +86,12 @@ var DemonSlayerFRDataSource = {
       return page.querySelectorAll(this.identifier);
     }
   },
+  quote: {
+    identifier: 'table[style*="rgba(210, 179, 148, 0.46)"] tbody tr:first-child td:nth-child(2)',
+    get: function(page) {
+      return page.querySelector('table[style*="rgba(210, 179, 148, 0.46)"] tbody tr:first-child td:nth-child(2)');
+    }
+  },
   episode: "anime",
   manga: "manga",
   age: "\xE2ge",
@@ -101,6 +113,12 @@ var DemonSlayerENDataSource = {
     identifier: ".pi-image-thumbnail",
     get: function(page) {
       return page.querySelectorAll(this.identifier);
+    }
+  },
+  quote: {
+    identifier: 'table[style*="rgba(210, 179, 148, 0.46)"] tbody tr:first-child td:nth-child(2)',
+    get: function(page) {
+      return page.querySelector('table[style*="rgba(210, 179, 148, 0.46)"] tbody tr:first-child td:nth-child(2)');
     }
   },
   episode: "anime_debut",
@@ -206,6 +224,20 @@ var FumetsuENDataSource = {
     },
     ignore: ["https://static.wikia.nocookie.net/fumetsunoanatae/images/0/03/Alert_4.png"]
   },
+  quote: {
+    identifier: "#Quotes",
+    get: function(page) {
+      const quotesHeading = page.querySelector("span#Quotes");
+      if (!quotesHeading) return null;
+      const h2 = quotesHeading.closest("h2");
+      if (!h2) return null;
+      let next = h2.nextElementSibling;
+      while (next && next.tagName.toLowerCase() !== "ul") {
+        next = next.nextElementSibling;
+      }
+      return next;
+    }
+  },
   episode: "Anime",
   manga: "Manga",
   age: "Age",
@@ -239,6 +271,20 @@ var NarutoFRDataSource = {
       return page.querySelectorAll(this.identifier);
     }
   },
+  quote: {
+    identifier: "#Citations",
+    get: function(page) {
+      const heading = page.querySelector("span#Citations");
+      if (!heading) return null;
+      const h2 = heading.closest("h2");
+      if (!h2) return null;
+      let next = h2.nextElementSibling;
+      while (next && next.tagName.toLowerCase() !== "ul") {
+        next = next.nextElementSibling;
+      }
+      return next;
+    }
+  },
   episode: "D\xE9but anime",
   manga: "D\xE9but manga",
   age: "\xC2ge",
@@ -258,6 +304,20 @@ var NarutoENDataSource = {
     identifier: ".mw-parser-output .imagecell img",
     get: function(page) {
       return page.querySelectorAll(this.identifier);
+    }
+  },
+  quote: {
+    identifier: "#Quotes",
+    get: function(page) {
+      const quotesHeading = page.querySelector("span#Quotes");
+      if (!quotesHeading) return null;
+      const h2 = quotesHeading.closest("h2");
+      if (!h2) return null;
+      let next = h2.nextElementSibling;
+      while (next && next.tagName.toLowerCase() !== "ul") {
+        next = next.nextElementSibling;
+      }
+      return next;
     }
   },
   episode: "Anime",
@@ -303,6 +363,12 @@ var OnePieceFRDataSource = {
     identifier: ".wds-tab__content img",
     get: function(page) {
       return page.querySelectorAll(this.identifier);
+    }
+  },
+  quote: {
+    identifier: "table.noprint tbody tr:first-child td:nth-child(2)",
+    get: function(page) {
+      return page.querySelector("table.noprint tbody tr:first-child td:nth-child(2)");
     }
   },
   episode: "premi\xE8re",
@@ -364,6 +430,12 @@ var ShikiENDataSource = {
       return page.querySelectorAll(this.identifier);
     }
   },
+  quote: {
+    identifier: "div.quote",
+    get: function(page) {
+      return page.querySelector("div.quote");
+    }
+  },
   episode: "Anime Debut",
   age: "Age",
   occupations: "Occupation"
@@ -413,6 +485,12 @@ var PromisedNeverlandENDataSource = {
     identifier: ".pi-image-thumbnail",
     get: function(page) {
       return page.querySelectorAll(this.identifier);
+    }
+  },
+  quote: {
+    identifier: "blockquote.snippet",
+    get: function(page) {
+      return page.querySelector("blockquote.snippet");
     }
   },
   manga: "Manga",
@@ -491,6 +569,12 @@ var JojoFRDataSource = {
     },
     ignore: ["https://static.wikia.nocookie.net/jjba/images/d/d5/NoPicAvailable.png"]
   },
+  quote: {
+    identifier: "table.cquote tbody tr:first-child td:nth-child(2)",
+    get: function(page) {
+      return page.querySelector("table.cquote tbody tr:first-child td:nth-child(2)");
+    }
+  },
   episode: "D\xE9but anime",
   manga: "D\xE9but manga",
   age: "\xC2ge",
@@ -519,6 +603,12 @@ var JojoENDataSource = {
       "https://static.wikia.nocookie.net/jjba/images/9/9e/Flag_of_Japan.svg",
       "https://static.wikia.nocookie.net/jjba/images/a/a4/Flag_of_the_United_States.svg"
     ]
+  },
+  quote: {
+    identifier: "table.cquote tbody tr:first-child td:nth-child(2)",
+    get: function(page) {
+      return page.querySelector("table.cquote tbody tr:first-child td:nth-child(2)") ?? null;
+    }
   },
   episode: "animedebut",
   manga: "mangadebut",
@@ -568,6 +658,12 @@ var DororoENDataSource = {
     identifier: ".pi-image img",
     get: function(page) {
       return page.querySelectorAll(this.identifier);
+    }
+  },
+  quote: {
+    identifier: "blockquote",
+    get: function(page) {
+      return page.querySelector("blockquote");
     }
   },
   episode: "debut",
@@ -1266,6 +1362,17 @@ var FandomScraper = class {
             }
           }
           data[key] = images;
+        } else if (key === "quote") {
+          let quoteElement = null;
+          if (sourceKey && typeof sourceKey === "object" && "get" in sourceKey) {
+            quoteElement = sourceKey.get(page);
+          } else if (typeof sourceKey === "string") {
+            quoteElement = page.querySelector(sourceKey);
+          }
+          if (quoteElement) {
+            const quote = this.extractQuoteFromElement(quoteElement);
+            data["quote"] = quote;
+          }
         } else {
           const element = this.getDataAccordingToVersion(page, sourceKey);
           if (!element) {
@@ -1434,6 +1541,83 @@ var FandomScraper = class {
   getDataUrl(href) {
     const domain = new URL(this._schema.url).origin;
     return domain + href;
+  }
+  /**
+   * Récupère les citations de la page spécifiée en utilisant la configuration définie dans le dataSource.
+   *
+   * Si le dataSource définit 'quote' (sous forme d'objet IQuote ou de sélecteur CSS), 
+   * cette configuration est utilisée pour trouver l'élément concerné.
+   * Sinon, on récupère tous les <blockquote> de la page.
+   *
+   * @param url - L'URL de la page à scraper pour les citations.
+   * @returns Un tableau d'objets contenant 'quote' (le texte) et 'source' (la source ou null).
+   */
+  async getQuotes(url) {
+    try {
+      const page = await this.fetchPage(url);
+      const quotes = [];
+      const dataSource = this._schema.dataSource.quote;
+      if (dataSource) {
+        let quoteElements = [];
+        if (typeof dataSource === "object" && dataSource.get) {
+          const element = dataSource.get(page);
+          if (element) quoteElements.push(element);
+        } else if (typeof dataSource === "string") {
+          const elements = page.querySelectorAll(dataSource);
+          quoteElements = Array.from(elements);
+        }
+        for (const element of quoteElements) {
+          const quote = this.extractQuoteFromElement(element);
+          const finalQuote = typeof quote === "string" ? quote : quote.join(" ");
+          quotes.push(finalQuote);
+        }
+      } else {
+        const blockquotes = page.querySelectorAll("blockquote");
+        blockquotes.forEach((blockquote) => {
+          const quote = this.extractQuoteFromElement(blockquote);
+          const finalQuote = typeof quote === "string" ? quote : quote.join(" ");
+          quotes.push(finalQuote);
+        });
+      }
+      return quotes;
+    } catch (err) {
+      console.error("Erreur dans getQuotes:", err);
+      throw err;
+    }
+  }
+  /**
+  * Extrait le texte d'une citation et sa source à partir d'un élément donné.
+  * Si l'élément contient un <cite> ou <sup>, celui-ci sera retiré pour ne garder que le texte de la citation.
+  *
+  * @param element - L'élément contenant la citation.
+  * @returns Un objet avec la propriété 'quote' (le texte nettoyé)
+  */
+  extractQuoteFromElement(element) {
+    if (element.tagName.toLowerCase() === "ul") {
+      const quotes = [];
+      element.querySelectorAll("li").forEach((li) => {
+        const quote = this.extractQuoteFromElement(li);
+        if (typeof quote === "string" && quote.length > 0) {
+          quotes.push(quote);
+        } else if (Array.isArray(quote)) {
+          quotes.push(...quote);
+        }
+      });
+      return quotes;
+    }
+    const citeElement = element.querySelector("cite, sup");
+    let quoteText;
+    if (citeElement) {
+      const clone = element.cloneNode(true);
+      const citeClone = clone.querySelector("cite, sup");
+      if (citeClone) {
+        citeClone.remove();
+      }
+      quoteText = clone.textContent?.trim() || "";
+    } else {
+      quoteText = element.textContent?.trim() || "";
+    }
+    return quoteText;
   }
 };
 var FandomPersonalScraper = class extends FandomScraper {

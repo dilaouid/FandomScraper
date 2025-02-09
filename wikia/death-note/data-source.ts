@@ -2,7 +2,7 @@ const DeathNoteFRDataSource: IDataSource = {
     gender: 'Sexe',
     images: {
         identifier: '.mw-parser-output table img',
-        get: function(page: Document) {
+        get: function (page: Document) {
             const elements = page.querySelectorAll(this.identifier);
             const filteredElements = Array.from(elements).filter((element) => {
                 return element.getAttribute('alt') !== 'Tete' && element.getAttribute('alt') !== 'Pomme';
@@ -27,9 +27,15 @@ const DeathNoteENDataSource: IDataSource = {
     gender: 'gender',
     images: {
         identifier: '.pi-image-thumbnail',
-        get: function(page: Document) {
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
         },
+    },
+    quote: {
+        identifier: 'table[border="0"] tbody tr td div',
+        get: function (page: Document): Element | null {
+            return page.querySelector('table[border="0"] tbody tr td div');
+        }
     },
     episode: 'anime',
     manga: 'manga',

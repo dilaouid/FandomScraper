@@ -6,9 +6,15 @@ const OnePieceFRDataSource: IDataSource = {
     age: 'âge',
     images: {
         identifier: '.wds-tab__content img',
-        get: function(page: Document) {
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
         },
+    },
+    quote: {
+        identifier: 'table.noprint tbody tr:first-child td:nth-child(2)',
+        get: function (page: Document): Element | null {
+            return page.querySelector('table.noprint tbody tr:first-child td:nth-child(2)');
+        }
     },
     episode: 'première',
     affiliation: 'affiliation',
@@ -27,7 +33,7 @@ const OnePieceENDataSource: IDataSource = {
     age: 'age',
     images: {
         identifier: '.wds-tab__content img',
-        get: function(page: Document) {
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
         },
     },

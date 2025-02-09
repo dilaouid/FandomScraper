@@ -4,9 +4,23 @@ const NarutoFRDataSource: IDataSource = {
     gender: 'Genre',
     images: {
         identifier: '.pi-image-thumbnail',
-        get: function(page: Document) {
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
         },
+    },
+    quote: {
+        identifier: '#Citations',
+        get: function (page: Document): Element | null {
+            const heading = page.querySelector('span#Citations');
+            if (!heading) return null;
+            const h2 = heading.closest('h2');
+            if (!h2) return null;
+            let next = h2.nextElementSibling;
+            while (next && next.tagName.toLowerCase() !== 'ul') {
+                next = next.nextElementSibling;
+            }
+            return next;
+        }
     },
     episode: 'Début anime',
     manga: 'Début manga',
@@ -27,9 +41,23 @@ const NarutoENDataSource: IDataSource = {
     gender: 'Sex',
     images: {
         identifier: '.mw-parser-output .imagecell img',
-        get: function(page: Document) {
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
         },
+    },
+    quote: {
+        identifier: '#Quotes',
+        get: function (page: Document): Element | null {
+            const quotesHeading = page.querySelector('span#Quotes');
+            if (!quotesHeading) return null;
+            const h2 = quotesHeading.closest('h2');
+            if (!h2) return null;
+            let next = h2.nextElementSibling;
+            while (next && next.tagName.toLowerCase() !== 'ul') {
+                next = next.nextElementSibling;
+            }
+            return next;
+        }
     },
     episode: 'Anime',
     manga: 'Manga',

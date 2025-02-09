@@ -1,6 +1,6 @@
 // Ensure TypeScript treats this file as global
 declare global {
-    
+
     // the different formats available of pages
     type TPageFormats = 'classic' | 'table-1' | 'table-2' | 'table-3';
     /*
@@ -23,9 +23,16 @@ declare global {
         ignore?: string[];
     }
 
+
+    interface IQuote {
+        identifier: string;
+        get: (page: Document) => Element | null;
+    }
+
     interface IDataset {
         name?: TDataset; // name of the character
         kanji?: string; // kanji name of the character
+        quote?: string | string[]; // quote of the character
         romaji?: string; // romaji name of the character
         status?: string; // status of the character (dead, alive, etc.)
         species?: TDataset; // race
@@ -53,6 +60,7 @@ declare global {
     interface IDataSource {
         name?: string;
         kanji?: string;
+        quote?: string | IQuote;
         romaji?: string;
         status?: string;
         species?: string;
@@ -75,17 +83,17 @@ declare global {
         nationality?: string;
         bloodType?: string;
     }
-    
+
     interface ISchema {
         // the url of the wiki characters list to scrape (ex: 'https://dragonball.fandom.com/wiki/Characters')
         url: string;
-    
+
         // the format of the characters list page (ex: 'classic')
         pageFormat: TPageFormats;
-    
+
         // the data-source of the wiki (ex: DragonBallFRDataSource) which will be used to scrape the wiki
         dataSource: IDataSource;
     }
 }
 
-export {};
+export { };

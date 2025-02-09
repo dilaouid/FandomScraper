@@ -6,9 +6,15 @@ const DemonSlayerFRDataSource: IDataSource = {
     gender: 'genre',
     images: {
         identifier: '.pi-image-thumbnail',
-        get: function(page: Document) {
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
         },
+    },
+    quote: {
+        identifier: 'table[style*="rgba(210, 179, 148, 0.46)"] tbody tr:first-child td:nth-child(2)',
+        get: function (page: Document): Element | null {
+            return page.querySelector('table[style*="rgba(210, 179, 148, 0.46)"] tbody tr:first-child td:nth-child(2)');
+        }
     },
     episode: 'anime',
     manga: 'manga',
@@ -30,9 +36,15 @@ const DemonSlayerENDataSource: IDataSource = {
     gender: 'gender',
     images: {
         identifier: '.pi-image-thumbnail',
-        get: function(page: Document) {
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
         },
+    },
+    quote: {
+        identifier: 'table[style*="rgba(210, 179, 148, 0.46)"] tbody tr:first-child td:nth-child(2)',
+        get: function (page: Document): Element | null {
+            return page.querySelector('table[style*="rgba(210, 179, 148, 0.46)"] tbody tr:first-child td:nth-child(2)');
+        }
     },
     episode: 'anime_debut',
     manga: 'manga_debut',

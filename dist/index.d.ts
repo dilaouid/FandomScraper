@@ -332,6 +332,25 @@ declare class FandomScraper {
     private setPageVersion;
     private getWikiUrl;
     private getDataUrl;
+    /**
+     * Récupère les citations de la page spécifiée en utilisant la configuration définie dans le dataSource.
+     *
+     * Si le dataSource définit 'quote' (sous forme d'objet IQuote ou de sélecteur CSS),
+     * cette configuration est utilisée pour trouver l'élément concerné.
+     * Sinon, on récupère tous les <blockquote> de la page.
+     *
+     * @param url - L'URL de la page à scraper pour les citations.
+     * @returns Un tableau d'objets contenant 'quote' (le texte) et 'source' (la source ou null).
+     */
+    getQuotes(url: string): Promise<string[]>;
+    /**
+ * Extrait le texte d'une citation et sa source à partir d'un élément donné.
+ * Si l'élément contient un <cite> ou <sup>, celui-ci sera retiré pour ne garder que le texte de la citation.
+ *
+ * @param element - L'élément contenant la citation.
+ * @returns Un objet avec la propriété 'quote' (le texte nettoyé)
+ */
+    private extractQuoteFromElement;
 }
 /**
  * This class allows you to define your own schema for a fandom wiki scraper

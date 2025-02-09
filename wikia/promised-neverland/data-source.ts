@@ -5,7 +5,7 @@ const PromisedNeverlandFRDataSource: IDataSource = {
     species: 'espèce',
     images: {
         identifier: '.mw-parser-output table img',
-        get: function(page: Document) {
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
         },
     },
@@ -28,9 +28,15 @@ const PromisedNeverlandENDataSource: IDataSource = {
     species: 'Species',
     images: {
         identifier: '.pi-image-thumbnail',
-        get: function(page: Document) {
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
         },
+    },
+    quote: {
+        identifier: 'blockquote.snippet',
+        get: function (page: Document): Element | null {
+            return page.querySelector('blockquote.snippet');
+        }
     },
     manga: 'Manga',
     episode: 'Episode',

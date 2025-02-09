@@ -10,6 +10,12 @@ const JojoFRDataSource: IDataSource = {
         },
         ignore: ['https://static.wikia.nocookie.net/jjba/images/d/d5/NoPicAvailable.png']
     },
+    quote: {
+        identifier: 'table.cquote tbody tr:first-child td:nth-child(2)',
+        get: function (page: Document): Element | null {
+            return page.querySelector('table.cquote tbody tr:first-child td:nth-child(2)');
+        }
+    },
     episode: 'Début anime',
     manga: 'Début manga',
     age: 'Âge',
@@ -40,6 +46,13 @@ const JojoENDataSource: IDataSource = {
             'https://static.wikia.nocookie.net/jjba/images/a/a4/Flag_of_the_United_States.svg'
         ]
     },
+    quote: {
+        identifier: 'table.cquote tbody tr:first-child td:nth-child(2)',
+        get: function (page: Document): Element | null {
+            return page.querySelector('table.cquote tbody tr:first-child td:nth-child(2)') ?? null;
+        }
+    },
+
     episode: 'animedebut',
     manga: 'mangadebut',
     age: 'age',
