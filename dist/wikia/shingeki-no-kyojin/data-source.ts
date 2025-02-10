@@ -24,7 +24,6 @@ const ShingekiFRDataSource: IDataSource = {
 
 const ShingekiENDataSource: IDataSource = {
     gender: 'Gender',
-    age: 'Age',
     kanji: 'Kanji',
     birthday: 'Birthday',
     height: 'Height',

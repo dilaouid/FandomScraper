@@ -1,20 +1,11 @@
-import * as path from 'path';
-import { fileURLToPath } from 'url';
-
-const getCurrentPath = () => {
-  if (typeof __dirname !== 'undefined') {
-    return __dirname;
-  }
-  return path.dirname(fileURLToPath(import.meta.url));
-};
-
 // Liste statique des wikis disponibles
 export const availableWikis = [
-  'demon-slayer',
+  'kimetsu-no-yaiba',
+  'koe-no-katachi',
   'naruto',
   'shiki',
   'death-note',
-  'fumetsu',
+  'fumetsu-no-anata-e',
   'one-piece',
   'dragon-ball',
   'promised-neverland',
@@ -24,5 +15,4 @@ export const availableWikis = [
   "shingeki-no-kyojin",
 ] as const;
 
-// Type basé sur la liste statique
 export type TAvailableWikis = typeof availableWikis[number];

@@ -73,7 +73,7 @@ var DeathNote = {
   en: DeathNoteEN
 };
 
-// wikia/demon-slayer/data-source.ts
+// wikia/kimetsu-no-yaiba/data-source.ts
 var DemonSlayerFRDataSource = {
   kanji: "kanji",
   romaji: "r\xF4maji",
@@ -134,7 +134,7 @@ var DemonSlayerENDataSource = {
   voiceActor: "english_va"
 };
 
-// wikia/demon-slayer/schemas.ts
+// wikia/kimetsu-no-yaiba/schemas.ts
 var DemonSlayerFR = {
   url: "https://kimetsu-no-yaiba.fandom.com/fr/wiki/Cat\xE9gorie:Personnages",
   pageFormat: "classic",
@@ -146,7 +146,7 @@ var DemonSlayerEN = {
   dataSource: DemonSlayerENDataSource
 };
 
-// wikia/demon-slayer/index.ts
+// wikia/kimetsu-no-yaiba/index.ts
 var DemonSlayer = {
   fr: DemonSlayerFR,
   en: DemonSlayerEN
@@ -211,7 +211,7 @@ var DragonBall = {
   en: DragonBallEN
 };
 
-// wikia/fumetsu/data-source.ts
+// wikia/fumetsu-no-anata-e/data-source.ts
 var FumetsuENDataSource = {
   kanji: "Kanji",
   status: "Status",
@@ -248,14 +248,14 @@ var FumetsuENDataSource = {
   voiceActor: "English Voice"
 };
 
-// wikia/fumetsu/schemas.ts
+// wikia/fumetsu-no-anata-e/schemas.ts
 var FumetsuEN = {
   url: "https://fumetsunoanatae.fandom.com/wiki/Category:Characters",
   pageFormat: "classic",
   dataSource: FumetsuENDataSource
 };
 
-// wikia/fumetsu/index.ts
+// wikia/fumetsu-no-anata-e/index.ts
 var Fumetsu = {
   en: FumetsuEN
 };
@@ -710,7 +710,6 @@ var ShingekiFRDataSource = {
 };
 var ShingekiENDataSource = {
   gender: "Gender",
-  age: "Age",
   kanji: "Kanji",
   birthday: "Birthday",
   height: "Height",
@@ -746,19 +745,87 @@ var Shingeki = {
   en: ShingekiEN
 };
 
+// wikia/koe-no-katachi/data-source.ts
+var SilentVoiceFRDataSource = {
+  name: "nom",
+  age: "\xE2ge",
+  birthday: "naissance",
+  zodiac: "signe",
+  gender: "genre",
+  bloodType: "groupesanguin",
+  relatives: "parent\xE9",
+  occupations: "occupation",
+  affiliation: "\xE9tudes",
+  manga: "manga",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  voiceActor: "voix"
+};
+var SilentVoiceENDataSource = {
+  age: "age",
+  birthday: "birthday",
+  zodiac: "sign",
+  gender: "gender",
+  height: "height",
+  bloodType: "bloodtype",
+  relatives: "relatives",
+  occupations: "occupation",
+  affiliation: "affiliation",
+  manga: "manga",
+  voiceActor: "voice_actor",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  quote: {
+    identifier: "dl",
+    get: function(page) {
+      const dl = page.querySelector("dl");
+      if (!dl) return null;
+      dl.querySelectorAll("b").forEach((b) => b.remove());
+      return dl;
+    }
+  }
+};
+
+// wikia/koe-no-katachi/schemas.ts
+var SilentVoiceFR = {
+  url: "https://koenokatachi.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages",
+  pageFormat: "classic",
+  dataSource: SilentVoiceFRDataSource
+};
+var SilentVoiceEN = {
+  url: "https://koenokatachi.fandom.com/wiki/Category:Characters",
+  pageFormat: "classic",
+  dataSource: SilentVoiceENDataSource
+};
+
+// wikia/koe-no-katachi/index.ts
+var SilentVoice = {
+  fr: SilentVoiceFR,
+  en: SilentVoiceEN
+};
+
 // wikia/index.ts
 var Schemas = {
-  "demon-slayer": DemonSlayer,
-  "naruto": Naruto,
-  "shiki": Shiki,
-  "death-note": DeathNote,
-  "fumetsu": Fumetsu,
-  "one-piece": OnePiece,
-  "dragon-ball": DragonBall,
-  "promised-neverland": PromisedNeverland,
   "berserk": Berserk,
-  "jojo": Jojo,
+  "death-note": DeathNote,
+  "kimetsu-no-yaiba": DemonSlayer,
+  "koe-no-katachi": SilentVoice,
   "dororo": Dororo,
+  "dragon-ball": DragonBall,
+  "fumetsu-no-anata-e": Fumetsu,
+  "naruto": Naruto,
+  "jojo": Jojo,
+  "one-piece": OnePiece,
+  "promised-neverland": PromisedNeverland,
+  "shiki": Shiki,
   "shingeki-no-kyojin": Shingeki
 };
 
@@ -822,11 +889,12 @@ var formatForUrl = (name) => {
 
 // types/dynamic.types.ts
 var availableWikis = [
-  "demon-slayer",
+  "kimetsu-no-yaiba",
+  "koe-no-katachi",
   "naruto",
   "shiki",
   "death-note",
-  "fumetsu",
+  "fumetsu-no-anata-e",
   "one-piece",
   "dragon-ball",
   "promised-neverland",
