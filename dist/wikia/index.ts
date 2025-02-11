@@ -13,6 +13,7 @@ import { Jojo } from './jojo';
 import { Dororo } from './dororo';
 import { Shingeki } from './shingeki-no-kyojin';
 import { SilentVoice } from './koe-no-katachi';
+import { Hellsing } from './hellsing';
 
 export const Schemas: Record<TAvailableWikis, any> = {
     'berserk': Berserk,
@@ -22,6 +23,7 @@ export const Schemas: Record<TAvailableWikis, any> = {
     'dororo': Dororo,
     'dragon-ball': DragonBall,
     'fumetsu-no-anata-e': Fumetsu,
+    'hellsing': Hellsing,
     'naruto': Naruto,
     'jojo': Jojo,
     'one-piece': OnePiece,

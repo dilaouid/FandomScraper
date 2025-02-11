@@ -64,15 +64,15 @@ This file is of paramount importance as it serves as the main entry point for ac
 ## The index file
 Outside the "wikia" folders, there is the "`index.ts`" file that serves as a central index for all supported wikias. It imports each individual wikia's "`index.ts`" file and exports them as a Record with keys corresponding to the names of the wikia folders. For example:
 ```ts
-import { DeathNote } from './death-note/index';
-import { DemonSlayer } from './demon-slayer/index';
-import { DragonBall } from './dragon-ball/index';
-import { Fumetsu } from './fumetsu/index';
-import { Naruto } from './naruto/index';
+import { DeathNote } from './death-note';
+import { DemonSlayer } from './kimetsu-no-yaiba';
+import { DragonBall } from './dragon-ball';
+import { Fumetsu } from './fumetsu-no-anata-e';
+import { Naruto } from './naruto';
 // ... and other wikias
 
 export const Schemas: Record<TAvailableWikis, any> = {
-    'demon-slayer': DemonSlayer,
+    'kimetsu-no-yaiba': DemonSlayer,
     'naruto': Naruto,
     'dragon-ball': DragonBall,
     // ... and other wikias

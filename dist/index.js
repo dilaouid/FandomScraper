@@ -824,6 +824,39 @@ var SilentVoice = {
   en: SilentVoiceEN
 };
 
+// wikia/hellsing/data-source.ts
+var HellsingENDataSource = {
+  age: "age",
+  gender: "gender",
+  height: "height",
+  species: "species",
+  status: "status",
+  affiliation: "affiliation",
+  relatives: "family",
+  manga: "firstmanga",
+  episode: "firstova",
+  seiyu: "japanactor",
+  voiceActor: "voiceactor",
+  images: {
+    identifier: ".pi-item .pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  }
+};
+
+// wikia/hellsing/schemas.ts
+var HellsingEN = {
+  url: "https://hellsing.fandom.com/wiki/Category:Characters",
+  pageFormat: "classic",
+  dataSource: HellsingENDataSource
+};
+
+// wikia/hellsing/index.ts
+var Hellsing = {
+  en: HellsingEN
+};
+
 // wikia/index.ts
 var Schemas = {
   "berserk": Berserk,
@@ -833,6 +866,7 @@ var Schemas = {
   "dororo": Dororo,
   "dragon-ball": DragonBall,
   "fumetsu-no-anata-e": Fumetsu,
+  "hellsing": Hellsing,
   "naruto": Naruto,
   "jojo": Jojo,
   "one-piece": OnePiece,
@@ -901,19 +935,20 @@ var formatForUrl = (name) => {
 
 // types/dynamic.types.ts
 var availableWikis = [
+  "berserk",
+  "death-note",
+  "dororo",
+  "dragon-ball",
+  "fumetsu-no-anata-e",
+  "hellsing",
+  "jojo",
   "kimetsu-no-yaiba",
   "koe-no-katachi",
   "naruto",
-  "shiki",
-  "death-note",
-  "fumetsu-no-anata-e",
   "one-piece",
-  "dragon-ball",
-  "promised-neverland",
-  "berserk",
-  "jojo",
-  "dororo",
-  "shingeki-no-kyojin"
+  "shiki",
+  "shingeki-no-kyojin",
+  "promised-neverland"
 ];
 
 // utils/extractImageURL.ts

@@ -196,16 +196,30 @@ interface  IData {
 }
 
 interface  IDataset {
-	name?: string;
-	kanji?: string;
-	romaji?: string;
-	status?: string;
-	species?: string;
-	gender?: string;
-	images?: string[];
-	episode?: string[];
-	age?: string;
-	affiliation?: string;
+	name?: TDataset; // name of the character
+	kanji?: string; // kanji name of the character
+	quote?: string | string[]; // quote of the character
+	romaji?: string; // romaji name of the character
+	status?: string; // status of the character (dead, alive, etc.)
+	species?: TDataset; // race
+	gender?: string; // gender of the character
+	images?: string[]; // array of image urls
+	episode?: TDataset; // array of episode names where the character first appeared
+	manga?: string; // manga chapter where the character first appeared
+	age?: TDataset; // age of the character
+	birthday?: string; // birthday of the character
+	bloodType?: string; // blood type of the character
+	zodiac?: string; // zodiac sign of the character
+	hairColor?: string; // hair color of the character
+	eyeColor?: string; // eye color of the character
+	height?: TDataset; // height of the character
+	weight?: TDataset; // weight of the character
+	relatives?: TDataset; // array of relatives of the character
+	affiliation?: string; // affiliation of the character
+	occupations?: TDataset; // array of occupations of the character
+	nationality?: string; // nationality of the character
+	seiyu?: TDataset; // seiyu of the character
+	voiceActor?: TDataset; // voice actor of the character
 }
 
 ```
@@ -248,6 +262,12 @@ const personalScraper = new FandomPersonalScraper({
 				return  page.querySelectorAll(this.identifier);
 			}
 		},
+		quotes: {
+			identifier: '.quote',
+			get: function(page) {
+				return  page.querySelectorAll(this.identifier);
+			}
+		},
 		episode: 'First appearance',
 		affiliation: 'Affiliations'
 	}
@@ -266,28 +286,29 @@ interface IImage {
 // Interface of where to scrap the page to get the data of the characters (data-source)
 interface IDataSource {
     name?: string;
-    kanji?: string;
-    romaji?: string;
-    status?: string;
-    species?: string;
-    gender?: string;
-    images?: IImage;
-    episode?: string;
-    manga?: string;
-    age?: string;
-    affiliation?: string;
-    hairColor?: string;
-    eyeColor?: string;
-    occupations?: string;
-    seiyu?: string;
-    voiceActor?: string;
-    relatives?: string;
-    birthday?: string;
-    zodiac?: string;
-    height?: string;
-    weight?: string;
-    nationality?: string;
-    bloodType?: string;
+	kanji?: string;
+	quote?: string | IQuote;
+	romaji?: string;
+	status?: string;
+	species?: string;
+	gender?: string;
+	images?: IImage;
+	episode?: string;
+	manga?: string;
+	age?: string;
+	affiliation?: string;
+	hairColor?: string;
+	eyeColor?: string;
+	occupations?: string;
+	seiyu?: string;
+	voiceActor?: string;
+	relatives?: string;
+	birthday?: string;
+	zodiac?: string;
+	height?: string;
+	weight?: string;
+	nationality?: string;
+	bloodType?: string;
 };
 
 interface ISchema {
@@ -303,7 +324,7 @@ interface ISchema {
 ```
 -   `url`: The URL of the wiki's characters list page, for example: `'https://dragonball.fandom.com/wiki/Characters'`.
 
--   `pageFormat`: The format of the characters list page, which can be `'classic'`, `'table-1'`, or `'table-2'` depending on how the characters page list is structured.
+-   `pageFormat`: The format of the characters list page, which can be `'classic'`, `'table-1'`, `table-3` or `'table-4'` depending on how the characters page list is structured.
 
 -   `dataSource`: An object specifying the data sources for scraping character pages. It defines properties like `name`, `age`, `kanji`, etc. Each property corresponds to a piece of information about the character. If an element on the character page has a `data-source` attribute, the value of that attribute is used as the property value. Otherwise, the value is taken from the adjacent cell in the table.
 	-   `images`: An object specifying the data source for scraping character images. It follows the `IImage` interface, which has two properties:
@@ -319,6 +340,8 @@ images: {
     },
 }
 ```
+
+(And it works the same way for the the `quotes` property)
 
 In this example, the `identifier` uses a CSS selector format to select all the image elements within a specific table on the character page. The `get` function receives the `page` document and uses the `querySelectorAll` method to retrieve and return all the selected image elements.
 
