@@ -6,7 +6,7 @@ describe("FandomScraper Demon Slayer", () => {
     let metadatas: any;
     
     beforeEach(async () => {
-        scraper = new FandomScraper("demon-slayer", { lang: "en" });
+        scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "en" });
         metadatas = await scraper.getMetadata();
     });
 
