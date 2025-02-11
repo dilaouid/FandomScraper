@@ -695,9 +695,15 @@ var ShingekiFRDataSource = {
   weight: "Poids",
   species: "Esp\xE8ces",
   images: {
-    identifier: ".mw-parser-output aside img",
+    identifier: ".pi-item .pi-image-thumbnail",
     get: function(page) {
       return page.querySelectorAll(this.identifier);
+    }
+  },
+  quote: {
+    identifier: ".cquote tr i",
+    get: function(page) {
+      return page.querySelector(".cquote tr i");
     }
   },
   episode: "Premi\xE8re Anim\xE9",
@@ -716,10 +722,16 @@ var ShingekiENDataSource = {
   weight: "Weight",
   relatives: "Relatives",
   images: {
-    identifier: ".mw-parser-output aside img",
+    identifier: ".pi-item .pi-image-thumbnail",
     get: function(page) {
       return page.querySelectorAll(this.identifier);
-    }
+    },
+    ignore: [
+      "https://static.wikia.nocookie.net/shingekinokyojin/images/a/a7/Survey_Corps_Logo.png",
+      "https://static.wikia.nocookie.net/shingekinokyojin/images/5/55/Garrison_Logo.png",
+      "https://static.wikia.nocookie.net/shingekinokyojin/images/a/a9/104th_Trainees_Squad_Logo.png",
+      "https://static.wikia.nocookie.net/shingekinokyojin/images/4/4c/Brigade_Logo.png"
+    ]
   },
   manga: "Debut chapter",
   seiyu: "Voice actor",
@@ -729,7 +741,7 @@ var ShingekiENDataSource = {
 
 // wikia/shingeki-no-kyojin/schemas.ts
 var ShingekiFR = {
-  url: "https://attaque-des-titans.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages",
+  url: "https://attaque-des-titans.fandom.com/fr/wiki/Cat%C3%A9gorie:Humains",
   pageFormat: "classic",
   dataSource: ShingekiFRDataSource
 };
@@ -929,7 +941,15 @@ var FandomScraper = class {
       withId: true,
       limit: 50,
       offset: 0,
-      ignore: ["Minor Characters", "Unnamed Characters", "Allies", "Attack on Titan Character Encyclopedia FINAL/Civilians", "Attack on Titan Character Encyclopedia FINAL/Garrison", "Attack on Titan Character Encyclopedia FINAL/Marleyan military"],
+      ignore: [
+        "Minor Characters",
+        "Unnamed Characters",
+        "Citoyen d'Honneur de Mahr",
+        "Allies",
+        "Attack on Titan Character Encyclopedia FINAL/Civilians",
+        "Attack on Titan Character Encyclopedia FINAL/Garrison",
+        "Attack on Titan Character Encyclopedia FINAL/Marleyan military"
+      ],
       attributes: []
     };
     this.name = "";

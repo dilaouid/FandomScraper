@@ -1,7 +1,7 @@
 import { ShingekiFRDataSource, ShingekiENDataSource } from "./data-source";
 
 const ShingekiFR: ISchema = {
-    url: 'https://attaque-des-titans.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages',
+    url: 'https://attaque-des-titans.fandom.com/fr/wiki/Cat%C3%A9gorie:Humains',
     pageFormat: 'classic',
     dataSource: ShingekiFRDataSource
 };

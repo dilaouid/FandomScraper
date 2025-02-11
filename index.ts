@@ -108,7 +108,15 @@ export class FandomScraper {
         withId: true,
         limit: 50,
         offset: 0,
-        ignore: ['Minor Characters', 'Unnamed Characters', 'Allies', 'Attack on Titan Character Encyclopedia FINAL/Civilians', 'Attack on Titan Character Encyclopedia FINAL/Garrison', 'Attack on Titan Character Encyclopedia FINAL/Marleyan military'],
+        ignore: [
+            'Minor Characters',
+            'Unnamed Characters',
+            "Citoyen d'Honneur de Mahr",
+            'Allies',
+            'Attack on Titan Character Encyclopedia FINAL/Civilians',
+            'Attack on Titan Character Encyclopedia FINAL/Garrison',
+            'Attack on Titan Character Encyclopedia FINAL/Marleyan military'
+        ],
         attributes: []
     };
     private method: 'find' | 'findByName' | 'findById' | undefined;

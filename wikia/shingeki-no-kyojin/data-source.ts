@@ -8,9 +8,15 @@ const ShingekiFRDataSource: IDataSource = {
     weight: 'Poids',
     species: 'Espèces',
     images: {
-        identifier: '.mw-parser-output aside img',
-        get: function(page: Document) {
+        identifier: '.pi-item .pi-image-thumbnail',
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
+        }
+    },
+    quote: {
+        identifier: '.cquote tr i',
+        get: function (page: Document) {
+            return page.querySelector('.cquote tr i');
         }
     },
     episode: 'Première Animé',
@@ -30,10 +36,16 @@ const ShingekiENDataSource: IDataSource = {
     weight: 'Weight',
     relatives: 'Relatives',
     images: {
-        identifier: '.mw-parser-output aside img',
-        get: function(page: Document) {
+        identifier: '.pi-item .pi-image-thumbnail',
+        get: function (page: Document) {
             return page.querySelectorAll(this.identifier);
-        }
+        },
+        ignore: [
+            "https://static.wikia.nocookie.net/shingekinokyojin/images/a/a7/Survey_Corps_Logo.png",
+            "https://static.wikia.nocookie.net/shingekinokyojin/images/5/55/Garrison_Logo.png",
+            "https://static.wikia.nocookie.net/shingekinokyojin/images/a/a9/104th_Trainees_Squad_Logo.png",
+            "https://static.wikia.nocookie.net/shingekinokyojin/images/4/4c/Brigade_Logo.png"
+        ]
     },
     manga: 'Debut chapter',
     seiyu: 'Voice actor',
