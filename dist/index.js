@@ -1369,7 +1369,7 @@ var FandomScraper = class {
    * ```
    * @deprecated Use the findById method instead.
    */
-  async getById(id, options = { name: "", base64: false, withId: true }) {
+  async getById(id, options = { name: "", base64: false }) {
     try {
       if (id < 1) throw new Error("Id must be greater than 0");
       return this._getById(id, options);
@@ -1385,7 +1385,7 @@ var FandomScraper = class {
     return this.fetchPage(url).then(async (page) => {
       const name = page.querySelector(".mw-page-title-main")?.textContent || "";
       data.name = name;
-      const characterData = await this.formatCharacterData(page, options, data);
+      const characterData = await this.formatCharacterData(page, options || { base64: false }, data);
       if (!this.isValidCharacterPage(page)) {
         throw new Error(`This character with this id does not exists: ${id}`);
       }

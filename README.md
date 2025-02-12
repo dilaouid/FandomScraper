@@ -126,7 +126,7 @@ Make sure to adjust the options, methods, and property names according to your s
 
 ```js
 const characterById = await scraper
-	.findById(24013, { base64:  false, withId:  true })
+	.findById(24013, { base64:  false })
 	.attr('age kanji status episode images affiliation occupations')
 	.attrToArray('affiliation occupations')
 	.exec()
@@ -136,9 +136,8 @@ This method allows you to retrieve a character from the wiki based on their ID.
 -   The `findById()` method takes two arguments:
     
     -   The first argument is the ID of the character you want to find. In the example above, it's `24013`.
-    -   The second argument is an options object that can be used to customize the query. It supports the following options:
+    -   The second argument is an options object that can be used to customize the query. It supports the following option:
         -   `base64`: A boolean value that determines whether to return character images in base64 format.
-        -   `withId`: A boolean value that indicates whether to include the character's ID (corresponding to the wikia's `pageId` value).
 -   The `attr()` method is used to specify which properties (keys) from the data source schema should be returned in the query result. It takes a string as an argument, where each property is separated by a space. In the example above, it's `.attr('name kanji age affiliations')`.
     
 -   The `exec()` method must be called at the end of the query chain to execute the query and retrieve the result.

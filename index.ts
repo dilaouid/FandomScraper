@@ -561,7 +561,7 @@ export class FandomScraper {
      * ```
      * @deprecated Use the findById method instead.
      */
-    public async getById(id: number, options: IGetCharacterOptions = { name: '', base64: false, withId: true }): Promise<any> {
+    public async getById(id: number, options: IGetCharacterOptions = { name: '', base64: false }): Promise<any> {
         try {
             if (id < 1) throw new Error('Id must be greater than 0');
 
@@ -571,7 +571,7 @@ export class FandomScraper {
         }
     }
 
-    private async _getById(id: number, options: { base64?: boolean, withId?: boolean, attributes?: string[] }): Promise<any> {
+    private async _getById(id: number, options?: { base64?: boolean, attributes?: string[] }): Promise<any> {
 
         const url = this.getWikiUrl() + `?curid=${id}`;
         const data: any = {
@@ -581,7 +581,7 @@ export class FandomScraper {
         return this.fetchPage(url).then(async page => {
             const name = page.querySelector('.mw-page-title-main')?.textContent || '';
             data.name = name;
-            const characterData = await this.formatCharacterData(page, options, data);
+            const characterData = await this.formatCharacterData(page, options || { base64: false }, data);
 
             if (!this.isValidCharacterPage(page)) {
                 throw new Error(`This character with this id does not exists: ${id}`);
