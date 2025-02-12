@@ -1249,7 +1249,7 @@ var FandomScraper = class {
     this.id = id;
     this.method = "findById";
     this.reset();
-    this.options.base64 = options.base64;
+    this.options.base64 = options?.base64 || false;
     return this;
   }
   /**

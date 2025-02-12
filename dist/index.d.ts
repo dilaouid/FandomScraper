@@ -236,7 +236,7 @@ declare class FandomScraper {
      * const character = await scraper.findById(1, { base64: true }).exec();
      * ```
      */
-    findById(id: number, options: {
+    findById(id: number, options?: {
         base64: boolean;
     }): this;
     /**

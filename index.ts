@@ -429,13 +429,13 @@ export class FandomScraper {
      * const character = await scraper.findById(1, { base64: true }).exec();
      * ```
      */
-    public findById(id: number, options: { base64: boolean }): this {
+    public findById(id: number, options?: { base64: boolean }): this {
         if (id < 1) throw new Error('Id must be greater than 0');
         this.id = id;
         this.method = 'findById';
 
         this.reset();
-        this.options.base64 = options.base64;
+        this.options.base64 = options?.base64 || false;
         return this;
     };
 
