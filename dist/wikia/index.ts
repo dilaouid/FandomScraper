@@ -14,10 +14,14 @@ import { Dororo } from './dororo';
 import { Shingeki } from './shingeki-no-kyojin';
 import { SilentVoice } from './koe-no-katachi';
 import { Hellsing } from './hellsing';
+import { Smurf } from './smurf';
+import { RickAndMorty } from './rick-and-morty';
+import { DeathParade } from './death-parade';
 
 export const Schemas: Record<TAvailableWikis, any> = {
     'berserk': Berserk,
     'death-note': DeathNote,
+    'death-parade': DeathParade,
     'kimetsu-no-yaiba': DemonSlayer,
     'koe-no-katachi': SilentVoice,
     'dororo': Dororo,
@@ -27,7 +31,9 @@ export const Schemas: Record<TAvailableWikis, any> = {
     'naruto': Naruto,
     'jojo': Jojo,
     'one-piece': OnePiece,
+    "rick-and-morty": RickAndMorty,
     'promised-neverland': PromisedNeverland,
     'shiki': Shiki,
     'shingeki-no-kyojin': Shingeki,
+    "smurf": Smurf
 } as const;

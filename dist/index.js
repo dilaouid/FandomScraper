@@ -857,10 +857,163 @@ var Hellsing = {
   en: HellsingEN
 };
 
+// wikia/smurf/data-source.ts
+var SmurfFRDataSource = {
+  name: "nom",
+  species: "esp\xE8ce",
+  gender: "sexe",
+  images: {
+    identifier: ".pi-image .pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "premier \xE9pisode",
+  age: "\xE2ge",
+  occupations: "profession",
+  voiceActor: "acteur",
+  relatives: "amis"
+};
+var SmurfENDataSource = {
+  species: "race",
+  gender: "gender",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "firt",
+  voiceActor: "voice actor",
+  occupations: "occupation"
+};
+
+// wikia/smurf/schemas.ts
+var SmurfEN = {
+  url: "https://smurfs.fandom.com/wiki/Category:Smurfs_Characters",
+  pageFormat: "classic",
+  dataSource: SmurfENDataSource
+};
+var SmurfFR = {
+  url: "https://schtroumpfs.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages",
+  pageFormat: "classic",
+  dataSource: SmurfFRDataSource
+};
+
+// wikia/smurf/index.ts
+var Smurf = {
+  fr: SmurfFR,
+  en: SmurfEN
+};
+
+// wikia/rick-and-morty/data-source.ts
+var RickAndMortyFRDataSource = {
+  name: "nom",
+  species: "esp\xE8ce",
+  gender: "genre",
+  status: "statut",
+  images: {
+    identifier: ".pi-image .pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "premi\xE8re_apparition",
+  age: "\xE2ge",
+  occupations: "occupation",
+  voiceActor: "voix",
+  relatives: "famille"
+};
+var RickAndMortyENDataSource = {
+  species: "species",
+  gender: "gender",
+  age: "age",
+  status: "status",
+  occupations: "job",
+  affiliation: "affiliation",
+  relatives: "family",
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  episode: "firt",
+  voiceActor: "voice actor"
+};
+
+// wikia/rick-and-morty/schemas.ts
+var RickAndMortyEN = {
+  url: "https://rickandmorty.fandom.com/wiki/Category:Characters",
+  pageFormat: "classic",
+  dataSource: RickAndMortyENDataSource
+};
+var RickAndMortyFR = {
+  url: "https://rick-et-morty.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages",
+  pageFormat: "classic",
+  dataSource: RickAndMortyFRDataSource
+};
+
+// wikia/rick-and-morty/index.ts
+var RickAndMorty = {
+  fr: RickAndMortyFR,
+  en: RickAndMortyEN
+};
+
+// wikia/death-parade/data-source.ts
+var DeathParadeENDataSource = {
+  kanji: "kanji",
+  romaji: "romaji",
+  gender: "gender",
+  age: "age",
+  height: "height",
+  hairColor: "hair",
+  eyeColor: "eye",
+  weight: "weight",
+  status: "status",
+  occupations: "occupation",
+  affiliation: "affiliation",
+  images: {
+    identifier: ".pi-image .pi-image-thumbnail",
+    get: function(page) {
+      return Array.from(page.querySelectorAll(this.identifier));
+    }
+  },
+  quote: {
+    identifier: "h2:has(span#Quotes) + ul li",
+    get: function(page) {
+      const quoteSection = page.querySelector('h2:has(span#Quotes), h2:has(span.mw-headline[id="Quotes"])');
+      if (!quoteSection) return null;
+      const quotesList = quoteSection.nextElementSibling;
+      if (quotesList && quotesList.tagName === "UL") {
+        return quotesList.querySelector("li");
+      }
+      return null;
+    }
+  },
+  episode: "debut",
+  bloodType: "blood",
+  seiyu: "jvoice",
+  voiceActor: "evoice"
+};
+
+// wikia/death-parade/schemas.ts
+var DeathParadeEN = {
+  url: "https://death-parade.fandom.com/wiki/Category:Characters",
+  pageFormat: "classic",
+  dataSource: DeathParadeENDataSource
+};
+
+// wikia/death-parade/index.ts
+var DeathParade = {
+  en: DeathParadeEN
+};
+
 // wikia/index.ts
 var Schemas = {
   "berserk": Berserk,
   "death-note": DeathNote,
+  "death-parade": DeathParade,
   "kimetsu-no-yaiba": DemonSlayer,
   "koe-no-katachi": SilentVoice,
   "dororo": Dororo,
@@ -870,9 +1023,11 @@ var Schemas = {
   "naruto": Naruto,
   "jojo": Jojo,
   "one-piece": OnePiece,
+  "rick-and-morty": RickAndMorty,
   "promised-neverland": PromisedNeverland,
   "shiki": Shiki,
-  "shingeki-no-kyojin": Shingeki
+  "shingeki-no-kyojin": Shingeki,
+  "smurf": Smurf
 };
 
 // utils/allCharactersPage.ts
@@ -937,6 +1092,7 @@ var formatForUrl = (name) => {
 var availableWikis = [
   "berserk",
   "death-note",
+  "death-parade",
   "dororo",
   "dragon-ball",
   "fumetsu-no-anata-e",
@@ -946,8 +1102,10 @@ var availableWikis = [
   "koe-no-katachi",
   "naruto",
   "one-piece",
+  "rick-and-morty",
   "shiki",
   "shingeki-no-kyojin",
+  "smurf",
   "promised-neverland"
 ];
 

@@ -12,6 +12,7 @@ const getCurrentPath = () => {
 export const availableWikis = [
   'berserk',
   'death-note',
+  'death-parade',
   'dororo',
   'dragon-ball',
   'fumetsu-no-anata-e',
@@ -21,8 +22,10 @@ export const availableWikis = [
   'koe-no-katachi',
   'naruto',
   'one-piece',
+  'rick-and-morty',
   'shiki',
   "shingeki-no-kyojin",
+  "smurf",
   'promised-neverland',
 ] as const;
 
