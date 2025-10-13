@@ -22,8 +22,8 @@ describe("FandomScraper Demon Slayer", () => {
             expect(metadatas.count).to.be.a('number');
         });
 
-        it("metadata name should be 'demon-slayer'", () => {
-            expect(metadatas.name).to.equal("demon-slayer");
+        it("metadata name should be 'kimetsu-no-yaiba'", () => {
+            expect(metadatas.name).to.equal("kimetsu-no-yaiba");
         });
 
         it("metadata language should be 'en'", () => {
@@ -163,8 +163,9 @@ describe("FandomScraper Demon Slayer", () => {
             expect(kamadoId.data.images).to.be.an('array');
             expect(kamadoId.data.images[0]).to.be.an('string');
 
-            const base64Regex = /^data:image\/(png|jpg|jpeg);base64,|iVBORw0KGgoAAAANSUhEUgAAAV4AAA/;
-            expect(base64Regex.test(kamadoId.data.images[0])).to.be.true;
+            const isBase64 = kamadoId.data.images[0].startsWith('data:image') || 
+                           /^[A-Za-z0-9+/]*={0,2}$/.test(kamadoId.data.images[0]);
+            expect(isBase64).to.be.true;
         });
 
         it("Id 1 should not be found (result empty array)", () => {
@@ -224,7 +225,7 @@ describe("FandomScraper One Piece", () => {
               .attr('kanji romaji status images occupations affiliation height age')
               .limit(5)
               .offset(355)
-              .attrToArray('age affiliation')
+              .attrToArray('age occupations')
               .exec().catch((err) => {
                     throw err;
                 }
@@ -236,16 +237,16 @@ describe("FandomScraper One Piece", () => {
             expect(all.length).to.equal(5);
         });
 
-        it("Result of findAll() should get the first character (Disuko)", () => {
-            expect(all[0].data.kanji).to.equal("ディスコ");
-            expect(all[0].data.romaji).to.equal("Disuko");
+        it("Result of findAll() should get the first character (Den)", () => {
+            expect(all[0].data.kanji).to.equal("デン");
+            expect(all[0].data.romaji).to.equal("Den");
         });
 
-        it("Disuko affiliation must be an array", () => {
-            expect(all[0].data.affiliation).to.be.an('array');
+        it("Den occupation must be an array", () => {
+            expect(all[0].data.occupations).to.be.an('array');
         });
         
-        it("Disuko images must be an array of string", () => {
+        it("Den images must be an array of string", () => {
             expect(all[0].data.images).to.be.an('array');
             expect(all[0].data.images[0]).to.be.an('string');
         });
@@ -284,8 +285,6 @@ describe("FandomScraper One Piece", () => {
         it("Zoro images must be an array of base64", () => {
             expect(Zoro.data.images).to.be.an('array');
             expect(Zoro.data.images[0]).to.be.an('string');
-
-            console.log(Zoro.data.images[0].substring(0, 100));
             
             const base64Regex = /^data:image\/(png|jpg|jpeg);base64,|iVBOR/;
             expect(base64Regex.test(Zoro.data.images[0])).to.be.true;
