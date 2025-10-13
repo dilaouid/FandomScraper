@@ -37,6 +37,13 @@ const allCharactersPage = {
             type: '',
             value: ''
         }
+    },
+    'table-5': {
+        banList: [],
+        next: {
+            type: '',
+            value: ''
+        }
     }
 }
 

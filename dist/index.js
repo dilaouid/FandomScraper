@@ -1070,6 +1070,13 @@ var allCharactersPage = {
       type: "",
       value: ""
     }
+  },
+  "table-5": {
+    banList: [],
+    next: {
+      type: "",
+      value: ""
+    }
   }
 };
 
@@ -1572,7 +1579,7 @@ var FandomScraper = class {
     const character = await this._getOne(page, options);
     if (options.withId) {
       data.id = character.id;
-      character.id = undefined;
+      character.id = void 0;
     }
     data.data = character;
     return data;
@@ -1612,10 +1619,10 @@ var FandomScraper = class {
           }
           count++;
           if (!options.recursive) {
-            data[data.length - 1].data = undefined;
+            data[data.length - 1].data = void 0;
           }
           if (!options.withId) {
-            data[data.length - 1].id = undefined;
+            data[data.length - 1].id = void 0;
           }
           if (count == options.limit) {
             return data;
@@ -1841,6 +1848,8 @@ var FandomScraper = class {
       return this._CharactersPage.querySelectorAll("table.fandom-table td:nth-child(2)");
     } else if (this._schema.pageFormat === "table-4") {
       return this._CharactersPage.querySelectorAll(".characterbox th:nth-child(1) a");
+    } else if (this._schema.pageFormat === "table-5") {
+      return this._CharactersPage.querySelectorAll("table.wikitable.sortable td:nth-child(1) a");
     }
     throw new Error("Invalid page format");
   }
@@ -1866,6 +1875,10 @@ var FandomScraper = class {
       if (!url) throw new Error("No URL found");
       return url;
     } else if (this._schema.pageFormat === "table-4") {
+      const url = this.getDataUrl(element.getAttribute("href"));
+      if (!url) throw new Error("No URL found");
+      return url;
+    } else if (this._schema.pageFormat === "table-5") {
       const url = this.getDataUrl(element.getAttribute("href"));
       if (!url) throw new Error("No URL found");
       return url;

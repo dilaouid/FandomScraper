@@ -2,7 +2,7 @@
 declare global {
 
     // the different formats available of pages
-    type TPageFormats = 'classic' | 'table-1' | 'table-2' | 'table-3' | 'table-4'
+    type TPageFormats = 'classic' | 'table-1' | 'table-2' | 'table-3' | 'table-4' | 'table-5'
     /*
         classic: the classic page with the list of characters names
         table-1: the table with the image on the left
@@ -29,7 +29,7 @@ declare global {
         get: (page: Document) => Element | null;
     }
 
-    interface IDataset {
+    interface IKnownDatasetFields {
         name?: TDataset; // name of the character
         kanji?: string; // kanji name of the character
         quote?: string | string[]; // quote of the character
@@ -56,8 +56,13 @@ declare global {
         voiceActor?: TDataset; // voice actor of the character
     }
 
-    // Interface of where to scrap the page to get the data of the characters (data-source)
-    interface IDataSource {
+    // IDataset extends known fields and allows custom fields
+    interface IDataset extends IKnownDatasetFields {
+        [key: string]: TDataset | string | string[] | undefined;
+    }
+
+    // Known data source fields with their selectors
+    interface IKnownDataSourceFields {
         name?: string;
         kanji?: string;
         quote?: string | IQuote;
@@ -82,6 +87,12 @@ declare global {
         weight?: string;
         nationality?: string;
         bloodType?: string;
+    }
+
+    // Interface of where to scrap the page to get the data of the characters (data-source)
+    // Supports custom fields beyond the known ones
+    interface IDataSource extends IKnownDataSourceFields {
+        [key: string]: string | IImage | IQuote | undefined;
     }
 
     interface ISchema {

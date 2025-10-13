@@ -195,6 +195,7 @@ interface  IData {
 }
 
 interface  IDataset {
+	// Standard fields (built-in)
 	name?: TDataset; // name of the character
 	kanji?: string; // kanji name of the character
 	quote?: string | string[]; // quote of the character
@@ -219,6 +220,9 @@ interface  IDataset {
 	nationality?: string; // nationality of the character
 	seiyu?: TDataset; // seiyu of the character
 	voiceActor?: TDataset; // voice actor of the character
+	
+	// Custom fields support - Add any field your wiki needs
+	[key: string]: TDataset | string | string[] | undefined;
 }
 
 ```
@@ -284,7 +288,8 @@ interface IImage {
 
 // Interface of where to scrap the page to get the data of the characters (data-source)
 interface IDataSource {
-    name?: string;
+	// Standard fields (built-in) - optional, use what you need
+	name?: string;
 	kanji?: string;
 	quote?: string | IQuote;
 	romaji?: string;
@@ -308,6 +313,9 @@ interface IDataSource {
 	weight?: string;
 	nationality?: string;
 	bloodType?: string;
+	
+	// Custom fields support - Add ANY field your wiki has
+	[key: string]: string | IImage | IQuote | undefined;
 };
 
 interface ISchema {
@@ -325,7 +333,7 @@ interface ISchema {
 
 -   `pageFormat`: The format of the characters list page, which can be `'classic'`, `'table-1'`, `table-3` or `'table-4'` depending on how the characters page list is structured.
 
--   `dataSource`: An object specifying the data sources for scraping character pages. It defines properties like `name`, `age`, `kanji`, etc. Each property corresponds to a piece of information about the character. If an element on the character page has a `data-source` attribute, the value of that attribute is used as the property value. Otherwise, the value is taken from the adjacent cell in the table.
+-   `dataSource`: An object specifying the data sources for scraping character pages. It defines properties like `name`, `age`, `kanji`, etc. **You can use the standard fields provided OR add any custom field your wiki has** (e.g., `likes`, `dislikes`, `masters`, `class`, `power_level`, etc.). Each property corresponds to a piece of information about the character. If an element on the character page has a `data-source` attribute, the value of that attribute is used as the property value. Otherwise, the value is taken from the adjacent cell in the table.
 	-   `images`: An object specifying the data source for scraping character images. It follows the `IImage` interface, which has two properties:
 	    -   `identifier`: A string that identifies the HTML element(s) containing the images. This can be a CSS selector, XPath, or any other valid selector format.
 	    -   `get`: A function that takes the `page` document as an argument and returns the selected image elements. This function is responsible for extracting and returning all the image elements that match the specified identifier.
@@ -354,8 +362,9 @@ This allows you to create a customized scraper that fits the structure and data 
 
 ### Key Features
 
-- Rapid and Simple Retrieval: FandomScraper offers a fast and straightforward approach to fetching informations from any Fandom wikia.
-- Scalability: While the current number of wikias is hardcoded, FandomScraper allows for effortless and speedy addition of new wikias.
-- Database Integration: The `withId` option will help you to store character informations in a database.
+- **Unlimited Custom Fields**: Not limited to predefined fields - add ANY field your wiki has (likes, dislikes, powers, relationships, etc.)
+- **Rapid and Simple Retrieval**: Fast and straightforward approach to fetching informations from any Fandom wikia
+- **Scalability**: Effortless and speedy addition of new wikias with `FandomPersonalScraper`
+- **Database Integration**: The `withId` option provides unique IDs for database storage
 
 Feel free to explore FandomScraper and leverage its capabilities for efficiently gathering informations from various Fandom wikias.

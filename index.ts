@@ -7,7 +7,7 @@ import { formatForUrl, formatName, removeBrackets } from './func/parsing';
 import { availableWikis } from './types/dynamic.types';
 
 import type { TAvailableWikis } from './types/dynamic.types';
-import { extractImageURL } from 'utils/extractImageURL';
+import { extractImageURL } from './utils/extractImageURL';
 
 interface IGetCharactersOptions {
 
@@ -941,6 +941,8 @@ export class FandomScraper {
             return this._CharactersPage.querySelectorAll('table.fandom-table td:nth-child(2)');
         } else if (this._schema.pageFormat === 'table-4') {
             return this._CharactersPage.querySelectorAll('.characterbox th:nth-child(1) a');
+        } else if (this._schema.pageFormat === 'table-5') {
+            return this._CharactersPage.querySelectorAll('table.wikitable.sortable td:nth-child(1) a');
         }
 
         throw new Error('Invalid page format');
@@ -970,6 +972,10 @@ export class FandomScraper {
             if (!url) throw new Error('No URL found');
             return url;
         } else if (this._schema.pageFormat === 'table-4') {
+            const url = this.getDataUrl(element.getAttribute('href'));
+            if (!url) throw new Error('No URL found');
+            return url;
+        } else if (this._schema.pageFormat === 'table-5') {
             const url = this.getDataUrl(element.getAttribute('href'));
             if (!url) throw new Error('No URL found');
             return url;
