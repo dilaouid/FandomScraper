@@ -49,6 +49,7 @@ interface IGetCharacterOptions {
      */
     attributes?: string[];
 }
+
 interface IMetaData {
     name: string;
     language: 'en' | 'fr';
@@ -61,6 +62,7 @@ interface WikiaParameters {
     name: TAvailableWikis;
     lang: 'en' | 'fr';
 }
+
 /**
  * FandomScraper is a class that allows you to scrape a Fandom wiki, and get all the characters of a fiction.
  * The list of available wikis can be found in the TAvailableWikis type.
@@ -68,13 +70,15 @@ interface WikiaParameters {
 declare class FandomScraper {
     protected _schema: ISchema;
     private _CharactersPage;
-    private options;
     private method;
     private name;
     private wikiaParameters;
     private id;
-    private keysAttrToArray;
     private isOldVersion;
+    private pageFetcher;
+    private characterParser;
+    private dataExtractor;
+    private queryBuilder;
     /**
      * Constructs a FandomScraper instance.
      * @param { name: TAvailableWikis, options?: { lang: 'en' | 'fr' | null } } options - The options of the constructor.
@@ -166,20 +170,16 @@ declare class FandomScraper {
      * ```
      */
     attrToArray(attributes: string): this;
-    private reset;
     /**
      * Get the characters page of the current wiki.
-     *
      * @param {string} url - The url of the characters page.
      * @returns The characters page of the wiki.
-     * @throws Error if the characters page is not set.
      * @example
      * ```ts
      * await scraper.getCharactersPage('https://kimetsu-no-yaiba.fandom.com/fr/wiki/Catégorie:Personnages');
      * ```
      */
     private getCharactersPage;
-    private fetchPage;
     /**
      * Get all the characters of the current wiki, considering the options provided.
      * @param {IGetCharactersOptions} [options] - The options of the getCharacters method.
@@ -289,7 +289,7 @@ declare class FandomScraper {
     /**
      * Get all the characters of the current wiki, considering the options provided.
      * Works only for the classic characters page format.
-     * @param {IGetCharactersOptionsDeprecated} [options] - The options of the getCharacters method.
+     * @param {IGetCharactersOptions} [options] - The options of the getCharacters method.
      * @returns The characters of the wiki.
      */
     private _getAll;
@@ -299,39 +299,6 @@ declare class FandomScraper {
      * @async
      */
     count(): Promise<number>;
-    private parseCharacterPage;
-    private setValue;
-    /**
-     * Convert the image from the given URL to a base64 string
-     * Due to somes issues about CORS, this method is sometimes necessary to print the image in your application
-     * @param {string} imageUrl The URL of the image to convert
-     * @returns The base64 string of the image
-     * @throws An error if the image cannot be fetched or converted
-     */
-    private convertImageToBase64;
-    /**
-     * Remove the elements from the characters list that contains one of the banned substring
-     * @param {HTMLCollectionOf<Element>} elements The elements to filter
-     * @param {string[]} banList The list of substring to ban
-     * @returns The filtered elements
-     */
-    private filterBannedElement;
-    /**
-     *
-     * Get the data from the infobox according to if the wiki is in the old version or not
-     * @param page
-     * @param key
-     * @returns The data from the page according to the old version of the wiki
-     *
-     */
-    private getDataAccordingToVersion;
-    private extractPageId;
-    private getElementAccordingToFormat;
-    private getUrlAccordingToFormat;
-    private isValidCharacterPage;
-    private setPageVersion;
-    private getWikiUrl;
-    private getDataUrl;
     /**
      * Fetches a webpage from the specified URL and extracts quotes from it.
      *
@@ -346,28 +313,10 @@ declare class FandomScraper {
      * @throws Will throw an error if fetching the page or processing the quote extraction fails.
      */
     getQuotes(url: string): Promise<string[]>;
-    /**
-     * Extracts the quote text from a given DOM element.
-     *
-     * This function supports both individual elements and lists:
-     * - For a <ul> element, the function recursively extracts quotes from each <li> child,
-     *   accumulating them into an array.
-     * - For non-list elements, it attempts to remove any <cite> or <sup> content from a cloned version
-     *   of the element before retrieving its trimmed text content.
-     *
-     * @param element - The DOM element from which to extract the quote.
-     * @returns The extracted quote as a string, or an array of quotes if the element is a list.
-     *
-     * @example
-     * // Extracting from a paragraph element:
-     * const quote = extractQuoteFromElement(paragraphElement);
-     *
-     * @example
-     * // Extracting quotes from an unordered list:
-     * const quotes = extractQuoteFromElement(listElement);
-     */
-    private extractQuoteFromElement;
+    private isValidCharacterPageInternal;
+    private getWikiUrlInternal;
 }
+
 /**
  * This class allows you to define your own schema for a fandom wiki scraper
  * @class
@@ -376,4 +325,4 @@ declare class FandomPersonalScraper extends FandomScraper {
     constructor(schema: ISchema);
 }
 
-export { FandomPersonalScraper, FandomScraper, type TAvailableWikis, availableWikis };
+export { FandomPersonalScraper, FandomScraper, type IGetCharacterOptions, type IGetCharactersOptions, type IMetaData, type TAvailableWikis, type WikiaParameters, availableWikis };

@@ -1,7 +1,5 @@
 import { JSDOM } from 'jsdom';
 
-// index.ts
-
 // wikia/death-note/data-source.ts
 var DeathNoteFRDataSource = {
   gender: "Sexe",
@@ -1115,6 +1113,22 @@ var availableWikis = [
   "smurf",
   "promised-neverland"
 ];
+var PageFetcher = class {
+  /**
+   * Fetch a page from a URL and return its document
+   * @param url - The URL to fetch
+   * @returns The document of the fetched page
+   */
+  async fetchPage(url) {
+    const text = await fetch(url).then(async (res) => {
+      const text2 = await res.text();
+      return text2;
+    }).catch((err) => {
+      throw new Error(`Error while fetching ${url}: ${err}`);
+    });
+    return new JSDOM(text, { url, contentType: "text/html", referrer: url }).window.document;
+  }
+};
 
 // utils/extractImageURL.ts
 function extractImageURL(url) {
@@ -1123,18 +1137,261 @@ function extractImageURL(url) {
   return match ? match[1] : url;
 }
 
-// index.ts
-var FandomScraper = class {
+// utils/imageUtils.ts
+async function convertImageToBase64(imageUrl) {
+  try {
+    const response = await fetch(imageUrl);
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64Image = buffer.toString("base64");
+    return base64Image;
+  } catch (error) {
+    console.error("Error fetching or converting image:", error);
+    throw error;
+  }
+}
+
+// utils/validationUtils.ts
+function isValidCharacterPage(page, schemaUrl, extractPageIdFn) {
+  if (!page) {
+    return false;
+  }
+  const id = extractPageIdFn(page);
+  if (id === 0) {
+    return false;
+  }
+  const pageString = page.documentElement.innerHTML;
+  const parsedUrl = new URL(schemaUrl);
+  const path = parsedUrl.pathname;
+  if (!pageString.includes(path)) {
+    return false;
+  }
+  return true;
+}
+function setPageVersion(page) {
+  return page.querySelectorAll(".pi-data-value") === null || page.querySelectorAll(".pi-data-value").length < 2;
+}
+
+// services/DataExtractor.ts
+var DataExtractor = class {
   /**
-   * Constructs a FandomScraper instance.
-   * @param { name: TAvailableWikis, options?: { lang: 'en' | 'fr' | null } } options - The options of the constructor.
-   * @throws Error if an invalid wiki name is provided.
-   * @example
-   * ```ts
-   * const scraper = new FandomScraper({ name: 'dragon-ball', language: 'fr' });
-   * ```
+   * Extract page ID from a page document
+   * @param page - The page document
+   * @returns The page ID, or 0 if not found
    */
-  constructor(name, options) {
+  extractPageId(page) {
+    const allScripts = page.getElementsByTagName("script");
+    const script = Array.from(allScripts).find((script2) => script2.textContent?.includes("pageId"))?.textContent;
+    if (!script) {
+      return 0;
+    }
+    const regex = /"pageId":(\d+)/;
+    const match = script.match(regex);
+    if (match && match.length > 1)
+      return parseInt(match[1], 10);
+    return 0;
+  }
+  /**
+   * Extract data from the infobox according to the page version (old or new)
+   * @param page - The page document
+   * @param key - The data source key
+   * @param isOldVersion - Whether the page uses the old infobox format
+   * @returns The element containing the data, or null if not found
+   */
+  getDataAccordingToVersion(page, key, isOldVersion) {
+    if (isOldVersion) {
+      const identifier = ".mw-parser-output";
+      const tdElement = Array.from(page.querySelectorAll(identifier + " td")).find((td) => {
+        return td?.textContent?.includes(String(key));
+      });
+      if (tdElement?.nextElementSibling) {
+        return tdElement?.nextElementSibling;
+      }
+      const thElement = Array.from(page.querySelectorAll(identifier + " th")).find((th) => {
+        return th?.textContent?.includes(String(key));
+      });
+      if (thElement?.nextElementSibling) {
+        return thElement.nextElementSibling;
+      }
+      return null;
+    } else {
+      return page.querySelector(`[data-source="${key}"] .pi-data-value`);
+    }
+  }
+  /**
+   * Set the value from an element, either as a string or an array
+   * @param element - The element to extract value from
+   * @param inAttrToArray - Whether to return an array
+   * @returns The extracted value
+   */
+  setValue(element, inAttrToArray) {
+    if (inAttrToArray) {
+      let value = [element.innerHTML];
+      value = value.flatMap(
+        (item) => item.split(/<br\s*\/?>|<li[^>]*>/).map((value2) => removeBrackets(value2))
+      );
+      for (let i = 0; i < value.length; i++) {
+        const decodedValue = value[i].replace(/<[^>]*>?/gm, "").replace(/&nbsp;/g, " ").replace(/&lt;br\s*\/?&gt;/g, "");
+        value[i] = decodedValue.trim();
+      }
+      const filteredValue = value.filter((value2) => value2 !== "");
+      return filteredValue;
+    } else {
+      return removeBrackets(element.textContent || "");
+    }
+  }
+  /**
+   * Extract the quote text from a given DOM element
+   * @param element - The DOM element from which to extract the quote
+   * @returns The extracted quote as a string, or an array of quotes if the element is a list
+   */
+  extractQuoteFromElement(element) {
+    if (element.tagName.toLowerCase() === "ul") {
+      const quotes = [];
+      element.querySelectorAll("li").forEach((li) => {
+        const quote = this.extractQuoteFromElement(li);
+        if (typeof quote === "string" && quote.length > 0) {
+          quotes.push(quote);
+        } else if (Array.isArray(quote)) {
+          quotes.push(...quote);
+        }
+      });
+      return quotes;
+    }
+    const citeElement = element.querySelector("cite, sup");
+    let quoteText;
+    if (citeElement) {
+      const clone = element.cloneNode(true);
+      const citeClone = clone.querySelector("cite, sup");
+      if (citeClone) {
+        citeClone.remove();
+      }
+      quoteText = clone.textContent?.trim() || "";
+    } else {
+      quoteText = element.textContent?.trim() || "";
+    }
+    return quoteText;
+  }
+};
+
+// services/CharacterParser.ts
+var CharacterParser = class {
+  constructor() {
+    this.dataExtractor = new DataExtractor();
+  }
+  /**
+   * Parse a character page and extract all data according to the schema
+   * @param page - The character page document
+   * @param schema - The schema defining data sources
+   * @param getBase64 - Whether to convert images to base64
+   * @param keysAttrToArray - Keys that should be converted to arrays
+   * @param attributes - Specific attributes to extract (optional)
+   * @returns The parsed character data
+   */
+  async parseCharacterPage(page, schema, getBase64, keysAttrToArray, attributes) {
+    const data = {};
+    if (attributes) {
+      attributes = attributes.filter((attribute) => Object.keys(schema).includes(attribute));
+    }
+    if (!attributes || attributes.length === 0) {
+      attributes = Object.keys(schema);
+    }
+    const isOldVersion = setPageVersion(page);
+    for (const key in schema) {
+      if (attributes.includes(key) || keysAttrToArray.includes(key)) {
+        const sourceKey = schema[key];
+        if (!sourceKey) {
+          continue;
+        }
+        if (key === "images") {
+          const images = await this.parseImages(page, schema.images, getBase64);
+          data[key] = images;
+        } else if (key === "quote") {
+          const quote = this.parseQuote(page, sourceKey);
+          if (quote) {
+            data["quote"] = quote;
+          }
+        } else {
+          const element = this.dataExtractor.getDataAccordingToVersion(page, sourceKey, isOldVersion);
+          if (!element) {
+            continue;
+          }
+          const value = this.dataExtractor.setValue(element, keysAttrToArray.includes(key));
+          if (!value || value.length === 0) {
+            continue;
+          }
+          data[key] = value;
+        }
+      }
+    }
+    return data;
+  }
+  /**
+   * Parse images from a character page
+   * @param page - The page document
+   * @param imagesConfig - The images configuration from schema
+   * @param getBase64 - Whether to convert images to base64
+   * @returns Array of image URLs or base64 strings
+   */
+  async parseImages(page, imagesConfig, getBase64) {
+    if (!imagesConfig) {
+      return [];
+    }
+    const elements = imagesConfig.get(page);
+    if (!elements) {
+      return [];
+    }
+    const images = [];
+    for (const element of elements) {
+      let src = element.getAttribute("src");
+      if (src?.startsWith("data:image")) {
+        const attributes = element.attributes;
+        for (const attribute of attributes) {
+          if (attribute.value.startsWith("http")) {
+            src = attribute.value;
+            break;
+          }
+        }
+      }
+      if (!src) {
+        console.error(`No src found for images`);
+        continue;
+      }
+      src = extractImageURL(src);
+      if (imagesConfig.ignore?.includes(src))
+        continue;
+      if (getBase64) {
+        const b64 = await convertImageToBase64(src);
+        images.push(b64);
+      } else {
+        images.push(src);
+      }
+    }
+    return images;
+  }
+  /**
+   * Parse quote from a character page
+   * @param page - The page document
+   * @param sourceKey - The source key for the quote
+   * @returns The parsed quote
+   */
+  parseQuote(page, sourceKey) {
+    let quoteElement = null;
+    if (sourceKey && typeof sourceKey === "object" && "get" in sourceKey) {
+      quoteElement = sourceKey.get(page);
+    } else if (typeof sourceKey === "string") {
+      quoteElement = page.querySelector(sourceKey);
+    }
+    if (quoteElement) {
+      return this.dataExtractor.extractQuoteFromElement(quoteElement);
+    }
+    return null;
+  }
+};
+
+// services/QueryBuilder.ts
+var QueryBuilder = class {
+  constructor() {
     this.options = {
       base64: false,
       recursive: false,
@@ -1152,9 +1409,195 @@ var FandomScraper = class {
       ],
       attributes: []
     };
+    this.keysAttrToArray = [];
+  }
+  /**
+   * Reset options to default values
+   */
+  reset() {
+    this.options = {
+      base64: false,
+      recursive: false,
+      withId: true,
+      limit: 50,
+      offset: 0,
+      ignore: [],
+      attributes: []
+    };
+    this.keysAttrToArray = [];
+  }
+  /**
+   * Set the limit of characters to get
+   * @param limit - The limit value
+   */
+  setLimit(limit) {
+    if (limit < 1) {
+      throw new Error("Limit must be greater than 0");
+    }
+    this.options.limit = limit;
+  }
+  /**
+   * Set the offset of characters to get
+   * @param offset - The offset value
+   */
+  setOffset(offset) {
+    if (offset < 0) {
+      throw new Error("Offset must be greater than 0");
+    }
+    this.options.offset = offset;
+  }
+  /**
+   * Set the ignored substrings in the characters names
+   * @param ignore - The substrings to ignore
+   */
+  setIgnore(ignore) {
+    if (!Array.isArray(ignore)) {
+      throw new Error("Ignore parameter must be an array");
+    }
+    this.options.ignore = ignore;
+  }
+  /**
+   * Set the attributes to get in the characters
+   * @param attributes - The attributes string (space-separated)
+   */
+  setAttributes(attributes) {
+    if (typeof attributes !== "string") {
+      throw new Error("Attributes parameter must be a string");
+    }
+    attributes = attributes.replace(/\s\s+/g, " ")?.trim();
+    this.options.attributes = attributes.split(" ");
+  }
+  /**
+   * Set the keys of the attributes that should be converted to an array
+   * @param attributes - The attributes string (space-separated)
+   */
+  setAttrToArray(attributes) {
+    if (typeof attributes !== "string") {
+      throw new Error("Attributes to array parameter must be a string");
+    }
+    attributes = attributes.replace(/\s\s+/g, " ")?.trim();
+    this.keysAttrToArray = attributes.split(" ");
+  }
+  /**
+   * Set base64 option
+   * @param base64 - Whether to get images in base64
+   */
+  setBase64(base64) {
+    this.options.base64 = base64;
+  }
+  /**
+   * Set recursive option
+   * @param recursive - Whether to get all characters recursively
+   */
+  setRecursive(recursive) {
+    this.options.recursive = recursive;
+  }
+  /**
+   * Set withId option
+   * @param withId - Whether to get the id of the character
+   */
+  setWithId(withId) {
+    this.options.withId = withId;
+  }
+  /**
+   * Get the current options
+   * @returns The current query options
+   */
+  getOptions() {
+    return this.options;
+  }
+  /**
+   * Get the keys that should be converted to arrays
+   * @returns The keys to convert to arrays
+   */
+  getKeysAttrToArray() {
+    return this.keysAttrToArray;
+  }
+};
+
+// utils/urlUtils.ts
+function getWikiUrl(url) {
+  const urlParts = url.split("/");
+  urlParts.pop();
+  return urlParts.join("/") + "/";
+}
+function getDataUrl(domain, href) {
+  return domain + href;
+}
+
+// utils/elementUtils.ts
+function filterBannedElement(elements, ignore) {
+  const elementsArray = Array.from(elements);
+  return elementsArray.filter((element) => {
+    const innerText = element.textContent?.toLowerCase() ?? "";
+    return !ignore.some((substring) => innerText.includes(substring.toLowerCase()));
+  });
+}
+function getElementAccordingToFormat(page, pageFormat, ignore) {
+  const ignoreList = ignore ? [...ignore, ...allCharactersPage.classic.ignore] : allCharactersPage.classic.ignore;
+  if (pageFormat === "classic") {
+    const value = allCharactersPage.classic.listCharactersElement.value;
+    return filterBannedElement(page.getElementsByClassName(value), ignoreList);
+  } else if (pageFormat === "table-1") {
+    return page.querySelectorAll("table.wikitable td:nth-child(2) a");
+  } else if (pageFormat === "table-2") {
+    return page.querySelectorAll("small > b");
+  } else if (pageFormat === "table-3") {
+    return page.querySelectorAll("table.fandom-table td:nth-child(2)");
+  } else if (pageFormat === "table-4") {
+    return page.querySelectorAll(".characterbox th:nth-child(1) a");
+  } else if (pageFormat === "table-5") {
+    return page.querySelectorAll("table.wikitable.sortable td:nth-child(1) a");
+  }
+  throw new Error("Invalid page format");
+}
+function getUrlAccordingToFormat(element, pageFormat, getDataUrlFn) {
+  if (pageFormat === "classic") {
+    const url = getDataUrlFn(element.getAttribute("href"));
+    if (!url) throw new Error("No URL found");
+    return url;
+  } else if (pageFormat === "table-1") {
+    const url = getDataUrlFn(element.getAttribute("href"));
+    if (!url) throw new Error("No URL found");
+    return url;
+  } else if (pageFormat === "table-2") {
+    const aElement = element.querySelector("a");
+    if (!aElement) throw new Error("No <a> element found");
+    const url = getDataUrlFn(aElement.getAttribute("href"));
+    if (!url) throw new Error("No URL found");
+    return url;
+  } else if (pageFormat === "table-3") {
+    const aElement = element.querySelector("a");
+    if (!aElement) throw new Error("No <a> element found");
+    const url = getDataUrlFn(aElement.getAttribute("href"));
+    if (!url) throw new Error("No URL found");
+    return url;
+  } else if (pageFormat === "table-4") {
+    const url = getDataUrlFn(element.getAttribute("href"));
+    if (!url) throw new Error("No URL found");
+    return url;
+  } else if (pageFormat === "table-5") {
+    const url = getDataUrlFn(element.getAttribute("href"));
+    if (!url) throw new Error("No URL found");
+    return url;
+  }
+  return "";
+}
+
+// core/FandomScraper.ts
+var FandomScraper = class {
+  /**
+   * Constructs a FandomScraper instance.
+   * @param { name: TAvailableWikis, options?: { lang: 'en' | 'fr' | null } } options - The options of the constructor.
+   * @throws Error if an invalid wiki name is provided.
+   * @example
+   * ```ts
+   * const scraper = new FandomScraper({ name: 'dragon-ball', language: 'fr' });
+   * ```
+   */
+  constructor(name, options) {
     this.name = "";
     this.id = 0;
-    this.keysAttrToArray = [];
     this.isOldVersion = false;
     if (!Object.keys(Schemas).includes(name)) throw new Error(`Invalid wiki name provided: ${name}`);
     this._schema = Schemas[name][options?.lang || "en"];
@@ -1162,6 +1605,10 @@ var FandomScraper = class {
       name,
       lang: options?.lang || "en"
     };
+    this.pageFetcher = new PageFetcher();
+    this.characterParser = new CharacterParser();
+    this.dataExtractor = new DataExtractor();
+    this.queryBuilder = new QueryBuilder();
   }
   /**
    * Get the schema of the current wiki.
@@ -1210,9 +1657,7 @@ var FandomScraper = class {
   limit(limit) {
     if (this.method === "findById" || this.method === "findByName")
       throw new Error("Limit cannot be used with findById or findByName");
-    if (limit < 1)
-      throw new Error("Limit must be greater than 0");
-    this.options.limit = limit;
+    this.queryBuilder.setLimit(limit);
     return this;
   }
   /**
@@ -1227,9 +1672,7 @@ var FandomScraper = class {
   offset(offset) {
     if (this.method === "findById" || this.method === "findByName")
       throw new Error("Offset cannot be used with findById or findByName");
-    if (offset < 0)
-      throw new Error("Offset must be greater than 0");
-    this.options.offset = offset;
+    this.queryBuilder.setOffset(offset);
     return this;
   }
   /**
@@ -1263,9 +1706,7 @@ var FandomScraper = class {
   ignore(ignore) {
     if (this.method === "findById" || this.method === "findByName")
       throw new Error("Ignore cannot be used with findById or findByName");
-    if (!Array.isArray(ignore))
-      throw new Error("Ignore parameter must be an array");
-    this.options.ignore = ignore;
+    this.queryBuilder.setIgnore(ignore);
     return this;
   }
   /**
@@ -1278,10 +1719,7 @@ var FandomScraper = class {
    * ```
    */
   attr(attributes) {
-    if (typeof attributes !== "string")
-      throw new Error("Attributes parameter must be a string");
-    attributes = attributes.replace(/\s\s+/g, " ")?.trim();
-    this.options.attributes = attributes.split(" ");
+    this.queryBuilder.setAttributes(attributes);
     return this;
   }
   /**
@@ -1294,46 +1732,21 @@ var FandomScraper = class {
    * ```
    */
   attrToArray(attributes) {
-    if (typeof attributes !== "string")
-      throw new Error("Attributes to array parameter must be a string");
-    attributes = attributes.replace(/\s\s+/g, " ")?.trim();
-    this.keysAttrToArray = attributes.split(" ");
+    this.queryBuilder.setAttrToArray(attributes);
     return this;
-  }
-  reset() {
-    this.options = {
-      base64: false,
-      recursive: false,
-      withId: true,
-      limit: 50,
-      offset: 0,
-      ignore: [],
-      attributes: []
-    };
   }
   /**
    * Get the characters page of the current wiki.
-   *  
    * @param {string} url - The url of the characters page.
    * @returns The characters page of the wiki.
-   * @throws Error if the characters page is not set.
    * @example
    * ```ts
    * await scraper.getCharactersPage('https://kimetsu-no-yaiba.fandom.com/fr/wiki/Catégorie:Personnages');
    * ```
    */
   async getCharactersPage(url) {
-    this._CharactersPage = await this.fetchPage(url);
-    this.isOldVersion = this.setPageVersion(this._CharactersPage);
-  }
-  async fetchPage(url) {
-    const text = await fetch(url).then(async (res) => {
-      const text2 = await res.text();
-      return text2;
-    }).catch((err) => {
-      throw new Error(`Error while fetching ${url}: ${err}`);
-    });
-    return new JSDOM(text, { url, contentType: "text/html", referrer: url }).window.document;
+    this._CharactersPage = await this.pageFetcher.fetchPage(url);
+    this.isOldVersion = setPageVersion(this._CharactersPage);
   }
   /**
    * Get all the characters of the current wiki, considering the options provided.
@@ -1370,10 +1783,10 @@ var FandomScraper = class {
    */
   findAll(options) {
     this.method = "find";
-    this.reset();
-    this.options.base64 = options.base64;
-    this.options.recursive = options.recursive;
-    this.options.withId = options.withId;
+    this.queryBuilder.reset();
+    this.queryBuilder.setBase64(options.base64);
+    this.queryBuilder.setRecursive(options.recursive);
+    this.queryBuilder.setWithId(options.withId);
     return this;
   }
   /**
@@ -1389,12 +1802,12 @@ var FandomScraper = class {
    * ```
    */
   findByName(name, options) {
-    this.reset();
+    this.queryBuilder.reset();
     if (name.trim().length == 0) throw new Error("Name must be provided");
     this.name = formatName(name);
     this.method = "findByName";
-    this.options.base64 = options.base64;
-    this.options.withId = options.withId;
+    this.queryBuilder.setBase64(options.base64);
+    this.queryBuilder.setWithId(options.withId);
     return this;
   }
   /**
@@ -1413,8 +1826,8 @@ var FandomScraper = class {
     if (id < 1) throw new Error("Id must be greater than 0");
     this.id = id;
     this.method = "findById";
-    this.reset();
-    this.options.base64 = options?.base64 || false;
+    this.queryBuilder.reset();
+    this.queryBuilder.setBase64(options?.base64 || false);
     return this;
   }
   /**
@@ -1428,14 +1841,15 @@ var FandomScraper = class {
    */
   async exec() {
     try {
+      const options = this.queryBuilder.getOptions();
       switch (this.method) {
         case "find":
           await this.getCharactersPage(this._schema.url);
-          return await this._getAll(this.options);
+          return await this._getAll(options);
         case "findByName":
-          return await this._getByName(this.name, { base64: this.options.base64 ?? false, withId: this.options.withId ?? true, attributes: this.options.attributes ?? [] });
+          return await this._getByName(this.name, { base64: options.base64 ?? false, withId: options.withId ?? true, attributes: options.attributes ?? [] });
         case "findById":
-          return await this._getById(this.id, { base64: this.options.base64 || false, attributes: this.options.attributes || [] });
+          return await this._getById(this.id, { base64: options.base64 || false, attributes: options.attributes || [] });
         default:
           throw new Error("Invalid method");
       }
@@ -1460,30 +1874,10 @@ var FandomScraper = class {
     try {
       if (options.name?.trim()?.length === 0) throw new Error("Name must be provided");
       const name = formatName(options.name || "");
-      const url = this.getWikiUrl() + formatForUrl(name);
-      const data = {
-        name,
-        url: this.getWikiUrl() + formatForUrl(name)
-      };
-      return this.fetchPage(url).then(async (page) => {
-        const isValidCharacter = this.isValidCharacterPage(page);
-        if (!isValidCharacter) {
-          const switchName = formatName(name.split(" ").reverse().join(" "));
-          const url2 = this.getWikiUrl() + formatForUrl(switchName);
-          return this.fetchPage(url2).then(async (page2) => {
-            const isValidCharacter2 = this.isValidCharacterPage(page2);
-            if (!isValidCharacter2) {
-              throw new Error(`This character does not exists: ${name}`);
-            } else {
-              data.url = url2;
-              return await this.formatCharacterData(page2, options, data);
-            }
-          }).catch((err) => {
-            throw new Error(`Error while fetching ${url2}: ${err}`);
-          });
-        } else {
-          return await this.formatCharacterData(page, options, data);
-        }
+      return await this._getByName(name, {
+        base64: options.base64 ?? false,
+        withId: options.withId ?? true,
+        attributes: options.attributes
       });
     } catch (err) {
       console.error(err);
@@ -1491,19 +1885,19 @@ var FandomScraper = class {
   }
   async _getByName(name, options) {
     try {
-      const url = this.getWikiUrl() + formatForUrl(name);
+      const url = this.getWikiUrlInternal() + formatForUrl(name);
       const data = {
         name,
-        url: this.getWikiUrl() + formatForUrl(name)
+        url
       };
-      return this.fetchPage(url).then(async (page) => {
-        const isValidCharacter = this.isValidCharacterPage(page);
-        if (!isValidCharacter) {
+      return this.pageFetcher.fetchPage(url).then(async (page) => {
+        const isValid = this.isValidCharacterPageInternal(page);
+        if (!isValid) {
           const switchName = formatName(name.split(" ").reverse().join(" "));
-          const url2 = this.getWikiUrl() + formatForUrl(switchName);
-          return this.fetchPage(url2).then(async (page2) => {
-            const isValidCharacter2 = this.isValidCharacterPage(page2);
-            if (!isValidCharacter2) {
+          const url2 = this.getWikiUrlInternal() + formatForUrl(switchName);
+          return this.pageFetcher.fetchPage(url2).then(async (page2) => {
+            const isValid2 = this.isValidCharacterPageInternal(page2);
+            if (!isValid2) {
               throw new Error(`This character does not exists: ${name}`);
             } else {
               data.url = url2;
@@ -1543,15 +1937,15 @@ var FandomScraper = class {
     }
   }
   async _getById(id, options) {
-    const url = this.getWikiUrl() + `?curid=${id}`;
+    const url = this.getWikiUrlInternal() + `?curid=${id}`;
     const data = {
       url
     };
-    return this.fetchPage(url).then(async (page) => {
+    return this.pageFetcher.fetchPage(url).then(async (page) => {
       const name = page.querySelector(".mw-page-title-main")?.textContent || "";
       data.name = name;
       const characterData = await this.formatCharacterData(page, options || { base64: false }, data);
-      if (!this.isValidCharacterPage(page)) {
+      if (!this.isValidCharacterPageInternal(page)) {
         throw new Error(`This character with this id does not exists: ${id}`);
       }
       return characterData;
@@ -1568,9 +1962,15 @@ var FandomScraper = class {
     }));
   }
   async _getOne(page, options) {
-    const characterData = await this.parseCharacterPage(page, options.base64, options.attributes);
+    const characterData = await this.characterParser.parseCharacterPage(
+      page,
+      this._schema.dataSource,
+      options.base64,
+      this.queryBuilder.getKeysAttrToArray(),
+      options.attributes
+    );
     if (options.withId) {
-      const id = this.extractPageId(page);
+      const id = this.dataExtractor.extractPageId(page);
       characterData.id = id;
     }
     return characterData;
@@ -1587,7 +1987,7 @@ var FandomScraper = class {
   /**
    * Get all the characters of the current wiki, considering the options provided.
    * Works only for the classic characters page format.
-   * @param {IGetCharactersOptionsDeprecated} [options] - The options of the getCharacters method.
+   * @param {IGetCharactersOptions} [options] - The options of the getCharacters method.
    * @returns The characters of the wiki.
    */
   async _getAll(options) {
@@ -1596,20 +1996,30 @@ var FandomScraper = class {
     let offset = 0;
     let count = 0;
     while (hasNext && count < options.limit) {
-      const elements = this.getElementAccordingToFormat(options.ignore);
+      const elements = getElementAccordingToFormat(this._CharactersPage, this._schema.pageFormat, options.ignore);
       for (const element of elements) {
         var characterData = {};
         if (offset >= options.offset) {
-          const url = this.getUrlAccordingToFormat(element);
+          const url = getUrlAccordingToFormat(
+            element,
+            this._schema.pageFormat,
+            (href) => getDataUrl(new URL(this._schema.url).origin, href)
+          );
           const name = element.textContent;
           if (!name) throw new Error("No name found");
           if (options.recursive || options.withId) {
-            const characterPage = await this.fetchPage(new URL(url, this.getWikiUrl()).href);
+            const characterPage = await this.pageFetcher.fetchPage(new URL(url, this.getWikiUrlInternal()).href);
             if (options.recursive) {
-              characterData = await this.parseCharacterPage(characterPage, options.base64, options.attributes);
+              characterData = await this.characterParser.parseCharacterPage(
+                characterPage,
+                this._schema.dataSource,
+                options.base64,
+                this.queryBuilder.getKeysAttrToArray(),
+                options.attributes
+              );
             }
             if (options.withId) {
-              const id = this.extractPageId(characterPage);
+              const id = this.dataExtractor.extractPageId(characterPage);
               data.push({ id, url, name, data: characterData });
             } else {
               data.push({ url, name, data: characterData });
@@ -1655,7 +2065,7 @@ var FandomScraper = class {
       let hasNext = true;
       await this.getCharactersPage(this._schema.url);
       while (hasNext) {
-        count += this.getElementAccordingToFormat().length;
+        count += getElementAccordingToFormat(this._CharactersPage, this._schema.pageFormat).length;
         const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage[this._schema.pageFormat].next.value)[0];
         if (!nextElement) {
           hasNext = false;
@@ -1673,246 +2083,6 @@ var FandomScraper = class {
     }
     return count;
   }
-  async parseCharacterPage(page, getBase64, attributes) {
-    const format = this._schema.dataSource;
-    const data = {};
-    if (attributes) {
-      attributes = attributes.filter((attribute) => Object.keys(format).includes(attribute));
-    }
-    if (!attributes || attributes.length === 0) {
-      attributes = Object.keys(format);
-    }
-    this.isOldVersion = this.setPageVersion(page);
-    for (const key in format) {
-      if (attributes.includes(key) || this.keysAttrToArray.includes(key)) {
-        const sourceKey = format[key];
-        if (!sourceKey) {
-          continue;
-        }
-        if (key === "images") {
-          const elements = format.images?.get(page);
-          if (!elements) {
-            continue;
-          }
-          const images = [];
-          for (const element of elements) {
-            let src = element.getAttribute("src");
-            if (src?.startsWith("data:image")) {
-              const attributes2 = element.attributes;
-              for (const attribute of attributes2) {
-                if (attribute.value.startsWith("http")) {
-                  src = attribute.value;
-                  break;
-                }
-              }
-            }
-            if (!src) {
-              console.error(`No src found for key ${key}`);
-              continue;
-            }
-            src = extractImageURL(src);
-            if (format.images?.ignore?.includes(src))
-              continue;
-            if (getBase64) {
-              const b64 = await this.convertImageToBase64(src);
-              images.push(b64);
-            } else {
-              images.push(src);
-            }
-          }
-          data[key] = images;
-        } else if (key === "quote") {
-          let quoteElement = null;
-          if (sourceKey && typeof sourceKey === "object" && "get" in sourceKey) {
-            quoteElement = sourceKey.get(page);
-          } else if (typeof sourceKey === "string") {
-            quoteElement = page.querySelector(sourceKey);
-          }
-          if (quoteElement) {
-            const quote = this.extractQuoteFromElement(quoteElement);
-            data["quote"] = quote;
-          }
-        } else {
-          const element = this.getDataAccordingToVersion(page, sourceKey);
-          if (!element) {
-            continue;
-          }
-          const value = this.setValue(element, this.keysAttrToArray.includes(key));
-          if (!value || value.length === 0) {
-            continue;
-          }
-          data[key] = value;
-        }
-      }
-    }
-    return data;
-  }
-  setValue(element, inAttrToArray) {
-    if (inAttrToArray) {
-      let value = [element.innerHTML];
-      value = value.flatMap(
-        (item) => item.split(/<br\s*\/?>|<li[^>]*>/).map((value2) => removeBrackets(value2))
-      );
-      for (let i = 0; i < value.length; i++) {
-        const decodedValue = value[i].replace(/<[^>]*>?/gm, "").replace(/&nbsp;/g, " ").replace(/&lt;br\s*\/?&gt;/g, "");
-        value[i] = decodedValue.trim();
-      }
-      const filteredValue = value.filter((value2) => value2 !== "");
-      return filteredValue;
-    } else {
-      return removeBrackets(element.textContent || "");
-    }
-  }
-  /**
-   * Convert the image from the given URL to a base64 string
-   * Due to somes issues about CORS, this method is sometimes necessary to print the image in your application
-   * @param {string} imageUrl The URL of the image to convert
-   * @returns The base64 string of the image
-   * @throws An error if the image cannot be fetched or converted
-   */
-  async convertImageToBase64(imageUrl) {
-    try {
-      const response = await fetch(imageUrl);
-      const arrayBuffer = await response.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      const base64Image = buffer.toString("base64");
-      return base64Image;
-    } catch (error) {
-      console.error("Error fetching or converting image:", error);
-      throw error;
-    }
-  }
-  /**
-   * Remove the elements from the characters list that contains one of the banned substring
-   * @param {HTMLCollectionOf<Element>} elements The elements to filter
-   * @param {string[]} banList The list of substring to ban
-   * @returns The filtered elements
-   */
-  filterBannedElement(elements, ignore) {
-    const elementsArray = Array.from(elements);
-    return elementsArray.filter((element) => {
-      const innerText = element.textContent?.toLowerCase() ?? "";
-      return !ignore.some((substring) => innerText.includes(substring.toLowerCase()));
-    });
-  }
-  /**
-   * 
-   * Get the data from the infobox according to if the wiki is in the old version or not
-   * @param page
-   * @param key
-   * @returns The data from the page according to the old version of the wiki
-   * 
-   */
-  getDataAccordingToVersion(page, key) {
-    if (this.isOldVersion) {
-      const identifier = ".mw-parser-output";
-      const tdElement = Array.from(page.querySelectorAll(identifier + " td")).find((td) => {
-        return td?.textContent?.includes(String(key));
-      });
-      if (tdElement?.nextElementSibling) {
-        return tdElement?.nextElementSibling;
-      }
-      const thElement = Array.from(page.querySelectorAll(identifier + " th")).find((th) => {
-        return th?.textContent?.includes(String(key));
-      });
-      if (thElement?.nextElementSibling) {
-        return thElement.nextElementSibling;
-      }
-      return null;
-    } else {
-      return page.querySelector(`[data-source="${key}"] .pi-data-value`);
-    }
-  }
-  extractPageId(page) {
-    const allScripts = page.getElementsByTagName("script");
-    const script = Array.from(allScripts).find((script2) => script2.textContent?.includes("pageId"))?.textContent;
-    if (!script) {
-      return 0;
-    }
-    const regex = /"pageId":(\d+)/;
-    const match = script.match(regex);
-    if (match && match.length > 1)
-      return parseInt(match[1], 10);
-    return 0;
-  }
-  getElementAccordingToFormat(ignore) {
-    const ignoreList = ignore ? [...ignore, ...allCharactersPage.classic.ignore] : allCharactersPage.classic.ignore;
-    if (this._schema.pageFormat === "classic") {
-      const value = allCharactersPage.classic.listCharactersElement.value;
-      return this.filterBannedElement(this._CharactersPage.getElementsByClassName(value), ignoreList);
-    } else if (this._schema.pageFormat === "table-1") {
-      return this._CharactersPage.querySelectorAll("table.wikitable td:nth-child(2) a");
-    } else if (this._schema.pageFormat === "table-2") {
-      return this._CharactersPage.querySelectorAll("small > b");
-    } else if (this._schema.pageFormat === "table-3") {
-      return this._CharactersPage.querySelectorAll("table.fandom-table td:nth-child(2)");
-    } else if (this._schema.pageFormat === "table-4") {
-      return this._CharactersPage.querySelectorAll(".characterbox th:nth-child(1) a");
-    } else if (this._schema.pageFormat === "table-5") {
-      return this._CharactersPage.querySelectorAll("table.wikitable.sortable td:nth-child(1) a");
-    }
-    throw new Error("Invalid page format");
-  }
-  getUrlAccordingToFormat(element) {
-    if (this._schema.pageFormat === "classic") {
-      const url = this.getDataUrl(element.getAttribute("href"));
-      if (!url) throw new Error("No URL found");
-      return url;
-    } else if (this._schema.pageFormat === "table-1") {
-      const url = this.getDataUrl(element.getAttribute("href"));
-      if (!url) throw new Error("No URL found");
-      return url;
-    } else if (this._schema.pageFormat === "table-2") {
-      const aElement = element.querySelector("a");
-      if (!aElement) throw new Error("No <a> element found");
-      const url = this.getDataUrl(aElement.getAttribute("href"));
-      if (!url) throw new Error("No URL found");
-      return url;
-    } else if (this._schema.pageFormat === "table-3") {
-      const aElement = element.querySelector("a");
-      if (!aElement) throw new Error("No <a> element found");
-      const url = this.getDataUrl(aElement.getAttribute("href"));
-      if (!url) throw new Error("No URL found");
-      return url;
-    } else if (this._schema.pageFormat === "table-4") {
-      const url = this.getDataUrl(element.getAttribute("href"));
-      if (!url) throw new Error("No URL found");
-      return url;
-    } else if (this._schema.pageFormat === "table-5") {
-      const url = this.getDataUrl(element.getAttribute("href"));
-      if (!url) throw new Error("No URL found");
-      return url;
-    }
-    return "";
-  }
-  isValidCharacterPage(page) {
-    if (!page) {
-      return false;
-    }
-    const id = this.extractPageId(page);
-    if (id === 0) {
-      return false;
-    }
-    const pageString = page.documentElement.innerHTML;
-    const parsedUrl = new URL(this._schema.url);
-    const path = parsedUrl.pathname;
-    if (!pageString.includes(path)) {
-      return false;
-    }
-    return true;
-  }
-  setPageVersion(page) {
-    return page.querySelectorAll(".pi-data-value") === null || page.querySelectorAll(".pi-data-value").length < 2;
-  }
-  getWikiUrl() {
-    const urlParts = this._schema.url.split("/");
-    urlParts.pop();
-    return urlParts.join("/") + "/";
-  }
-  getDataUrl(href) {
-    const domain = new URL(this._schema.url).origin;
-    return domain + href;
-  }
   /**
    * Fetches a webpage from the specified URL and extracts quotes from it.
    *
@@ -1928,7 +2098,7 @@ var FandomScraper = class {
    */
   async getQuotes(url) {
     try {
-      const page = await this.fetchPage(url);
+      const page = await this.pageFetcher.fetchPage(url);
       const quotes = [];
       const dataSource = this._schema.dataSource.quote;
       if (dataSource) {
@@ -1941,14 +2111,14 @@ var FandomScraper = class {
           quoteElements = Array.from(elements);
         }
         for (const element of quoteElements) {
-          const quote = this.extractQuoteFromElement(element);
+          const quote = this.dataExtractor.extractQuoteFromElement(element);
           const finalQuote = typeof quote === "string" ? quote : quote.join(" ");
           quotes.push(finalQuote);
         }
       } else {
         const blockquotes = page.querySelectorAll("blockquote");
         blockquotes.forEach((blockquote) => {
-          const quote = this.extractQuoteFromElement(blockquote);
+          const quote = this.dataExtractor.extractQuoteFromElement(blockquote);
           const finalQuote = typeof quote === "string" ? quote : quote.join(" ");
           quotes.push(finalQuote);
         });
@@ -1959,54 +2129,15 @@ var FandomScraper = class {
       throw err;
     }
   }
-  /**
-   * Extracts the quote text from a given DOM element.
-   *
-   * This function supports both individual elements and lists:
-   * - For a <ul> element, the function recursively extracts quotes from each <li> child,
-   *   accumulating them into an array.
-   * - For non-list elements, it attempts to remove any <cite> or <sup> content from a cloned version
-   *   of the element before retrieving its trimmed text content.
-   *
-   * @param element - The DOM element from which to extract the quote.
-   * @returns The extracted quote as a string, or an array of quotes if the element is a list.
-   *
-   * @example
-   * // Extracting from a paragraph element:
-   * const quote = extractQuoteFromElement(paragraphElement);
-   *
-   * @example
-   * // Extracting quotes from an unordered list:
-   * const quotes = extractQuoteFromElement(listElement);
-   */
-  extractQuoteFromElement(element) {
-    if (element.tagName.toLowerCase() === "ul") {
-      const quotes = [];
-      element.querySelectorAll("li").forEach((li) => {
-        const quote = this.extractQuoteFromElement(li);
-        if (typeof quote === "string" && quote.length > 0) {
-          quotes.push(quote);
-        } else if (Array.isArray(quote)) {
-          quotes.push(...quote);
-        }
-      });
-      return quotes;
-    }
-    const citeElement = element.querySelector("cite, sup");
-    let quoteText;
-    if (citeElement) {
-      const clone = element.cloneNode(true);
-      const citeClone = clone.querySelector("cite, sup");
-      if (citeClone) {
-        citeClone.remove();
-      }
-      quoteText = clone.textContent?.trim() || "";
-    } else {
-      quoteText = element.textContent?.trim() || "";
-    }
-    return quoteText;
+  isValidCharacterPageInternal(page) {
+    return isValidCharacterPage(page, this._schema.url, (p) => this.dataExtractor.extractPageId(p));
+  }
+  getWikiUrlInternal() {
+    return getWikiUrl(this._schema.url);
   }
 };
+
+// core/FandomPersonalScraper.ts
 var FandomPersonalScraper = class extends FandomScraper {
   constructor(schema) {
     super("one-piece", { lang: "en" });
