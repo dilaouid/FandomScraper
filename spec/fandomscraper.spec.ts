@@ -114,7 +114,7 @@ describe("FandomScraper Demon Slayer", () => {
             expect(Kagaya.data.images).to.be.an('array');
             expect(Kagaya.data.images[0]).to.be.an('string');
 
-            const base64Regex = /^data:image\/(png|jpg|jpeg);base64,|iVBORw0KGgoAAAANSUhEUgAAA/;
+            const base64Regex = /^data:image\/(png|jpg|jpeg);base64,|UklGR/;
             expect(base64Regex.test(Kagaya.data.images[0])).to.be.true;
         });
 
