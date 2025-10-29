@@ -23,7 +23,9 @@
     "build": "tsup index.ts --format esm --clean --treeshake",
     "postbuild": "xcopy /E /I wikia dist\\wikia",
     "prepublishOnly": "npm run build",
-    "test": "npx jest --config=jest.config.cjs"
+    "test": "npx jest --config=jest.config.cjs",
+    "playground": "cd playground && pnpm dev",
+    "playground:install": "cd playground && pnpm install"
   },
   "repository": {
     "type": "git",

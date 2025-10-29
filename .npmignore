@@ -1,0 +1,35 @@
+# Development files
+playground/
+spec/
+src/
+
+# Configuration files
+tsconfig.json
+tsup.config.ts
+jest.config.cjs
+
+# Documentation
+README.md
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Tests
+*.spec.ts
+*.test.ts
+
+# Source TypeScript files
+index.ts
+func/
+utils/
+types/
+
+# Logs and temporary files
+*.log
+*.tmp
+.DS_Store
