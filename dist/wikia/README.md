@@ -19,10 +19,14 @@ const  BerserkENDataSource: IDataSource  = {
 			return  page.querySelectorAll(this.identifier);
 		}
 	},
-	/// ... other properties
+	// Add any custom fields your wiki has
+	powerLevel: 'Power Level',
+	clan: 'Clan'
 };
 export { BerserkENDataSource };
 ```
+
+**Note:** `IDataSource` supports unlimited custom fields beyond the standard ones (name, age, gender, etc.). Add any field your wiki has.
 
 *You can have more informations about the formating of `IDataSource` objects in the FandomScraper README.*
 
@@ -46,6 +50,15 @@ const DemonSlayerEN: ISchema = {
 };
 export { DemonSlayerFR, DemonSlayerEN };
 ```
+
+**Note:** `pageFormat` can be a predefined format (`'classic'`, `'table-1'`, etc.) or a custom selector object for non-standard layouts:
+```ts
+pageFormat: {
+	selector: "#content table tbody tr td:nth-child(2) a",
+	ignore: ["Category:", "List"]
+}
+```
+
 *You can have more informations about the formating of `ISchema` objects in the FandomScraper README.*
 
 #### index.ts:

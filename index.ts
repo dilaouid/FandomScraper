@@ -1,3 +1,5 @@
+/// <reference path="./types/globals.d.ts" />
+
 export { FandomScraper } from './core/FandomScraper';
 export { FandomPersonalScraper } from './core/FandomPersonalScraper';
 export { availableWikis } from './types/dynamic.types';

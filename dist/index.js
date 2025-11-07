@@ -1177,18 +1177,17 @@ async function convertImageToBase64(imageUrl) {
 
 // utils/validationUtils.ts
 function isValidCharacterPage(page, schemaUrl, extractPageIdFn) {
-  if (!page) {
-    return false;
-  }
+  if (!page) return false;
   const id = extractPageIdFn(page);
-  if (id === 0) {
-    return false;
-  }
-  const pageString = page.documentElement.innerHTML;
-  const parsedUrl = new URL(schemaUrl);
-  const path = parsedUrl.pathname;
-  if (!pageString.includes(path)) {
-    return false;
+  if (id === 0) return false;
+  try {
+    const schemaHost = new URL(schemaUrl).host;
+    const canonicalHref = page.querySelector('link[rel="canonical"]')?.getAttribute("href") || "";
+    if (canonicalHref) {
+      const canonicalHost = new URL(canonicalHref).host;
+      if (schemaHost !== canonicalHost) return false;
+    }
+  } catch {
   }
   return true;
 }
@@ -1239,7 +1238,22 @@ var DataExtractor = class {
       }
       return null;
     } else {
-      return page.querySelector(`[data-source="${key}"] .pi-data-value`);
+      const byDataSource = page.querySelector(`[data-source="${key}"] .pi-data-value`);
+      if (byDataSource) return byDataSource;
+      if (typeof key === "string") {
+        const normalize = (text) => text.toLowerCase().replace(/\s+/g, "").replace(/[:()]/g, "").replace(/&nbsp;/g, "").replace(/[^a-z0-9]/g, "");
+        const target = normalize(String(key));
+        const items = page.querySelectorAll(".portable-infobox .pi-item, .portable-infobox .pi-data");
+        for (const item of Array.from(items)) {
+          const label = item.querySelector(".pi-data-label")?.textContent || "";
+          const value = item.querySelector(".pi-data-value");
+          if (!label || !value) continue;
+          if (normalize(label) === target) {
+            return value;
+          }
+        }
+      }
+      return null;
     }
   }
   /**
@@ -1365,25 +1379,65 @@ var CharacterParser = class {
     if (!elements) {
       return [];
     }
-    const images = [];
-    for (const element of elements) {
-      let src = element.getAttribute("src");
-      if (src?.startsWith("data:image")) {
-        const attributes = element.attributes;
-        for (const attribute of attributes) {
-          if (attribute.value.startsWith("http")) {
-            src = attribute.value;
-            break;
+    let candidates = Array.from(elements);
+    if (candidates.length === 0) {
+      const fallbackNodeList = page.querySelectorAll(
+        [
+          ".portable-infobox img.mw-file-element",
+          ".portable-infobox .image img",
+          ".portable-infobox .pi-image img",
+          ".portable-infobox .pi-image-thumbnail img",
+          ".infobox-image img",
+          "figure .image img",
+          "figure.pi-item.pi-image img"
+        ].join(", ")
+      );
+      candidates = Array.from(fallbackNodeList);
+    }
+    const pickFromSrcset = (srcset) => {
+      if (!srcset) return null;
+      const parts = srcset.split(",").map((s) => s.trim().split(" ")[0]).filter(Boolean);
+      return parts.length > 0 ? parts[parts.length - 1] : null;
+    };
+    const resolveImageUrl = (element) => {
+      const isImg = element.tagName.toLowerCase() === "img";
+      const img = isImg ? element : element.querySelector("img");
+      let candidate = img?.getAttribute("data-src") || img?.getAttribute("src") || pickFromSrcset(img?.getAttribute("data-srcset") || null) || pickFromSrcset(img?.getAttribute("srcset") || null) || element.getAttribute("data-src") || element.getAttribute("src");
+      if (!candidate) {
+        const tryAttrs = (el) => {
+          for (const attr of Array.from(el.attributes)) {
+            const v = attr.value;
+            if (!v) continue;
+            if (/^https?:\/\//i.test(v) && /\.(png|jpe?g|gif|bmp|svg|webp|tiff?)(?:[/?].*)?$/i.test(v)) {
+              return v;
+            }
           }
+          return null;
+        };
+        candidate = tryAttrs(img || element) || tryAttrs(element) || null;
+      }
+      if (!candidate && element.tagName.toLowerCase() === "a") {
+        const href = element.getAttribute("href");
+        if (href && /^https?:\/\//i.test(href)) {
+          candidate = href;
         }
       }
+      return candidate ? extractImageURL(candidate) : null;
+    };
+    const images = [];
+    const seen = /* @__PURE__ */ new Set();
+    for (const element of candidates) {
+      const src = resolveImageUrl(element);
       if (!src) {
-        console.error(`No src found for images`);
         continue;
       }
-      src = extractImageURL(src);
-      if (imagesConfig.ignore?.includes(src))
+      if (seen.has(src)) {
         continue;
+      }
+      seen.add(src);
+      if (imagesConfig.ignore?.includes(src)) {
+        continue;
+      }
       if (getBase64) {
         const b64 = await convertImageToBase64(src);
         images.push(b64);
@@ -1642,7 +1696,7 @@ function getElementAccordingToFormat(page, pageFormat, ignore) {
   } else if (pageFormat === "table-5") {
     return page.querySelectorAll("table.wikitable.sortable td:nth-child(1) a");
   } else if (pageFormat === "table-6") {
-    return page.querySelectorAll("#mw-content-text table td:nth-child(2) a");
+    return page.querySelectorAll("#mw-content-text table td:nth-child(1) a");
   }
   throw new Error("Invalid page format");
 }

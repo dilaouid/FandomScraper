@@ -1,10 +1,13 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-    entry: ['src/index.ts'],
+    entry: ['index.ts'],
     format: ['esm'],
-    dts: true,
+    dts: {
+        resolve: true
+    },
     clean: true,
+    treeshake: true,
     esbuildOptions(options) {
         options.bundle = true
         options.platform = 'node'

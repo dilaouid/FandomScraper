@@ -1,3 +1,5 @@
+/// <reference path="./globals.d.ts" />
+
 declare const availableWikis: string[];
 type TAvailableWikis = typeof availableWikis[number];
 
