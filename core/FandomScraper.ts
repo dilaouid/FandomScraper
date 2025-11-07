@@ -13,7 +13,7 @@ import { QueryBuilder } from '../services/QueryBuilder';
 
 import { getWikiUrl, getDataUrl } from '../utils/urlUtils';
 import { isValidCharacterPage, setPageVersion } from '../utils/validationUtils';
-import { getElementAccordingToFormat, getUrlAccordingToFormat } from '../utils/elementUtils';
+import { getElementAccordingToFormat, getUrlAccordingToFormat, getNextButtonConfig } from '../utils/elementUtils';
 
 /**
  * FandomScraper is a class that allows you to scrape a Fandom wiki, and get all the characters of a fiction.
@@ -530,15 +530,20 @@ export class FandomScraper {
             }
 
             // Change the characters page according to the next button
-            const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage[this._schema.pageFormat].next.value)[0];
-            if (!nextElement) {
+            const nextConfig = getNextButtonConfig(this._schema.pageFormat);
+            if (!nextConfig || !nextConfig.value) {
                 hasNext = false;
             } else {
-                const nextUrl = nextElement.getAttribute('href');
-                if (!nextUrl) {
+                const nextElement = this._CharactersPage.getElementsByClassName(nextConfig.value)[0];
+                if (!nextElement) {
                     hasNext = false;
                 } else {
-                    await this.getCharactersPage(nextUrl);
+                    const nextUrl = nextElement.getAttribute('href');
+                    if (!nextUrl) {
+                        hasNext = false;
+                    } else {
+                        await this.getCharactersPage(nextUrl);
+                    }
                 }
             }
         }
@@ -558,15 +563,20 @@ export class FandomScraper {
             await this.getCharactersPage(this._schema.url);
             while (hasNext) {
                 count += getElementAccordingToFormat(this._CharactersPage, this._schema.pageFormat).length;
-                const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage[this._schema.pageFormat].next.value)[0];
-                if (!nextElement) {
+                const nextConfig = getNextButtonConfig(this._schema.pageFormat);
+                if (!nextConfig || !nextConfig.value) {
                     hasNext = false;
                 } else {
-                    const nextUrl = nextElement.getAttribute('href');
-                    if (!nextUrl) {
+                    const nextElement = this._CharactersPage.getElementsByClassName(nextConfig.value)[0];
+                    if (!nextElement) {
                         hasNext = false;
                     } else {
-                        await this.getCharactersPage(nextUrl);
+                        const nextUrl = nextElement.getAttribute('href');
+                        if (!nextUrl) {
+                            hasNext = false;
+                        } else {
+                            await this.getCharactersPage(nextUrl);
+                        }
                     }
                 }
             }

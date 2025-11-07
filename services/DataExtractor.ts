@@ -50,7 +50,34 @@ export class DataExtractor {
 
             return null;
         } else {
-            return page.querySelector(`[data-source="${key}"] .pi-data-value`);
+            // Try new infobox by data-source first
+            const byDataSource = page.querySelector(`[data-source="${key}"] .pi-data-value`);
+            if (byDataSource) return byDataSource;
+
+            // Fallback: match by label text when data-source doesn't align with schema keys
+            if (typeof key === 'string') {
+                const normalize = (text: string) =>
+                    text
+                        .toLowerCase()
+                        .replace(/\s+/g, '')
+                        .replace(/[:()]/g, '')
+                        .replace(/&nbsp;/g, '')
+                        .replace(/[^a-z0-9]/g, '');
+
+                const target = normalize(String(key));
+                const items = page.querySelectorAll('.portable-infobox .pi-item, .portable-infobox .pi-data');
+                for (const item of Array.from(items)) {
+                    const label = item.querySelector('.pi-data-label')?.textContent || '';
+                    const value = item.querySelector('.pi-data-value');
+                    if (!label || !value) continue;
+
+                    if (normalize(label) === target) {
+                        return value;
+                    }
+                }
+            }
+
+            return null;
         }
     }
 

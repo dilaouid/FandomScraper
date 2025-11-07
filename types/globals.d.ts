@@ -2,12 +2,25 @@
 declare global {
 
     // the different formats available of pages
-    type TPageFormats = 'classic' | 'table-1' | 'table-2' | 'table-3' | 'table-4' | 'table-5'
+    type TPageFormats = 'classic' | 'table-1' | 'table-2' | 'table-3' | 'table-4' | 'table-5' | 'table-6'
     /*
         classic: the classic page with the list of characters names
         table-1: the table with the image on the left
         table-2: the sorted table with the different categories
     */
+
+    // Custom page format configuration
+    interface ICustomPageFormat {
+        selector: string; // CSS selector to find character elements
+        ignore?: string[]; // List of strings to ignore in character names
+        next?: {
+            type: string;
+            value: string;
+        };
+    }
+
+    // Page format can be either a predefined format or a custom configuration
+    type TPageFormat = TPageFormats | ICustomPageFormat;
 
     type TDataset = string | string[];
     interface IData {
@@ -99,8 +112,8 @@ declare global {
         // the url of the wiki characters list to scrape (ex: 'https://dragonball.fandom.com/wiki/Characters')
         url: string;
 
-        // the format of the characters list page (ex: 'classic')
-        pageFormat: TPageFormats;
+        // the format of the characters list page (ex: 'classic' or custom configuration)
+        pageFormat: TPageFormat;
 
         // the data-source of the wiki (ex: DragonBallFRDataSource) which will be used to scrape the wiki
         dataSource: IDataSource;

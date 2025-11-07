@@ -17,6 +17,7 @@ export const availableWikis = [
   "shingeki-no-kyojin",
   "smurf",
   'promised-neverland',
+  'fate',
 ];
 
 export type TAvailableWikis = typeof availableWikis[number];

@@ -94,35 +94,90 @@ export class CharacterParser {
         }
 
         const elements = imagesConfig.get(page);
-        if (!elements) {
+		if (!elements) {
             return [];
         }
 
-        const images: string[] = [];
-        for (const element of elements) {
-            let src = element.getAttribute('src');
-            
-            // if src is a base64 image, continue
-            if (src?.startsWith('data:image')) {
-                const attributes = element.attributes;
-                // check if one of the attributes value starts with http
-                for (const attribute of attributes) {
-                    if (attribute.value.startsWith('http')) {
-                        src = attribute.value;
-                        break;
-                    }
-                }
-            }
+		// If provided selector returns nothing, try common infobox image fallbacks
+		let candidates: Element[] = Array.from(elements as any);
+		if (candidates.length === 0) {
+			const fallbackNodeList = page.querySelectorAll(
+				[
+					'.portable-infobox img.mw-file-element',
+					'.portable-infobox .image img',
+					'.portable-infobox .pi-image img',
+					'.portable-infobox .pi-image-thumbnail img',
+					'.infobox-image img',
+					'figure .image img',
+					'figure.pi-item.pi-image img'
+				].join(', ')
+			);
+			candidates = Array.from(fallbackNodeList);
+		}
 
-            if (!src) {
-                console.error(`No src found for images`);
-                continue;
-            }
-            
-            src = extractImageURL(src);
-            if (imagesConfig.ignore?.includes(src))
-                continue;
+		const pickFromSrcset = (srcset: string | null): string | null => {
+			if (!srcset) return null;
+			const parts = srcset
+				.split(',')
+				.map(s => s.trim().split(' ')[0])
+				.filter(Boolean);
+			return parts.length > 0 ? parts[parts.length - 1] : null;
+		};
 
+		const resolveImageUrl = (element: Element): string | null => {
+			// Prefer nested <img> if container is an anchor/div
+			const isImg = element.tagName.toLowerCase() === 'img';
+			const img = isImg ? element : element.querySelector('img');
+
+			// Try common attributes in order
+			let candidate =
+				img?.getAttribute('data-src') ||
+				img?.getAttribute('src') ||
+				pickFromSrcset(img?.getAttribute('data-srcset') || null) ||
+				pickFromSrcset(img?.getAttribute('srcset') || null) ||
+				element.getAttribute('data-src') ||
+				element.getAttribute('src');
+
+			// Fallback: scan attributes for first http(s) that looks like an image
+			if (!candidate) {
+				const tryAttrs = (el: Element): string | null => {
+					for (const attr of Array.from(el.attributes)) {
+						const v = attr.value;
+						if (!v) continue;
+						if (/^https?:\/\//i.test(v) && /\.(png|jpe?g|gif|bmp|svg|webp|tiff?)(?:[/?].*)?$/i.test(v)) {
+							return v;
+						}
+					}
+					return null;
+				};
+				candidate = tryAttrs(img || element) || tryAttrs(element) || null;
+			}
+
+			// For anchors, try href if it points directly to an image resource
+			if (!candidate && element.tagName.toLowerCase() === 'a') {
+				const href = element.getAttribute('href');
+				if (href && /^https?:\/\//i.test(href)) {
+					candidate = href;
+				}
+			}
+
+			return candidate ? extractImageURL(candidate) : null;
+		};
+
+		const images: string[] = [];
+		const seen = new Set<string>();
+		for (const element of candidates) {
+			const src = resolveImageUrl(element);
+			if (!src) {
+				continue;
+			}
+			if (seen.has(src)) {
+				continue;
+			}
+			seen.add(src);
+			if (imagesConfig.ignore?.includes(src)) {
+                continue;
+			}
             if (getBase64) {
                 const b64 = await convertImageToBase64(src);
                 images.push(b64);

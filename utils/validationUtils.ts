@@ -10,21 +10,22 @@ export function isValidCharacterPage(
     schemaUrl: string,
     extractPageIdFn: (page: Document) => number
 ): boolean {
-    if (!page) {
-        return false;
-    }
-    
+    if (!page) return false;
+
+    // A valid character/article page should have a non-zero pageId
     const id = extractPageIdFn(page);
-    if (id === 0) {
-        return false;
-    }
+    if (id === 0) return false;
 
-    const pageString = page.documentElement.innerHTML;
-    const parsedUrl = new URL(schemaUrl);
-    const path = parsedUrl.pathname;
-
-    if (!pageString.includes(path)) {
-        return false;
+    // If a canonical link is present, ensure it matches the same host as the schema URL
+    try {
+        const schemaHost = new URL(schemaUrl).host;
+        const canonicalHref = page.querySelector('link[rel="canonical"]')?.getAttribute('href') || '';
+        if (canonicalHref) {
+            const canonicalHost = new URL(canonicalHref).host;
+            if (schemaHost !== canonicalHost) return false;
+        }
+    } catch {
+        // Ignore URL parsing errors and consider the page valid based on pageId
     }
 
     return true;
