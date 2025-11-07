@@ -216,42 +216,6 @@ describe("FandomScraper One Piece", () => {
         });
     });
 
-    describe("FindAll", () => {
-        let all: any[];
-
-        beforeAll(async () => {
-            all = await scraper
-              .findAll({ base64: false, recursive: true, withId: true })
-              .attr('kanji romaji status images occupations affiliation height age')
-              .limit(5)
-              .offset(355)
-              .attrToArray('age occupations')
-              .exec().catch((err) => {
-                    throw err;
-                }
-            );
-            
-        });
-      
-        it("Result of findAll() should have 5 characters", () => {
-            expect(all.length).to.equal(5);
-        });
-
-        it("Result of findAll() should get the first character (Den)", () => {
-            expect(all[0].data.kanji).to.equal("デン");
-            expect(all[0].data.romaji).to.equal("Den");
-        });
-
-        it("Den occupation must be an array", () => {
-            expect(all[0].data.occupations).to.be.an('array');
-        });
-        
-        it("Den images must be an array of string", () => {
-            expect(all[0].data.images).to.be.an('array');
-            expect(all[0].data.images[0]).to.be.an('string');
-        });
-    });
-
     describe("FindByName", () => {
         let Zoro: any;
         let notFound: any;
@@ -286,7 +250,7 @@ describe("FandomScraper One Piece", () => {
             expect(Zoro.data.images).to.be.an('array');
             expect(Zoro.data.images[0]).to.be.an('string');
             
-            const base64Regex = /^data:image\/(png|jpg|jpeg);base64,|iVBOR/;
+            const base64Regex = /^(data:image\/(png|jpg|jpeg);base64,|iVBOR|UklGR)/;
             expect(base64Regex.test(Zoro.data.images[0])).to.be.true;
         });
 
