@@ -17,6 +17,7 @@ import { Hellsing } from './hellsing';
 import { Smurf } from './smurf';
 import { RickAndMorty } from './rick-and-morty';
 import { DeathParade } from './death-parade';
+import { Fate } from './fate';
 
 export const Schemas: Record<TAvailableWikis, any> = {
     'berserk': Berserk,
@@ -35,5 +36,6 @@ export const Schemas: Record<TAvailableWikis, any> = {
     'promised-neverland': PromisedNeverland,
     'shiki': Shiki,
     'shingeki-no-kyojin': Shingeki,
-    "smurf": Smurf
+    "smurf": Smurf,
+    'fate': Fate
 } as const;

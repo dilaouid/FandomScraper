@@ -1007,6 +1007,78 @@ var DeathParade = {
   en: DeathParadeEN
 };
 
+// wikia/fate/data-source.ts
+var FateENDataSource = {
+  species: "type",
+  gender: "gender",
+  height: "height",
+  weight: "weight",
+  bloodType: "bloodt",
+  likes: "likes",
+  dislikes: "dislikes",
+  talent: "talent",
+  enemy: "enemy",
+  imageColor: "imagecol",
+  ancestors: "Ancestor",
+  father: "Father",
+  mother: "Mother",
+  spirit: "spirit",
+  type: "type",
+  source: "source",
+  region: "region",
+  alignement: "alignement",
+  attribute: "attribute",
+  armament: "armament",
+  // Images
+  images: {
+    identifier: ".pi-image-thumbnail",
+    get: function(page) {
+      return page.querySelectorAll(this.identifier);
+    }
+  },
+  // Quote block (optional)
+  quote: {
+    identifier: "#Quotes",
+    get: function(page) {
+      const quotesHeading = page.querySelector("span#Quotes");
+      if (!quotesHeading) return null;
+      const h2 = quotesHeading.closest("h2");
+      if (!h2) return null;
+      let next = h2.nextElementSibling;
+      while (next && next.tagName.toLowerCase() !== "ul") {
+        next = next.nextElementSibling;
+      }
+      return next;
+    }
+  },
+  kanji: "jname",
+  name: "name",
+  seiyu: "JPvoice",
+  voiceActor: "Engvoice",
+  franchise: "franchise",
+  appearance: "appearances",
+  aka: "aka",
+  class: "class",
+  master: "master",
+  age: "age",
+  affiliation: "affiliation",
+  birthday: "bday",
+  occupations: "occupation",
+  relatives: "relative(s)"
+};
+
+// wikia/fate/schemas.ts
+var FateEN = {
+  url: "https://typemoon.fandom.com/wiki/List_of_Servants",
+  pageFormat: "table-6",
+  dataSource: FateENDataSource
+};
+
+// wikia/fate/index.ts
+var Fate = {
+  en: FateEN
+};
+
 // wikia/index.ts
 var Schemas = {
   "berserk": Berserk,
@@ -1025,57 +1097,8 @@ var Schemas = {
   "promised-neverland": PromisedNeverland,
   "shiki": Shiki,
   "shingeki-no-kyojin": Shingeki,
-  "smurf": Smurf
-};
-
-// utils/allCharactersPage.ts
-var allCharactersPage = {
-  "classic": {
-    ignore: ["Cat\xE9gorie:", "Category:", "List of", "File:", "Template:"],
-    listCharactersElement: {
-      type: "class",
-      value: "category-page__member-link"
-    },
-    next: {
-      type: "class",
-      value: "category-page__pagination-next"
-    }
-  },
-  "table-1": {
-    banList: [],
-    next: {
-      type: "",
-      value: ""
-    }
-  },
-  "table-2": {
-    banList: [],
-    next: {
-      type: "",
-      value: ""
-    }
-  },
-  "table-3": {
-    banList: [],
-    next: {
-      type: "",
-      value: ""
-    }
-  },
-  "table-4": {
-    banList: [],
-    next: {
-      type: "",
-      value: ""
-    }
-  },
-  "table-5": {
-    banList: [],
-    next: {
-      type: "",
-      value: ""
-    }
-  }
+  "smurf": Smurf,
+  "fate": Fate
 };
 
 // func/parsing.ts
@@ -1111,7 +1134,8 @@ var availableWikis = [
   "shiki",
   "shingeki-no-kyojin",
   "smurf",
-  "promised-neverland"
+  "promised-neverland",
+  "fate"
 ];
 var PageFetcher = class {
   /**
@@ -1525,6 +1549,63 @@ function getDataUrl(domain, href) {
   return domain + href;
 }
 
+// utils/allCharactersPage.ts
+var allCharactersPage = {
+  "classic": {
+    ignore: ["Cat\xE9gorie:", "Category:", "List of", "File:", "Template:"],
+    listCharactersElement: {
+      type: "class",
+      value: "category-page__member-link"
+    },
+    next: {
+      type: "class",
+      value: "category-page__pagination-next"
+    }
+  },
+  "table-1": {
+    banList: [],
+    next: {
+      type: "",
+      value: ""
+    }
+  },
+  "table-2": {
+    banList: [],
+    next: {
+      type: "",
+      value: ""
+    }
+  },
+  "table-3": {
+    banList: [],
+    next: {
+      type: "",
+      value: ""
+    }
+  },
+  "table-4": {
+    banList: [],
+    next: {
+      type: "",
+      value: ""
+    }
+  },
+  "table-5": {
+    banList: [],
+    next: {
+      type: "",
+      value: ""
+    }
+  },
+  "table-6": {
+    banList: [],
+    next: {
+      type: "",
+      value: ""
+    }
+  }
+};
+
 // utils/elementUtils.ts
 function filterBannedElement(elements, ignore) {
   const elementsArray = Array.from(elements);
@@ -1533,7 +1614,19 @@ function filterBannedElement(elements, ignore) {
     return !ignore.some((substring) => innerText.includes(substring.toLowerCase()));
   });
 }
+function isCustomPageFormat(pageFormat) {
+  return typeof pageFormat === "object" && "selector" in pageFormat;
+}
 function getElementAccordingToFormat(page, pageFormat, ignore) {
+  if (isCustomPageFormat(pageFormat)) {
+    const elements = page.querySelectorAll(pageFormat.selector);
+    const customIgnoreList = pageFormat.ignore || [];
+    const combinedIgnoreList = ignore ? [...ignore, ...customIgnoreList] : customIgnoreList;
+    if (combinedIgnoreList.length > 0) {
+      return filterBannedElement(elements, combinedIgnoreList);
+    }
+    return elements;
+  }
   const ignoreList = ignore ? [...ignore, ...allCharactersPage.classic.ignore] : allCharactersPage.classic.ignore;
   if (pageFormat === "classic") {
     const value = allCharactersPage.classic.listCharactersElement.value;
@@ -1548,10 +1641,36 @@ function getElementAccordingToFormat(page, pageFormat, ignore) {
     return page.querySelectorAll(".characterbox th:nth-child(1) a");
   } else if (pageFormat === "table-5") {
     return page.querySelectorAll("table.wikitable.sortable td:nth-child(1) a");
+  } else if (pageFormat === "table-6") {
+    return page.querySelectorAll("#mw-content-text table td:nth-child(2) a");
   }
   throw new Error("Invalid page format");
 }
+function getNextButtonConfig(pageFormat) {
+  if (isCustomPageFormat(pageFormat)) {
+    return pageFormat.next || null;
+  }
+  if (typeof pageFormat === "string" && pageFormat in allCharactersPage) {
+    const config = allCharactersPage[pageFormat];
+    if (config && config.next && config.next.value) {
+      return config.next;
+    }
+  }
+  return null;
+}
 function getUrlAccordingToFormat(element, pageFormat, getDataUrlFn) {
+  if (isCustomPageFormat(pageFormat)) {
+    let href = element.getAttribute("href");
+    if (!href) {
+      const aElement = element.querySelector("a");
+      if (aElement) {
+        href = aElement.getAttribute("href");
+      }
+    }
+    const url = getDataUrlFn(href);
+    if (!url) throw new Error("No URL found");
+    return url;
+  }
   if (pageFormat === "classic") {
     const url = getDataUrlFn(element.getAttribute("href"));
     if (!url) throw new Error("No URL found");
@@ -1577,6 +1696,10 @@ function getUrlAccordingToFormat(element, pageFormat, getDataUrlFn) {
     if (!url) throw new Error("No URL found");
     return url;
   } else if (pageFormat === "table-5") {
+    const url = getDataUrlFn(element.getAttribute("href"));
+    if (!url) throw new Error("No URL found");
+    return url;
+  } else if (pageFormat === "table-6") {
     const url = getDataUrlFn(element.getAttribute("href"));
     if (!url) throw new Error("No URL found");
     return url;
@@ -2040,15 +2163,20 @@ var FandomScraper = class {
         }
         offset++;
       }
-      const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage[this._schema.pageFormat].next.value)[0];
-      if (!nextElement) {
+      const nextConfig = getNextButtonConfig(this._schema.pageFormat);
+      if (!nextConfig || !nextConfig.value) {
         hasNext = false;
       } else {
-        const nextUrl = nextElement.getAttribute("href");
-        if (!nextUrl) {
+        const nextElement = this._CharactersPage.getElementsByClassName(nextConfig.value)[0];
+        if (!nextElement) {
           hasNext = false;
         } else {
-          await this.getCharactersPage(nextUrl);
+          const nextUrl = nextElement.getAttribute("href");
+          if (!nextUrl) {
+            hasNext = false;
+          } else {
+            await this.getCharactersPage(nextUrl);
+          }
         }
       }
     }
@@ -2066,15 +2194,20 @@ var FandomScraper = class {
       await this.getCharactersPage(this._schema.url);
       while (hasNext) {
         count += getElementAccordingToFormat(this._CharactersPage, this._schema.pageFormat).length;
-        const nextElement = this._CharactersPage.getElementsByClassName(allCharactersPage[this._schema.pageFormat].next.value)[0];
-        if (!nextElement) {
+        const nextConfig = getNextButtonConfig(this._schema.pageFormat);
+        if (!nextConfig || !nextConfig.value) {
           hasNext = false;
         } else {
-          const nextUrl = nextElement.getAttribute("href");
-          if (!nextUrl) {
+          const nextElement = this._CharactersPage.getElementsByClassName(nextConfig.value)[0];
+          if (!nextElement) {
             hasNext = false;
           } else {
-            await this.getCharactersPage(nextUrl);
+            const nextUrl = nextElement.getAttribute("href");
+            if (!nextUrl) {
+              hasNext = false;
+            } else {
+              await this.getCharactersPage(nextUrl);
+            }
           }
         }
       }
