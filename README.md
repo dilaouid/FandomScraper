@@ -279,7 +279,18 @@ const personalScraper = new FandomPersonalScraper({
 The constructor of `FandomPersonalScraper` expects an object that adheres to the `ISchema` interface.
 
 ```ts
-type TPageFormats = 'classic' | 'table-1' | 'table-2' | 'table-3';
+type TPageFormats = 'classic' | 'table-1' | 'table-2' | 'table-3' | 'table-4' | 'table-5' | 'table-6';
+
+interface ICustomPageFormat {
+	selector: string;           // CSS selector for character links
+	ignore?: string[];          // Optional: strings to ignore in character names
+	next?: {                    // Optional: next page button config
+		type: string;
+		value: string;
+	};
+}
+
+type TPageFormat = TPageFormats | ICustomPageFormat;
 
 interface IImage {
 	identifier: string;
@@ -322,8 +333,8 @@ interface ISchema {
 	// the url of the wiki characters list to scrape (ex: 'https://dragonball.fandom.com/wiki/Characters')
 	url:  string;
 
-	// the format of the characters list page (ex: 'classic')
-	pageFormat: TPageFormats;
+	// the format of the characters list page (ex: 'classic' or custom selector object)
+	pageFormat: TPageFormat;
 
 	// the data-source of the wiki (ex: DragonBallFRDataSource) which will be used to scrape the wiki
 	dataSource:  IDataSource;
@@ -331,7 +342,13 @@ interface ISchema {
 ```
 -   `url`: The URL of the wiki's characters list page, for example: `'https://dragonball.fandom.com/wiki/Characters'`.
 
--   `pageFormat`: The format of the characters list page, which can be `'classic'`, `'table-1'`, `table-3` or `'table-4'` depending on how the characters page list is structured.
+-   `pageFormat`: The format of the characters list page. Can be a predefined format (`'classic'`, `'table-1'`, etc.) or a custom object with a CSS `selector` and optional `ignore` list:
+```js
+pageFormat: {
+	selector: "#mw-content-text table tbody tr td:nth-child(2) a",
+	ignore: ["Category:", "File:"]
+}
+```
 
 -   `dataSource`: An object specifying the data sources for scraping character pages. It defines properties like `name`, `age`, `kanji`, etc. **You can use the standard fields provided OR add any custom field your wiki has** (e.g., `likes`, `dislikes`, `masters`, `class`, `power_level`, etc.). Each property corresponds to a piece of information about the character. If an element on the character page has a `data-source` attribute, the value of that attribute is used as the property value. Otherwise, the value is taken from the adjacent cell in the table.
 	-   `images`: An object specifying the data source for scraping character images. It follows the `IImage` interface, which has two properties:
