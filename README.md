@@ -20,6 +20,10 @@ npm install fandomscraper
 ```shell
 yarn add fandomscraper
 ```
+#### pnpm
+```shell
+pnpm add fandomscraper
+```
 
 ### How to use
 
@@ -191,6 +195,7 @@ interface  IData {
 	id?: number;
 	name: string;
 	url: string;
+	profileImage?: string;  // Profile image URL from MediaWiki pageimages API (when using category-based list)
 	data?: IDataset;
 }
 
@@ -338,6 +343,9 @@ interface ISchema {
 
 	// the data-source of the wiki (ex: DragonBallFRDataSource) which will be used to scrape the wiki
 	dataSource:  IDataSource;
+
+	// optional: full MediaWiki category title (e.g. 'Category:Characters'). When set on a Fandom URL, the character list is fetched via the MediaWiki API instead of HTML.
+	category?: string;
 };
 ```
 -   `url`: The URL of the wiki's characters list page, for example: `'https://dragonball.fandom.com/wiki/Characters'`.
