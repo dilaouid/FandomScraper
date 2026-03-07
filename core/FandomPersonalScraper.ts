@@ -20,6 +20,15 @@ export class FandomPersonalScraper extends FandomScraper {
             }
         }
 
+        if (schema.characterList?.strategy === 'mediawiki') {
+            const hasCategoryName = typeof schema.characterList.categoryName === 'string' && schema.characterList.categoryName.trim().length > 0;
+            const hasWikiName = typeof schema.characterList.wikiName === 'string' && schema.characterList.wikiName.trim().length > 0;
+
+            if (!hasCategoryName || !hasWikiName) {
+                throw new Error('The schema you provided is not valid');
+            }
+        }
+
         this._schema = schema;
     }
 }

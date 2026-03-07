@@ -5,7 +5,14 @@ import { BerserkENDataSource } from "./data-source";
 const BerserkEN: ISchema = {
     url: 'https://berserk.fandom.com/wiki/Category:Fantasia_Arc_Characters',
     pageFormat: 'classic',
-    dataSource: BerserkENDataSource
+    dataSource: BerserkENDataSource,
+    characterList: {
+        strategy: 'mediawiki',
+        wikiName: 'berserk',
+        lang: 'en',
+        categoryName: 'Fantasia_Arc_Characters',
+        baseUrl: 'https://berserk.fandom.com/wiki/'
+    }
 };
 
 export { BerserkEN };

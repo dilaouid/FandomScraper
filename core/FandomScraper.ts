@@ -10,6 +10,7 @@ import { PageFetcher } from '../services/PageFetcher';
 import { CharacterParser } from '../services/CharacterParser';
 import { DataExtractor } from '../services/DataExtractor';
 import { QueryBuilder } from '../services/QueryBuilder';
+import { fetchCharacterList, resolveCharacterListSource } from '../services/CharacterListFetcher';
 
 import { getWikiUrl, getDataUrl } from '../utils/urlUtils';
 import { isValidCharacterPage, setPageVersion } from '../utils/validationUtils';
@@ -27,6 +28,7 @@ export class FandomScraper {
     private wikiaParameters: WikiaParameters;
     private id: number = 0;
     private isOldVersion: boolean = false;
+    private hasWarnedLegacyCharacterList: boolean = false;
 
     // Services
     private pageFetcher: PageFetcher;
@@ -208,6 +210,35 @@ export class FandomScraper {
         this.isOldVersion = setPageVersion(this._CharactersPage);
     }
 
+    private canUseMediaWikiCharacterList(): boolean {
+        return resolveCharacterListSource(this._schema) !== null;
+    }
+
+    private shouldWarnLegacyCharacterList(): boolean {
+        if (this._schema.pageFormat !== 'classic') {
+            return false;
+        }
+
+        try {
+            const url = decodeURIComponent(this._schema.url);
+            return /\/wiki\/(Category|Catégorie):/i.test(url);
+        } catch {
+            return false;
+        }
+    }
+
+    private warnLegacyCharacterList(): void {
+        if (this.hasWarnedLegacyCharacterList || !this.shouldWarnLegacyCharacterList()) {
+            return;
+        }
+
+        console.warn(
+            'Legacy HTML character discovery is deprecated and will be removed in a future major version. ' +
+            'Configure schema.characterList to use the MediaWiki API.'
+        );
+        this.hasWarnedLegacyCharacterList = true;
+    }
+
     /**
      * Get all the characters of the current wiki, considering the options provided.
      * @param {IGetCharactersOptions} [options] - The options of the getCharacters method.
@@ -225,7 +256,6 @@ export class FandomScraper {
             if (options.limit < 1) throw new Error('Limit must be greater than 0');
             if (options.offset < 0) throw new Error('Offset must be greater than 0');
 
-            await this.getCharactersPage(this._schema.url);
             return await this._getAll(options);
 
         } catch (err) {
@@ -314,7 +344,6 @@ export class FandomScraper {
             const options = this.queryBuilder.getOptions();
             switch (this.method) {
                 case 'find':
-                    await this.getCharactersPage(this._schema.url);
                     return await this._getAll(options);
                 case 'findByName':
                     return await this._getByName(this.name, { base64: options.base64 ?? false, withId: options.withId ?? true, attributes: options.attributes ?? [] });
@@ -471,6 +500,13 @@ export class FandomScraper {
      * @returns The characters of the wiki.
      */
     private async _getAll(options: IGetCharactersOptions): Promise<any[]> {
+        if (this.canUseMediaWikiCharacterList()) {
+            return this._getAllFromApi(options);
+        }
+
+        await this.getCharactersPage(this._schema.url);
+        this.warnLegacyCharacterList();
+
         const data: IData[] = [];
         let hasNext = true;
         let offset = 0;
@@ -551,16 +587,89 @@ export class FandomScraper {
         return data;
     }
 
+    private getDefaultCharacterIgnoreList(): string[] {
+        return this._schema.pageFormat === 'classic' ? allCharactersPage.classic.ignore : [];
+    }
+
+    private shouldIgnoreCharacter(name: string, ignore: string[] = []): boolean {
+        const defaultIgnore = this.getDefaultCharacterIgnoreList();
+        const allIgnore = [...defaultIgnore, ...ignore];
+        const normalizedName = name.toLowerCase();
+
+        return allIgnore.some((entry) => normalizedName.includes(entry.toLowerCase()));
+    }
+
+    private async _getAllFromApi(options: IGetCharactersOptions): Promise<any[]> {
+        const data: IData[] = [];
+        let continueToken: Record<string, string | number> | undefined;
+        let seen = 0;
+
+        while (data.length < options.limit) {
+            const result = await fetchCharacterList(this._schema, continueToken);
+            const characters = result.characters.filter((character) => !this.shouldIgnoreCharacter(character.name, options.ignore));
+
+            for (const character of characters) {
+                if (seen < options.offset) {
+                    seen++;
+                    continue;
+                }
+
+                let characterData: IDataset | undefined;
+
+                if (options.recursive) {
+                    const characterPage = await this.pageFetcher.fetchPage(character.url);
+                    characterData = await this.characterParser.parseCharacterPage(
+                        characterPage,
+                        this._schema.dataSource,
+                        options.base64,
+                        this.queryBuilder.getKeysAttrToArray(),
+                        options.attributes
+                    );
+
+                    if (characterData && !options.base64 && character.imageUrl && (!characterData.images || characterData.images.length === 0)) {
+                        characterData.images = [character.imageUrl];
+                    }
+                }
+
+                data.push({
+                    id: options.withId ? character.id : undefined,
+                    name: character.name,
+                    url: character.url,
+                    data: options.recursive ? characterData : undefined
+                });
+
+                if (data.length === options.limit) {
+                    return data;
+                }
+
+                seen++;
+            }
+
+            if (!result.continueToken) {
+                break;
+            }
+
+            continueToken = result.continueToken;
+        }
+
+        return data;
+    }
+
     /**
      * Count the number of characters of the current wiki and return the number.
      * @returns The number of characters of the wiki.
      * @async
      */
     public async count(): Promise<number> {
+        if (this.canUseMediaWikiCharacterList()) {
+            return this.countFromApi();
+        }
+
         var count = 0;
         try {
             let hasNext = true;
             await this.getCharactersPage(this._schema.url);
+            this.warnLegacyCharacterList();
             while (hasNext) {
                 count += getElementAccordingToFormat(this._CharactersPage, this._schema.pageFormat).length;
                 const nextConfig = getNextButtonConfig(this._schema.pageFormat);
@@ -583,6 +692,28 @@ export class FandomScraper {
         } catch (err) {
             console.error(err);
         }
+        return count;
+    }
+
+    private async countFromApi(): Promise<number> {
+        let count = 0;
+        let continueToken: Record<string, string | number> | undefined;
+
+        try {
+            while (true) {
+                const result = await fetchCharacterList(this._schema, continueToken);
+                count += result.characters.filter((character) => !this.shouldIgnoreCharacter(character.name)).length;
+
+                if (!result.continueToken) {
+                    break;
+                }
+
+                continueToken = result.continueToken;
+            }
+        } catch (err) {
+            console.error(err);
+        }
+
         return count;
     }
 

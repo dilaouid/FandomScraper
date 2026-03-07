@@ -108,6 +108,18 @@ declare global {
         [key: string]: string | IImage | IQuote | undefined;
     }
 
+    type TCharacterListStrategy = 'legacy' | 'mediawiki';
+
+    interface ICharacterListSource {
+        strategy?: TCharacterListStrategy;
+        wikiName?: string;
+        lang?: string;
+        categoryName?: string;
+        baseUrl?: string;
+        apiLimit?: number;
+        userAgent?: string;
+    }
+
     interface ISchema {
         // the url of the wiki characters list to scrape (ex: 'https://dragonball.fandom.com/wiki/Characters')
         url: string;
@@ -117,6 +129,9 @@ declare global {
 
         // the data-source of the wiki (ex: DragonBallFRDataSource) which will be used to scrape the wiki
         dataSource: IDataSource;
+
+        // optional source configuration used to discover character pages
+        characterList?: ICharacterListSource;
     }
 }
 
