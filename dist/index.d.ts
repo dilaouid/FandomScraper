@@ -75,6 +75,7 @@ declare class FandomScraper {
     private wikiaParameters;
     private id;
     private isOldVersion;
+    private _legacyWarningShown;
     private pageFetcher;
     private characterParser;
     private dataExtractor;
@@ -315,6 +316,25 @@ declare class FandomScraper {
     getQuotes(url: string): Promise<string[]>;
     private isValidCharacterPageInternal;
     private getWikiUrlInternal;
+    /**
+     * Whether the schema qualifies for the faster MediaWiki generator API path.
+     * Requires both a `category` field and a Fandom wiki URL.
+     */
+    private _useMediaWikiPath;
+    /**
+     * Emit a one-time deprecation warning when the legacy HTML scraping path is used.
+     * Only triggers for 'classic' page format schemas that have no `category` set.
+     */
+    private _warnLegacyIfNeeded;
+    /**
+     * Fetch the full character list via the MediaWiki generator API, apply offset/limit/ignore,
+     * and optionally fetch individual pages for recursive data extraction.
+     */
+    private _getAllViaMediaWiki;
+    /**
+     * Count all characters in the category using the MediaWiki generator API.
+     */
+    private _countViaMediaWiki;
 }
 
 /**

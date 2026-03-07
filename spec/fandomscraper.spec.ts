@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { FandomScraper } from "../index";
-import { buildFandomScraperRoutes } from "./helpers/fandomFixtures";
+import { buildFandomScraperRoutes, buildKimetsuFRMediaWikiRoutes } from "./helpers/fandomFixtures";
 import { installMockFetch } from "./helpers/mockFetch";
 
 jest.setTimeout(10000);
@@ -224,6 +224,94 @@ describe("FandomScraper with deterministic fixtures", () => {
                 expect(notFound).to.be.an("array");
                 expect(notFound.length).to.equal(0);
             });
+        });
+    });
+});
+
+describe("FandomScraper — MediaWiki generator API path", () => {
+    let restoreFetch: (() => void) | undefined;
+
+    afterEach(() => {
+        restoreFetch?.();
+        restoreFetch = undefined;
+    });
+
+    describe("findAll (non-recursive, withId)", () => {
+        let all: any[];
+
+        beforeAll(async () => {
+            restoreFetch = installMockFetch(buildKimetsuFRMediaWikiRoutes(false));
+            const scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "fr" });
+            all = await scraper
+                .findAll({ base64: false, recursive: false, withId: true })
+                .exec();
+        });
+
+        it("returns all characters from the category API without fetching individual pages", () => {
+            expect(all).to.be.an("array");
+            expect(all.length).to.equal(3);
+        });
+
+        it("populates id directly from the API pageid", () => {
+            const tanjiro = all.find((c: any) => c.name === "Tanjiro Kamado");
+            expect(tanjiro).to.exist;
+            expect(tanjiro.id).to.equal(200);
+        });
+
+        it("populates profileImage when the API includes original.source", () => {
+            const tanjiro = all.find((c: any) => c.name === "Tanjiro Kamado");
+            expect(tanjiro.profileImage).to.equal("https://images.test/tanjiro-fr.jpg");
+
+            const inosuke = all.find((c: any) => c.name === "Inosuke Hashibira");
+            expect(inosuke.profileImage).to.equal("https://images.test/inosuke-fr.jpg");
+        });
+
+        it("sets profileImage to undefined when the API omits original", () => {
+            const nezuko = all.find((c: any) => c.name === "Nezuko Kamado");
+            expect(nezuko.profileImage).to.be.undefined;
+        });
+
+        it("does not set data when recursive is false", () => {
+            all.forEach((c: any) => {
+                expect(c.data).to.be.undefined;
+            });
+        });
+    });
+
+    describe("count", () => {
+        it("counts characters via the generator API", async () => {
+            restoreFetch = installMockFetch(buildKimetsuFRMediaWikiRoutes(false));
+            const scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "fr" });
+            const total = await scraper.count();
+            expect(total).to.equal(3);
+        });
+    });
+
+    describe("findAll (recursive)", () => {
+        let all: any[];
+
+        beforeAll(async () => {
+            restoreFetch = installMockFetch(buildKimetsuFRMediaWikiRoutes(true));
+            const scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "fr" });
+            all = await scraper
+                .findAll({ base64: false, recursive: true, withId: true })
+                .attr("kanji romaji age")
+                .exec();
+        });
+
+        it("returns characters with parsed data when recursive is true", () => {
+            expect(all).to.be.an("array");
+            expect(all.length).to.equal(3);
+            const tanjiro = all.find((c: any) => c.name === "Tanjiro Kamado");
+            expect(tanjiro.data).to.exist;
+            expect(tanjiro.data.kanji).to.equal("竈門 炭治郎");
+            expect(tanjiro.data.age).to.equal("15");
+        });
+
+        it("still exposes id and profileImage alongside data", () => {
+            const tanjiro = all.find((c: any) => c.name === "Tanjiro Kamado");
+            expect(tanjiro.id).to.equal(200);
+            expect(tanjiro.profileImage).to.equal("https://images.test/tanjiro-fr.jpg");
         });
     });
 });

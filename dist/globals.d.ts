@@ -27,6 +27,7 @@ declare global {
         id?: number; // id of the character from the wikia pageId value
         name: string; // name of the character
         url: string; // url of the character page on the wikia
+        profileImage?: string; // profile image URL from the MediaWiki pageimages API (when available)
         data?: IDataset; // data of the character
     }
 
@@ -117,6 +118,11 @@ declare global {
 
         // the data-source of the wiki (ex: DragonBallFRDataSource) which will be used to scrape the wiki
         dataSource: IDataSource;
+
+        // Full MediaWiki category title used to query characters via the generator API.
+        // When set, enables the faster MediaWiki API path instead of HTML scraping.
+        // Examples: 'Category:Characters', 'Catégorie:Personnages'
+        category?: string;
     }
 }
 

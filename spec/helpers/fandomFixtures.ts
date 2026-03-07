@@ -1,3 +1,5 @@
+import type { MockRouteInput } from './mockFetch';
+
 type CharacterLink = {
     name: string;
     href: string;
@@ -299,6 +301,93 @@ export function buildFandomScraperRoutes(): Record<string, string> {
         'https://images.test/zoro.png': 'fixture-image-zoro',
         'https://images.test/robin.png': 'fixture-image-robin',
         'https://images.test/luffy.png': 'fixture-image-luffy'
+    };
+}
+
+// JSON response simulating the MediaWiki generator API for kimetsu FR
+const kimetsuFRGeneratorApiUrl =
+    'https://kimetsu-no-yaiba.fandom.com/fr/api.php?action=query&generator=categorymembers&gcmtitle=Cat%C3%A9gorie%3APersonnages&gcmnamespace=0&gcmlimit=500&prop=pageimages&piprop=original&format=json';
+
+const kimetsuFRGeneratorResponse = JSON.stringify({
+    query: {
+        pages: {
+            '200': {
+                pageid: 200,
+                title: 'Tanjiro Kamado',
+                original: { source: 'https://images.test/tanjiro-fr.jpg', width: 300, height: 400 },
+            },
+            '201': {
+                pageid: 201,
+                title: 'Nezuko Kamado',
+            },
+            '202': {
+                pageid: 202,
+                title: 'Inosuke Hashibira',
+                original: { source: 'https://images.test/inosuke-fr.jpg', width: 300, height: 400 },
+            },
+        },
+    },
+});
+
+const kimetsuFRCharacterPages: Record<string, string> = {
+    'https://kimetsu-no-yaiba.fandom.com/fr/wiki/Tanjiro_Kamado': createCharacterPage({
+        canonicalUrl: 'https://kimetsu-no-yaiba.fandom.com/fr/wiki/Tanjiro_Kamado',
+        pageId: 200,
+        title: 'Tanjiro Kamado',
+        imageMarkup: `<a class="pi-image-thumbnail" href="https://images.test/tanjiro-fr.jpg"><img src="https://images.test/tanjiro-fr.jpg" alt="Tanjiro"></a>`,
+        fields: {
+            kanji: '竈門 炭治郎',
+            'rômaji': 'Kamado Tanjirō',
+            statut: 'Vivant',
+            race: 'Humain',
+            relation: 'Nezuko Kamado',
+            'âge': '15',
+        },
+    }),
+    'https://kimetsu-no-yaiba.fandom.com/fr/wiki/Nezuko_Kamado': createCharacterPage({
+        canonicalUrl: 'https://kimetsu-no-yaiba.fandom.com/fr/wiki/Nezuko_Kamado',
+        pageId: 201,
+        title: 'Nezuko Kamado',
+        imageMarkup: `<a class="pi-image-thumbnail" href="https://images.test/nezuko-fr.jpg"><img src="https://images.test/nezuko-fr.jpg" alt="Nezuko"></a>`,
+        fields: {
+            kanji: '竈門 禰豆子',
+            'rômaji': 'Kamado Nezuko',
+            statut: 'Vivante',
+            race: 'Démon',
+            relation: 'Tanjiro Kamado',
+            'âge': '14',
+        },
+    }),
+    'https://kimetsu-no-yaiba.fandom.com/fr/wiki/Inosuke_Hashibira': createCharacterPage({
+        canonicalUrl: 'https://kimetsu-no-yaiba.fandom.com/fr/wiki/Inosuke_Hashibira',
+        pageId: 202,
+        title: 'Inosuke Hashibira',
+        imageMarkup: `<a class="pi-image-thumbnail" href="https://images.test/inosuke-fr.jpg"><img src="https://images.test/inosuke-fr.jpg" alt="Inosuke"></a>`,
+        fields: {
+            kanji: '嘴平 伊之助',
+            'rômaji': 'Hashibira Inosuke',
+            statut: 'Vivant',
+            race: 'Humain',
+            'âge': '15',
+        },
+    }),
+    'https://images.test/tanjiro-fr.jpg': 'fixture-image-tanjiro-fr',
+    'https://images.test/nezuko-fr.jpg': 'fixture-image-nezuko-fr',
+    'https://images.test/inosuke-fr.jpg': 'fixture-image-inosuke-fr',
+};
+
+/**
+ * Routes for the new MediaWiki generator API path (kimetsu-no-yaiba FR with `category`).
+ * Non-recursive mode: only the generator API URL is needed.
+ * Recursive mode: also includes individual character page HTML.
+ */
+export function buildKimetsuFRMediaWikiRoutes(withCharacterPages: boolean = false): Record<string, MockRouteInput> {
+    return {
+        [kimetsuFRGeneratorApiUrl]: {
+            body: kimetsuFRGeneratorResponse,
+            contentType: 'application/json',
+        },
+        ...(withCharacterPages ? kimetsuFRCharacterPages : {}),
     };
 }
 

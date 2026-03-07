@@ -1,10 +1,10 @@
-type MockRoute = {
+export type MockRoute = {
     body: string | Uint8Array;
     status?: number;
     contentType?: string;
 };
 
-type MockRouteInput = string | MockRoute;
+export type MockRouteInput = string | MockRoute;
 
 function normalizeRoute(route: MockRouteInput): MockRoute {
     if (typeof route === 'string') {

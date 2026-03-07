@@ -3,6 +3,7 @@ import { DemonSlayerFRDataSource, DemonSlayerENDataSource } from "./data-source"
 const DemonSlayerFR: ISchema = {
     url: 'https://kimetsu-no-yaiba.fandom.com/fr/wiki/Catégorie:Personnages',
     pageFormat: 'classic',
+    category: 'Catégorie:Personnages',
     dataSource: DemonSlayerFRDataSource
 };
 

@@ -57,11 +57,13 @@ var DeathNoteENDataSource = {
 var DeathNoteFR = {
   url: "https://deathnote.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages",
   pageFormat: "classic",
+  category: "Cat\xE9gorie:Personnages",
   dataSource: DeathNoteFRDataSource
 };
 var DeathNoteEN = {
   url: "https://deathnote.fandom.com/wiki/Category:Manga_characters",
   pageFormat: "classic",
+  category: "Category:Manga_characters",
   dataSource: DeathNoteENDataSource
 };
 
@@ -136,6 +138,7 @@ var DemonSlayerENDataSource = {
 var DemonSlayerFR = {
   url: "https://kimetsu-no-yaiba.fandom.com/fr/wiki/Cat\xE9gorie:Personnages",
   pageFormat: "classic",
+  category: "Cat\xE9gorie:Personnages",
   dataSource: DemonSlayerFRDataSource
 };
 var DemonSlayerEN = {
@@ -195,11 +198,13 @@ var DragonBallENDataSource = {
 var DragonBallFR = {
   url: "https://dragonball.fandom.com/fr/wiki/Cat\xE9gorie:Personnages",
   pageFormat: "classic",
+  category: "Cat\xE9gorie:Personnages",
   dataSource: DragonBallFRDataSource
 };
 var DragonBallEN = {
   url: "https://dragonball.fandom.com/wiki/Characters",
   pageFormat: "classic",
+  category: "Category:Characters",
   dataSource: DragonBallENDataSource
 };
 
@@ -250,6 +255,7 @@ var FumetsuENDataSource = {
 var FumetsuEN = {
   url: "https://fumetsunoanatae.fandom.com/wiki/Category:Characters",
   pageFormat: "classic",
+  category: "Category:Characters",
   dataSource: FumetsuENDataSource
 };
 
@@ -336,11 +342,13 @@ var NarutoENDataSource = {
 var NarutoFR = {
   url: "https://naruto.fandom.com/fr/wiki/Cat\xE9gorie:Personnages",
   pageFormat: "classic",
+  category: "Cat\xE9gorie:Personnages",
   dataSource: NarutoFRDataSource
 };
 var NarutoEN = {
   url: "https://naruto.fandom.com/wiki/Category:Characters",
   pageFormat: "classic",
+  category: "Category:Characters",
   dataSource: NarutoENDataSource
 };
 
@@ -443,6 +451,7 @@ var ShikiENDataSource = {
 var ShikiEN = {
   url: "https://shiki.fandom.com/wiki/Category:Characters",
   pageFormat: "classic",
+  category: "Category:Characters",
   dataSource: ShikiENDataSource
 };
 
@@ -509,11 +518,13 @@ var PromisedNeverlandENDataSource = {
 var PromisedNeverlandFR = {
   url: "https://the-promised-neverland.fandom.com/fr/wiki/Cat\xE9gorie:Personnages",
   pageFormat: "classic",
+  category: "Cat\xE9gorie:Personnages",
   dataSource: PromisedNeverlandFRDataSource
 };
 var PromisedNeverlandEN = {
   url: "https://yakusokunoneverland.fandom.com/wiki/Category:Manga_characters",
   pageFormat: "classic",
+  category: "Category:Manga_characters",
   dataSource: PromisedNeverlandENDataSource
 };
 
@@ -546,6 +557,7 @@ var BerserkENDataSource = {
 var BerserkEN = {
   url: "https://berserk.fandom.com/wiki/Category:Fantasia_Arc_Characters",
   pageFormat: "classic",
+  category: "Category:Fantasia_Arc_Characters",
   dataSource: BerserkENDataSource
 };
 
@@ -627,11 +639,13 @@ var JojoENDataSource = {
 var JojoFR = {
   url: "https://jjba.fandom.com/fr/wiki/Cat\xE9gorie:Personnages",
   pageFormat: "classic",
+  category: "Cat\xE9gorie:Personnages",
   dataSource: JojoFRDataSource
 };
 var JojoEN = {
   url: "https://jojo.fandom.com/wiki/Category:Characters",
   pageFormat: "classic",
+  category: "Category:Characters",
   dataSource: JojoENDataSource
 };
 
@@ -674,6 +688,7 @@ var DororoENDataSource = {
 var DororoEN = {
   url: "https://dororo.fandom.com/wiki/Category:Characters",
   pageFormat: "classic",
+  category: "Category:Characters",
   dataSource: DororoENDataSource
 };
 
@@ -741,6 +756,7 @@ var ShingekiENDataSource = {
 var ShingekiFR = {
   url: "https://attaque-des-titans.fandom.com/fr/wiki/Cat%C3%A9gorie:Humains",
   pageFormat: "classic",
+  category: "Cat\xE9gorie:Humains",
   dataSource: ShingekiFRDataSource
 };
 var ShingekiEN = {
@@ -808,11 +824,13 @@ var SilentVoiceENDataSource = {
 var SilentVoiceFR = {
   url: "https://koenokatachi.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages",
   pageFormat: "classic",
+  category: "Cat\xE9gorie:Personnages",
   dataSource: SilentVoiceFRDataSource
 };
 var SilentVoiceEN = {
   url: "https://koenokatachi.fandom.com/wiki/Category:Characters",
   pageFormat: "classic",
+  category: "Category:Characters",
   dataSource: SilentVoiceENDataSource
 };
 
@@ -847,6 +865,7 @@ var HellsingENDataSource = {
 var HellsingEN = {
   url: "https://hellsing.fandom.com/wiki/Category:Characters",
   pageFormat: "classic",
+  category: "Category:Characters",
   dataSource: HellsingENDataSource
 };
 
@@ -890,11 +909,13 @@ var SmurfENDataSource = {
 var SmurfEN = {
   url: "https://smurfs.fandom.com/wiki/Category:Smurfs_Characters",
   pageFormat: "classic",
+  category: "Category:Smurfs_Characters",
   dataSource: SmurfENDataSource
 };
 var SmurfFR = {
   url: "https://schtroumpfs.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages",
   pageFormat: "classic",
+  category: "Cat\xE9gorie:Personnages",
   dataSource: SmurfFRDataSource
 };
 
@@ -944,11 +965,13 @@ var RickAndMortyENDataSource = {
 var RickAndMortyEN = {
   url: "https://rickandmorty.fandom.com/wiki/Category:Characters",
   pageFormat: "classic",
+  category: "Category:Characters",
   dataSource: RickAndMortyENDataSource
 };
 var RickAndMortyFR = {
   url: "https://rick-et-morty.fandom.com/fr/wiki/Cat%C3%A9gorie:Personnages",
   pageFormat: "classic",
+  category: "Cat\xE9gorie:Personnages",
   dataSource: RickAndMortyFRDataSource
 };
 
@@ -999,6 +1022,7 @@ var DeathParadeENDataSource = {
 var DeathParadeEN = {
   url: "https://death-parade.fandom.com/wiki/Category:Characters",
   pageFormat: "classic",
+  category: "Category:Characters",
   dataSource: DeathParadeENDataSource
 };
 
@@ -1281,7 +1305,9 @@ var PageFetcher = class {
     });
   }
   async fetchJson(url) {
-    const response = await fetch(url).catch((err) => {
+    const response = await fetch(url, {
+      headers: { "User-Agent": "FandomScraper/1.0" }
+    }).catch((err) => {
       throw new Error(`Error while fetching ${url}: ${err}`);
     });
     const body = await response.text();
@@ -1802,6 +1828,61 @@ var QueryBuilder = class {
   }
 };
 
+// services/MediaWikiClient.ts
+var USER_AGENT = "FandomScraper/1.0";
+async function fetchCharacterList(apiBaseUrl, categoryTitle, continuationToken) {
+  const url = new URL(apiBaseUrl);
+  url.searchParams.set("action", "query");
+  url.searchParams.set("generator", "categorymembers");
+  url.searchParams.set("gcmtitle", categoryTitle);
+  url.searchParams.set("gcmnamespace", "0");
+  url.searchParams.set("gcmlimit", "500");
+  url.searchParams.set("prop", "pageimages");
+  url.searchParams.set("piprop", "original");
+  url.searchParams.set("format", "json");
+  if (continuationToken) {
+    url.searchParams.set("gcmcontinue", continuationToken);
+  }
+  const response = await fetch(url.href, {
+    headers: { "User-Agent": USER_AGENT }
+  }).catch((err) => {
+    throw new Error(`MediaWiki API unreachable at ${url.href}: ${err}`);
+  });
+  if (!response.ok) {
+    throw new Error(`MediaWiki API error: HTTP ${response.status} for ${url.href}`);
+  }
+  const body = await response.text();
+  let data;
+  try {
+    data = JSON.parse(body);
+  } catch {
+    throw new Error(`Invalid JSON response from MediaWiki API: ${url.href}`);
+  }
+  if (data.error) {
+    throw new Error(`MediaWiki API error: ${data.error.info ?? data.error.code ?? "unknown"}`);
+  }
+  const pages = data.query?.pages ?? {};
+  const members = Object.values(pages).filter((page) => page.pageid > 0).map((page) => ({
+    pageid: page.pageid,
+    title: page.title,
+    profileImage: page.original?.source ?? null
+  }));
+  return {
+    members,
+    nextToken: data.continue?.gcmcontinue
+  };
+}
+async function fetchAllCharacters(apiBaseUrl, categoryTitle, maxEntries = Infinity) {
+  const allMembers = [];
+  let nextToken;
+  do {
+    const { members, nextToken: token } = await fetchCharacterList(apiBaseUrl, categoryTitle, nextToken);
+    allMembers.push(...members);
+    nextToken = token;
+  } while (nextToken && allMembers.length < maxEntries);
+  return allMembers;
+}
+
 // utils/allCharactersPage.ts
 var allCharactersPage = {
   "classic": {
@@ -1975,6 +2056,7 @@ var FandomScraper = class {
     this.name = "";
     this.id = 0;
     this.isOldVersion = false;
+    this._legacyWarningShown = false;
     if (!Object.keys(Schemas).includes(name)) throw new Error(`Invalid wiki name provided: ${name}`);
     this._schema = Schemas[name][options?.lang || "en"];
     this.wikiaParameters = {
@@ -2140,6 +2222,10 @@ var FandomScraper = class {
     try {
       if (options.limit < 1) throw new Error("Limit must be greater than 0");
       if (options.offset < 0) throw new Error("Offset must be greater than 0");
+      if (this._useMediaWikiPath()) {
+        return await this._getAllViaMediaWiki(options);
+      }
+      this._warnLegacyIfNeeded();
       await this.getCharactersPage(this._schema.url);
       return await this._getAll(options);
     } catch (err) {
@@ -2220,6 +2306,10 @@ var FandomScraper = class {
       const options = this.queryBuilder.getOptions();
       switch (this.method) {
         case "find":
+          if (this._useMediaWikiPath()) {
+            return await this._getAllViaMediaWiki(options);
+          }
+          this._warnLegacyIfNeeded();
           await this.getCharactersPage(this._schema.url);
           return await this._getAll(options);
         case "findByName":
@@ -2441,6 +2531,9 @@ var FandomScraper = class {
    * @async
    */
   async count() {
+    if (this._useMediaWikiPath()) {
+      return this._countViaMediaWiki();
+    }
     var count = 0;
     try {
       let hasNext = true;
@@ -2520,6 +2613,69 @@ var FandomScraper = class {
   }
   getWikiUrlInternal() {
     return getWikiUrl(this._schema.url);
+  }
+  /**
+   * Whether the schema qualifies for the faster MediaWiki generator API path.
+   * Requires both a `category` field and a Fandom wiki URL.
+   */
+  _useMediaWikiPath() {
+    return !!this._schema.category && isFandomPageUrl(this._schema.url);
+  }
+  /**
+   * Emit a one-time deprecation warning when the legacy HTML scraping path is used.
+   * Only triggers for 'classic' page format schemas that have no `category` set.
+   */
+  _warnLegacyIfNeeded() {
+    if (!this._legacyWarningShown && this._schema.pageFormat === "classic") {
+      console.warn(
+        '[FandomScraper] Deprecation: this schema uses the legacy HTML scraping path. Add a `category` field (e.g. "Category:Characters") to your ISchema to use the faster and more reliable MediaWiki API path.'
+      );
+      this._legacyWarningShown = true;
+    }
+  }
+  /**
+   * Fetch the full character list via the MediaWiki generator API, apply offset/limit/ignore,
+   * and optionally fetch individual pages for recursive data extraction.
+   */
+  async _getAllViaMediaWiki(options) {
+    const apiUrl = getWikiApiUrl(this._schema.url);
+    const categoryTitle = this._schema.category;
+    const limit = options.limit ?? 1e5;
+    const offset = options.offset ?? 0;
+    const ignoreList = options.ignore ?? [];
+    const allMembers = await fetchAllCharacters(apiUrl, categoryTitle, offset + limit);
+    const filtered = ignoreList.length ? allMembers.filter((m) => !ignoreList.some((sub) => m.title.toLowerCase().includes(sub.toLowerCase()))) : allMembers;
+    const page = filtered.slice(offset, offset + limit);
+    const result = [];
+    for (const member of page) {
+      const url = buildWikiPageUrl(this._schema.url, member.title);
+      const entry = {
+        name: member.title,
+        url,
+        ...options.withId ? { id: member.pageid } : {},
+        ...member.profileImage ? { profileImage: member.profileImage } : {}
+      };
+      if (options.recursive) {
+        const characterPage = await this.pageFetcher.fetchPage(url);
+        entry.data = await this.characterParser.parseCharacterPage(
+          characterPage,
+          this._schema.dataSource,
+          options.base64,
+          this.queryBuilder.getKeysAttrToArray(),
+          options.attributes
+        );
+      }
+      result.push(entry);
+    }
+    return result;
+  }
+  /**
+   * Count all characters in the category using the MediaWiki generator API.
+   */
+  async _countViaMediaWiki() {
+    const apiUrl = getWikiApiUrl(this._schema.url);
+    const members = await fetchAllCharacters(apiUrl, this._schema.category);
+    return members.length;
   }
 };
 

@@ -10,9 +10,9 @@ app.get('/', (c) => {
     endpoints: {
       '/wikis': 'Get all available wikis',
       '/metadata/:wiki': 'Get metadata for a specific wiki',
-      '/characters/:wiki': 'Get all characters from a wiki (query params: limit, offset)',
-      '/character/:wiki/:name': 'Get a specific character by name',
-      '/character/:wiki/id/:id': 'Get a specific character by ID'
+      '/characters/:wiki': 'Get all characters from a wiki (query params: limit, offset, recursive, withId, attrToArray)',
+      '/character/:wiki/:name': 'Get a specific character by name (query params: base64, withId, attrToArray)',
+      '/character/:wiki/id/:id': 'Get a specific character by ID (query params: base64, attrToArray)'
     }
   });
 });
@@ -42,13 +42,17 @@ app.get('/characters/:wiki', async (c) => {
     const offset = parseInt(c.req.query('offset') || '0');
     const recursive = c.req.query('recursive') === 'true';
     const withId = c.req.query('withId') !== 'false';
+    const attrToArray = c.req.query('attrToArray');
     
     const scraper = new FandomScraper(wiki);
-    const characters = await scraper
+    let chain = scraper
       .findAll({ base64: false, recursive, withId })
       .limit(limit)
-      .offset(offset)
-      .exec();
+      .offset(offset);
+    if (attrToArray) {
+      chain = chain.attrToArray(attrToArray.replace(/,/g, ' ').trim());
+    }
+    const characters = await chain.exec();
     
     return c.json({ characters, count: characters.length });
   } catch (error) {
@@ -63,11 +67,14 @@ app.get('/character/:wiki/:name', async (c) => {
     const name = c.req.param('name');
     const base64 = c.req.query('base64') === 'true';
     const withId = c.req.query('withId') !== 'false';
+    const attrToArray = c.req.query('attrToArray');
     
     const scraper = new FandomScraper(wiki);
-    const character = await scraper
-      .findByName(name, { base64, withId })
-      .exec();
+    let chain = scraper.findByName(name, { base64, withId });
+    if (attrToArray) {
+      chain = chain.attrToArray(attrToArray.replace(/,/g, ' ').trim());
+    }
+    const character = await chain.exec();
     
     return c.json({ character });
   } catch (error) {
@@ -81,11 +88,14 @@ app.get('/character/:wiki/id/:id', async (c) => {
     const wiki = c.req.param('wiki') as any;
     const id = parseInt(c.req.param('id'));
     const base64 = c.req.query('base64') === 'true';
+    const attrToArray = c.req.query('attrToArray');
     
     const scraper = new FandomScraper(wiki);
-    const character = await scraper
-      .findById(id, { base64 })
-      .exec();
+    let chain = scraper.findById(id, { base64 });
+    if (attrToArray) {
+      chain = chain.attrToArray(attrToArray.replace(/,/g, ' ').trim());
+    }
+    const character = await chain.exec();
     
     return c.json({ character });
   } catch (error) {

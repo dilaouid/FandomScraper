@@ -10,8 +10,9 @@ import { PageFetcher } from '../services/PageFetcher';
 import { CharacterParser } from '../services/CharacterParser';
 import { DataExtractor } from '../services/DataExtractor';
 import { QueryBuilder } from '../services/QueryBuilder';
+import { fetchAllCharacters } from '../services/MediaWikiClient';
 
-import { getWikiUrl, getDataUrl } from '../utils/urlUtils';
+import { getWikiUrl, getWikiApiUrl, getDataUrl, isFandomPageUrl, buildWikiPageUrl } from '../utils/urlUtils';
 import { isValidCharacterPage, setPageVersion } from '../utils/validationUtils';
 import { getElementAccordingToFormat, getUrlAccordingToFormat, getNextButtonConfig } from '../utils/elementUtils';
 
@@ -27,6 +28,7 @@ export class FandomScraper {
     private wikiaParameters: WikiaParameters;
     private id: number = 0;
     private isOldVersion: boolean = false;
+    private _legacyWarningShown: boolean = false;
 
     // Services
     private pageFetcher: PageFetcher;
@@ -225,6 +227,11 @@ export class FandomScraper {
             if (options.limit < 1) throw new Error('Limit must be greater than 0');
             if (options.offset < 0) throw new Error('Offset must be greater than 0');
 
+            if (this._useMediaWikiPath()) {
+                return await this._getAllViaMediaWiki(options);
+            }
+
+            this._warnLegacyIfNeeded();
             await this.getCharactersPage(this._schema.url);
             return await this._getAll(options);
 
@@ -314,6 +321,10 @@ export class FandomScraper {
             const options = this.queryBuilder.getOptions();
             switch (this.method) {
                 case 'find':
+                    if (this._useMediaWikiPath()) {
+                        return await this._getAllViaMediaWiki(options);
+                    }
+                    this._warnLegacyIfNeeded();
                     await this.getCharactersPage(this._schema.url);
                     return await this._getAll(options);
                 case 'findByName':
@@ -557,6 +568,10 @@ export class FandomScraper {
      * @async
      */
     public async count(): Promise<number> {
+        if (this._useMediaWikiPath()) {
+            return this._countViaMediaWiki();
+        }
+
         var count = 0;
         try {
             let hasNext = true;
@@ -639,6 +654,84 @@ export class FandomScraper {
 
     private getWikiUrlInternal(): string {
         return getWikiUrl(this._schema.url);
+    }
+
+    /**
+     * Whether the schema qualifies for the faster MediaWiki generator API path.
+     * Requires both a `category` field and a Fandom wiki URL.
+     */
+    private _useMediaWikiPath(): boolean {
+        return !!this._schema.category && isFandomPageUrl(this._schema.url);
+    }
+
+    /**
+     * Emit a one-time deprecation warning when the legacy HTML scraping path is used.
+     * Only triggers for 'classic' page format schemas that have no `category` set.
+     */
+    private _warnLegacyIfNeeded(): void {
+        if (!this._legacyWarningShown && this._schema.pageFormat === 'classic') {
+            console.warn(
+                '[FandomScraper] Deprecation: this schema uses the legacy HTML scraping path. ' +
+                'Add a `category` field (e.g. "Category:Characters") to your ISchema to use the ' +
+                'faster and more reliable MediaWiki API path.'
+            );
+            this._legacyWarningShown = true;
+        }
+    }
+
+    /**
+     * Fetch the full character list via the MediaWiki generator API, apply offset/limit/ignore,
+     * and optionally fetch individual pages for recursive data extraction.
+     */
+    private async _getAllViaMediaWiki(options: IGetCharactersOptions): Promise<IData[]> {
+        const apiUrl = getWikiApiUrl(this._schema.url);
+        const categoryTitle = this._schema.category!;
+        const limit = options.limit ?? 100000;
+        const offset = options.offset ?? 0;
+        const ignoreList = options.ignore ?? [];
+
+        const allMembers = await fetchAllCharacters(apiUrl, categoryTitle, offset + limit);
+
+        const filtered = ignoreList.length
+            ? allMembers.filter((m) => !ignoreList.some((sub) => m.title.toLowerCase().includes(sub.toLowerCase())))
+            : allMembers;
+
+        const page = filtered.slice(offset, offset + limit);
+        const result: IData[] = [];
+
+        for (const member of page) {
+            const url = buildWikiPageUrl(this._schema.url, member.title);
+            const entry: IData = {
+                name: member.title,
+                url,
+                ...(options.withId ? { id: member.pageid } : {}),
+                ...(member.profileImage ? { profileImage: member.profileImage } : {}),
+            };
+
+            if (options.recursive) {
+                const characterPage = await this.pageFetcher.fetchPage(url);
+                entry.data = await this.characterParser.parseCharacterPage(
+                    characterPage,
+                    this._schema.dataSource,
+                    options.base64,
+                    this.queryBuilder.getKeysAttrToArray(),
+                    options.attributes
+                );
+            }
+
+            result.push(entry);
+        }
+
+        return result;
+    }
+
+    /**
+     * Count all characters in the category using the MediaWiki generator API.
+     */
+    private async _countViaMediaWiki(): Promise<number> {
+        const apiUrl = getWikiApiUrl(this._schema.url);
+        const members = await fetchAllCharacters(apiUrl, this._schema.category!);
+        return members.length;
     }
 }
 

@@ -145,7 +145,9 @@ export class PageFetcher {
     }
 
     private async fetchJson<T>(url: string): Promise<T> {
-        const response = await fetch(url).catch((err) => {
+        const response = await fetch(url, {
+            headers: { 'User-Agent': 'FandomScraper/1.0' }
+        }).catch((err) => {
             throw new Error(`Error while fetching ${url}: ${err}`);
         });
         const body = await response.text();
