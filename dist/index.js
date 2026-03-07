@@ -1070,7 +1070,7 @@ var FateENDataSource = {
 // wikia/fate/schemas.ts
 var FateEN = {
   url: "https://typemoon.fandom.com/wiki/List_of_Servants",
-  pageFormat: "table-6",
+  pageFormat: "table-5",
   dataSource: FateENDataSource
 };
 
@@ -1137,6 +1137,64 @@ var availableWikis = [
   "promised-neverland",
   "fate"
 ];
+
+// utils/urlUtils.ts
+var WIKI_PATH_MARKER = "/wiki/";
+var CATEGORY_CONTINUE_PARAM = "fandomscraper-cmcontinue";
+function getWikiUrl(url) {
+  const parsedUrl = new URL(url);
+  const wikiMarkerIndex = parsedUrl.pathname.indexOf(WIKI_PATH_MARKER);
+  if (wikiMarkerIndex === -1) {
+    return `${parsedUrl.origin}${parsedUrl.pathname.replace(/\/?$/, "/")}`;
+  }
+  const wikiPath = parsedUrl.pathname.slice(0, wikiMarkerIndex + WIKI_PATH_MARKER.length);
+  return new URL(wikiPath, parsedUrl.origin).href;
+}
+function getDataUrl(domain, href) {
+  if (!href) {
+    return "";
+  }
+  return new URL(href, domain).href;
+}
+function isFandomPageUrl(url) {
+  const parsedUrl = new URL(url);
+  return parsedUrl.hostname.endsWith("fandom.com") && parsedUrl.pathname.includes(WIKI_PATH_MARKER);
+}
+function getWikiApiUrl(url) {
+  const parsedUrl = new URL(url);
+  const wikiMarkerIndex = parsedUrl.pathname.indexOf(WIKI_PATH_MARKER);
+  if (wikiMarkerIndex === -1) {
+    throw new Error(`Cannot build API URL from non-wiki URL: ${url}`);
+  }
+  const apiPath = `${parsedUrl.pathname.slice(0, wikiMarkerIndex)}/api.php`;
+  return new URL(apiPath, parsedUrl.origin).href;
+}
+function getWikiTitleFromUrl(url) {
+  const parsedUrl = new URL(url);
+  const wikiMarkerIndex = parsedUrl.pathname.indexOf(WIKI_PATH_MARKER);
+  if (wikiMarkerIndex === -1) {
+    return null;
+  }
+  const encodedTitle = parsedUrl.pathname.slice(wikiMarkerIndex + WIKI_PATH_MARKER.length);
+  if (!encodedTitle) {
+    return null;
+  }
+  return decodeURIComponent(encodedTitle);
+}
+function buildWikiPageUrl(sourceUrl, title) {
+  const normalizedTitle = title.split("/").map((segment) => encodeURIComponent(segment.replace(/ /g, "_")).replace(/%3A/gi, ":")).join("/");
+  return new URL(normalizedTitle, getWikiUrl(sourceUrl)).href;
+}
+function getCategoryContinuationToken(url) {
+  return new URL(url).searchParams.get(CATEGORY_CONTINUE_PARAM);
+}
+function buildCategoryContinuationUrl(url, continuationToken) {
+  const nextUrl = new URL(url);
+  nextUrl.searchParams.set(CATEGORY_CONTINUE_PARAM, continuationToken);
+  return nextUrl.href;
+}
+
+// services/PageFetcher.ts
 var PageFetcher = class {
   /**
    * Fetch a page from a URL and return its document
@@ -1144,13 +1202,164 @@ var PageFetcher = class {
    * @returns The document of the fetched page
    */
   async fetchPage(url) {
-    const text = await fetch(url).then(async (res) => {
-      const text2 = await res.text();
-      return text2;
-    }).catch((err) => {
+    if (isFandomPageUrl(url)) {
+      try {
+        return await this.fetchFandomPage(url);
+      } catch {
+        return this.fetchHtmlPage(url);
+      }
+    }
+    return this.fetchHtmlPage(url);
+  }
+  async fetchFandomPage(url) {
+    const title = getWikiTitleFromUrl(url);
+    if (title && this.isCategoryTitle(title)) {
+      return this.fetchCategoryPage(url, title);
+    }
+    return this.fetchParsedWikiPage(url);
+  }
+  async fetchParsedWikiPage(url) {
+    const apiUrl = this.buildParseApiUrl(url);
+    const response = await this.fetchJson(apiUrl);
+    const parsedHtml = response.parse?.text?.["*"];
+    const title = response.parse?.title;
+    if (!parsedHtml || !title) {
+      const errorMessage = response.error?.info || `Unexpected parse API response for ${url}`;
+      throw new Error(errorMessage);
+    }
+    const redirectUrl = this.extractRedirectUrl(parsedHtml, url);
+    if (redirectUrl && redirectUrl !== url) {
+      return this.fetchFandomPage(redirectUrl);
+    }
+    const canonicalUrl = buildWikiPageUrl(url, title);
+    return this.createDocument(parsedHtml, {
+      requestUrl: url,
+      canonicalUrl,
+      title,
+      pageId: response.parse?.pageid ?? 0
+    });
+  }
+  async fetchCategoryPage(url, title) {
+    const apiUrl = new URL(getWikiApiUrl(url));
+    apiUrl.searchParams.set("action", "query");
+    apiUrl.searchParams.set("list", "categorymembers");
+    apiUrl.searchParams.set("cmtitle", title);
+    apiUrl.searchParams.set("cmnamespace", "0");
+    apiUrl.searchParams.set("cmlimit", "500");
+    apiUrl.searchParams.set("format", "json");
+    const continuationToken = getCategoryContinuationToken(url);
+    if (continuationToken) {
+      apiUrl.searchParams.set("cmcontinue", continuationToken);
+    }
+    const response = await this.fetchJson(apiUrl.href);
+    const members = response.query?.categorymembers ?? [];
+    const nextToken = response.continue?.cmcontinue;
+    if (!response.query && response.error) {
+      throw new Error(response.error.info || `Unexpected categorymembers API response for ${url}`);
+    }
+    const categoryHtml = this.buildCategoryMembersHtml(url, members, nextToken);
+    return this.createDocument(categoryHtml, {
+      requestUrl: url,
+      canonicalUrl: buildWikiPageUrl(url, title),
+      title
+    });
+  }
+  async fetchHtmlPage(url) {
+    const response = await fetch(url).catch((err) => {
       throw new Error(`Error while fetching ${url}: ${err}`);
     });
-    return new JSDOM(text, { url, contentType: "text/html", referrer: url }).window.document;
+    const text = await response.text();
+    if (!response.ok) {
+      throw new Error(`Error while fetching ${url}: HTTP ${response.status}`);
+    }
+    if (this.isCloudflareChallenge(text)) {
+      throw new Error(`Cloudflare blocked the request for ${url}`);
+    }
+    return this.createDocument(text, {
+      requestUrl: url,
+      canonicalUrl: url
+    });
+  }
+  async fetchJson(url) {
+    const response = await fetch(url).catch((err) => {
+      throw new Error(`Error while fetching ${url}: ${err}`);
+    });
+    const body = await response.text();
+    if (!response.ok) {
+      throw new Error(`Error while fetching ${url}: HTTP ${response.status}`);
+    }
+    try {
+      return JSON.parse(body);
+    } catch (error) {
+      throw new Error(`Error while parsing JSON from ${url}: ${error}`);
+    }
+  }
+  buildParseApiUrl(url) {
+    const apiUrl = new URL(getWikiApiUrl(url));
+    const parsedUrl = new URL(url);
+    const pageId = parsedUrl.searchParams.get("curid");
+    apiUrl.searchParams.set("action", "parse");
+    apiUrl.searchParams.set("prop", "text");
+    apiUrl.searchParams.set("format", "json");
+    if (pageId) {
+      apiUrl.searchParams.set("pageid", pageId);
+      return apiUrl.href;
+    }
+    const title = getWikiTitleFromUrl(url);
+    if (!title) {
+      throw new Error(`Cannot extract a wiki title from ${url}`);
+    }
+    apiUrl.searchParams.set("page", title);
+    return apiUrl.href;
+  }
+  buildCategoryMembersHtml(url, members, nextToken) {
+    const items = members.map(({ title: pageTitle }) => {
+      const href = buildWikiPageUrl(url, pageTitle);
+      return `<a class="category-page__member-link" href="${href}">${pageTitle}</a>`;
+    }).join("");
+    const nextLink = nextToken ? `<a class="category-page__pagination-next" href="${buildCategoryContinuationUrl(url, nextToken)}">Next</a>` : "";
+    return `<!doctype html><html><head></head><body><div id="mw-content-text">${items}${nextLink}</div></body></html>`;
+  }
+  createDocument(html, options) {
+    const document = new JSDOM(html, {
+      url: options.canonicalUrl,
+      contentType: "text/html",
+      referrer: options.requestUrl
+    }).window.document;
+    if (!document.querySelector('link[rel="canonical"]')) {
+      const canonicalElement = document.createElement("link");
+      canonicalElement.setAttribute("rel", "canonical");
+      canonicalElement.setAttribute("href", options.canonicalUrl);
+      document.head.appendChild(canonicalElement);
+    }
+    if (options.pageId && !document.querySelector('script[data-fandomscraper-pageid="true"]')) {
+      const pageIdScript = document.createElement("script");
+      pageIdScript.type = "application/json";
+      pageIdScript.dataset.fandomscraperPageid = "true";
+      pageIdScript.textContent = `{"pageId":${options.pageId}}`;
+      document.head.appendChild(pageIdScript);
+    }
+    if (options.title && !document.querySelector(".mw-page-title-main")) {
+      const titleElement = document.createElement("h1");
+      titleElement.className = "mw-page-title-main";
+      titleElement.textContent = options.title;
+      document.body.prepend(titleElement);
+    }
+    return document;
+  }
+  isCategoryTitle(title) {
+    return /^(Category|Catégorie):/i.test(title);
+  }
+  isCloudflareChallenge(html) {
+    return /Just a moment/i.test(html) || /challenge-platform/i.test(html) || /cf-browser-verification/i.test(html);
+  }
+  extractRedirectUrl(html, fallbackUrl) {
+    const document = new JSDOM(`<!doctype html><html><body>${html}</body></html>`).window.document;
+    const redirectHref = document.querySelector(".redirectText a[href]")?.getAttribute("href");
+    if (!redirectHref) {
+      return null;
+    }
+    return new URL(redirectHref, fallbackUrl).href;
   }
 };
 
@@ -1592,16 +1801,6 @@ var QueryBuilder = class {
     return this.keysAttrToArray;
   }
 };
-
-// utils/urlUtils.ts
-function getWikiUrl(url) {
-  const urlParts = url.split("/");
-  urlParts.pop();
-  return urlParts.join("/") + "/";
-}
-function getDataUrl(domain, href) {
-  return domain + href;
-}
 
 // utils/allCharactersPage.ts
 var allCharactersPage = {

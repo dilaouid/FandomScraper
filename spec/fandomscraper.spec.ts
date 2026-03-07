@@ -1,304 +1,229 @@
-import { FandomScraper } from "../index" 
 import { expect } from "chai";
+import { FandomScraper } from "../index";
+import { buildFandomScraperRoutes } from "./helpers/fandomFixtures";
+import { installMockFetch } from "./helpers/mockFetch";
 
-describe("FandomScraper Demon Slayer", () => {
-    let scraper: FandomScraper
-    let metadatas: any;
-    
-    beforeEach(async () => {
-        scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "en" });
-        metadatas = await scraper.getMetadata();
+jest.setTimeout(10000);
+
+describe("FandomScraper with deterministic fixtures", () => {
+    let restoreFetch: (() => void) | undefined;
+
+    beforeAll(() => {
+        restoreFetch = installMockFetch(buildFandomScraperRoutes());
     });
 
-    describe("Checking metadatas", () => {
-        it("should have valid metadatas", () => {
-            expect(metadatas).to.be.an('object');
-        });
-
-        it("metadata should have name, language, attributes and count", () => {
-            expect(metadatas.name).to.be.a('string');
-            expect(metadatas.language).to.be.a('string');
-            expect(metadatas.attributes).to.be.an('array');
-            expect(metadatas.count).to.be.a('number');
-        });
-
-        it("metadata name should be 'kimetsu-no-yaiba'", () => {
-            expect(metadatas.name).to.equal("kimetsu-no-yaiba");
-        });
-
-        it("metadata language should be 'en'", () => {
-            expect(metadatas.language).to.equal("en");
-        });
-
-        it("metadata attributes should be an array of string", () => {
-            expect(metadatas.attributes.length).to.be.greaterThan(0);
-            expect(metadatas.attributes[0]).to.be.a('string');
-        });
-
-        it("metadata count should be greater than 1", () => {
-            expect(metadatas.count).to.be.greaterThan(1);
-        });
+    afterAll(() => {
+        restoreFetch?.();
     });
 
-    describe("FindAll", () => {
-        let all: any[];
+    describe("Demon Slayer", () => {
+        describe("metadata", () => {
+            let metadatas: any;
 
-        beforeAll(async () => {
-            all = await scraper
-              .findAll({ base64: false, recursive: true, withId: true })
-              .attr('kanji romaji status species images occupations affiliation height weight relatives age')
-              .limit(5)
-              .offset(0)
-              .attrToArray('relatives age')
-              .exec().catch((err) => {
-                    throw err;
-                }
-            );
-            
-        });
-      
-        it("Result of findAll() should have 5 characters", () => {
-            expect(all.length).to.equal(5);
-        });
-        it("Result of findAll() should get the first character (Ubuyashiki Kagaya)", () => {
-            expect(all[0].data.kanji).to.equal("産屋敷 耀哉");
-            expect(all[0].data.romaji).to.equal("Ubuyashiki Kagaya");
-        });
-        it("Kagaya relatives must be an array", () => {
-            expect(all[0].data.relatives).to.be.an('array');
-        });
-        it("Kagaya age must be an array", () => {
-            expect(all[0].data.age).to.be.an('array');
-        });
-        it("Kagaya relatives must be an array of string", () => {
-            expect(all[0].data.relatives[0]).to.be.an('string');
-        });
-        it("Kagaya age must be an array of string", () => {
-            expect(all[0].data.age[0]).to.be.an('string');
-        });
-    });
-
-    describe("FindByName", () => {
-        let Kagaya: any;
-        let notFound: any;
-
-        beforeAll(async () => {
-            Kagaya = await scraper
-              .findByName("Kagaya Ubuyashiki", { base64: true, withId: true })
-              .attr('kanji romaji status species images occupations affiliation height weight relatives age')
-              .attrToArray('relatives age')
-              .exec().catch((err) => {
-                return [];
+            beforeAll(async () => {
+                const scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "en" });
+                metadatas = await scraper.getMetadata();
             });
-      
-            notFound = await scraper
-              .findByName("Toshio Ozaki", { base64: false, withId: true })
-              .exec().catch((err) => {
-                return [];
+
+            it("returns stable metadata for the configured wiki", () => {
+                expect(metadatas).to.be.an("object");
+                expect(metadatas.name).to.equal("kimetsu-no-yaiba");
+                expect(metadatas.language).to.equal("en");
+                expect(metadatas.attributes).to.be.an("array");
+                expect(metadatas.attributes).to.include("kanji");
+                expect(metadatas.count).to.equal(6);
             });
         });
 
-        it("Kagaya name must be 産屋敷 耀哉 (Kagaya Ubuyashiki)", () => {
-            expect(Kagaya.data.kanji).to.equal("産屋敷 耀哉");
-            expect(Kagaya.data.romaji).to.equal("Ubuyashiki Kagaya");
-        });
-        it("Kagaya relatives must be an array", () => {
-            expect(Kagaya.data.relatives).to.be.an('array');
-            expect(Kagaya.data.relatives[0]).to.be.an('string');
-        });
-        it("Kagaya age must be an array", () => {
-            expect(Kagaya.data.age).to.be.an('array');
-            expect(Kagaya.data.age[0]).to.be.an('string');
-        });
-        it("Kagaya images must be an array of base64", () => {
-            expect(Kagaya.data.images).to.be.an('array');
-            expect(Kagaya.data.images[0]).to.be.an('string');
+        describe("findAll", () => {
+            let all: any[];
 
-            const base64Regex = /^data:image\/(png|jpg|jpeg);base64,|UklGR/;
-            expect(base64Regex.test(Kagaya.data.images[0])).to.be.true;
-        });
-
-        it("Toshio Ozaki should not be found (result empty array)", () => {
-            expect(notFound).to.be.an('array');
-            expect(notFound.length).to.equal(0);
-        });
-    });
-
-    describe("FindById", () => {
-        let kamadoId: any;
-        let notFound: any;
-
-        beforeAll(async () => {
-            kamadoId = await scraper
-              .findById(132, { base64: true })
-              .attr('kanji romaji status species images occupations affiliation height weight relatives age')
-              .attrToArray('relatives age')
-              .exec().catch((err) => {
-                return [];
+            beforeAll(async () => {
+                const scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "en" });
+                all = await scraper
+                    .findAll({ base64: false, recursive: true, withId: true })
+                    .attr("kanji romaji status species images occupations affiliation height weight relatives age")
+                    .limit(5)
+                    .offset(0)
+                    .attrToArray("relatives age")
+                    .exec();
             });
-      
-            notFound = await scraper
-              .findById(1, { base64: false })
-              .exec().catch((err) => {
-                return [];
+
+            it("returns the requested number of characters", () => {
+                expect(all).to.be.an("array");
+                expect(all.length).to.equal(5);
+            });
+
+            it("keeps parsing deterministic for the first fixture entry", () => {
+                expect(all[0].id).to.equal(99);
+                expect(all[0].name).to.equal("Kagaya Ubuyashiki");
+                expect(all[0].data.kanji).to.equal("産屋敷 耀哉");
+                expect(all[0].data.romaji).to.equal("Ubuyashiki Kagaya");
+            });
+
+            it("converts configured fields to arrays", () => {
+                expect(all[0].data.relatives).to.deep.equal(["Amane Ubuyashiki", "Kiriya Ubuyashiki"]);
+                expect(all[0].data.age).to.deep.equal(["23"]);
             });
         });
 
-        it("Kamado Tanjirō name must be 竈門 炭治郎 (Kamado Tanjirō)", () => {
-            expect(kamadoId.data.kanji).to.equal("竈門 炭治郎");
-            expect(kamadoId.data.romaji).to.equal("Kamado Tanjirō");
-        });
+        describe("findByName", () => {
+            let kagaya: any;
+            let notFound: any;
 
-        it("Kamado Tanjirō relatives must be an array", () => {
-            expect(kamadoId.data.relatives).to.be.an('array');
-            expect(kamadoId.data.relatives[0]).to.be.an('string');
-        });
+            beforeAll(async () => {
+                const scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "en" });
+                kagaya = await scraper
+                    .findByName("Kagaya Ubuyashiki", { base64: true, withId: true })
+                    .attr("kanji romaji status species images occupations affiliation height weight relatives age")
+                    .attrToArray("relatives age")
+                    .exec();
 
-        it("Kamado Tanjirō age must be an array", () => {
-            expect(kamadoId.data.age).to.be.an('array');
-            expect(kamadoId.data.age[0]).to.be.an('string');
-        });
-
-        it("Kamado Tanjirō images must be an array of base64", () => {
-            expect(kamadoId.data.images).to.be.an('array');
-            expect(kamadoId.data.images[0]).to.be.an('string');
-
-            const isBase64 = kamadoId.data.images[0].startsWith('data:image') || 
-                           /^[A-Za-z0-9+/]*={0,2}$/.test(kamadoId.data.images[0]);
-            expect(isBase64).to.be.true;
-        });
-
-        it("Id 1 should not be found (result empty array)", () => {
-            expect(notFound).to.be.an('array');
-            expect(notFound.length).to.equal(0);
-        });
-
-    });
-
-});
-
-describe("FandomScraper One Piece", () => {
-    let scraper: FandomScraper
-    let metadatas: any;
-    
-    beforeEach(async() => {
-        scraper = new FandomScraper("one-piece", { lang: "en" });
-        metadatas = await scraper.getMetadata();
-    });
-
-    describe("Checking metadatas", () => {
-        it("should have valid metadatas", () => {
-            expect(metadatas).to.be.an('object');
-        });
-
-        it("metadata should have name, language, attributes and count", () => {
-            expect(metadatas.name).to.be.a('string');
-            expect(metadatas.language).to.be.a('string');
-            expect(metadatas.attributes).to.be.an('array');
-            expect(metadatas.count).to.be.a('number');
-        });
-
-        it("metadata name should be 'one-piece'", () => {
-            expect(metadatas.name).to.equal("one-piece");
-        });
-
-        it("metadata language should be 'en'", () => {
-            expect(metadatas.language).to.equal("en");
-        });
-
-        it("metadata attributes should be an array of string", () => {
-            expect(metadatas.attributes.length).to.be.greaterThan(0);
-            expect(metadatas.attributes[0]).to.be.a('string');
-        });
-
-        it("metadata count should be greater than 1", () => {
-            expect(metadatas.count).to.be.greaterThan(1);
-        });
-    });
-
-    describe("FindByName", () => {
-        let Zoro: any;
-        let notFound: any;
-
-        beforeAll(async () => {
-            Zoro = await scraper
-              .findByName("zoro", { base64: true, withId: true })
-              .attr('kanji romaji status images occupations affiliation height age')
-              .attrToArray('affiliation age height')
-              .exec().catch((err) => {
-                return [];
+                notFound = await scraper
+                    .findByName("Toshio Ozaki", { base64: false, withId: true })
+                    .exec();
             });
-      
-            notFound = await scraper
-              .findByName("kamado tanjiro", { base64: false, withId: true })
-              .exec().catch((err) => {
-                return [];
+
+            it("finds a character by name and keeps typed fields stable", () => {
+                expect(kagaya.id).to.equal(99);
+                expect(kagaya.data.kanji).to.equal("産屋敷 耀哉");
+                expect(kagaya.data.romaji).to.equal("Ubuyashiki Kagaya");
+                expect(kagaya.data.relatives).to.deep.equal(["Amane Ubuyashiki", "Kiriya Ubuyashiki"]);
+                expect(kagaya.data.age).to.deep.equal(["23"]);
+            });
+
+            it("returns deterministic base64 image content", () => {
+                expect(kagaya.data.images).to.be.an("array");
+                expect(kagaya.data.images[0]).to.be.a("string");
+                expect(kagaya.data.images[0].length).to.be.greaterThan(0);
+                expect(/^[A-Za-z0-9+/]*={0,2}$/.test(kagaya.data.images[0])).to.equal(true);
+            });
+
+            it("returns an empty array when the character does not exist", () => {
+                expect(notFound).to.be.an("array");
+                expect(notFound.length).to.equal(0);
             });
         });
 
-        it("Zoro name must be ロロノア・ゾロ (Roronoa Zoro)", () => {
-            expect(Zoro.data.kanji).to.equal("ロロノア・ゾロ");
-            expect(Zoro.data.romaji).to.equal("Roronoa Zoro");
-        });
-        
-        it("Zoro age must be an array", () => {
-            expect(Zoro.data.age).to.be.an('array');
-            expect(Zoro.data.age[0]).to.be.an('string');
-        });
+        describe("findById", () => {
+            let kamadoId: any;
+            let notFound: any;
 
-        it("Zoro images must be an array of base64", () => {
-            expect(Zoro.data.images).to.be.an('array');
-            expect(Zoro.data.images[0]).to.be.an('string');
-            
-            const base64Regex = /^(data:image\/(png|jpg|jpeg);base64,|iVBOR|UklGR)/;
-            expect(base64Regex.test(Zoro.data.images[0])).to.be.true;
-        });
+            beforeAll(async () => {
+                const scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "en" });
+                kamadoId = await scraper
+                    .findById(132, { base64: true })
+                    .attr("kanji romaji status species images occupations affiliation height weight relatives age")
+                    .attrToArray("relatives age")
+                    .exec();
 
-        it("Kamado Tanjiro should not be found (result empty array)", () => {
-            expect(notFound).to.be.an('array');
-            expect(notFound.length).to.equal(0);
+                notFound = await scraper
+                    .findById(1, { base64: false })
+                    .exec();
+            });
+
+            it("finds a character by id with deterministic fixture data", () => {
+                expect(kamadoId.data.kanji).to.equal("竈門 炭治郎");
+                expect(kamadoId.data.romaji).to.equal("Kamado Tanjirō");
+                expect(kamadoId.data.relatives).to.deep.equal(["Nezuko Kamado", "Hanako Kamado"]);
+                expect(kamadoId.data.age).to.deep.equal(["15"]);
+            });
+
+            it("returns base64 image data for image-enabled queries", () => {
+                expect(kamadoId.data.images).to.be.an("array");
+                expect(kamadoId.data.images[0]).to.be.a("string");
+                expect(/^[A-Za-z0-9+/]*={0,2}$/.test(kamadoId.data.images[0])).to.equal(true);
+            });
+
+            it("returns an empty array for invalid ids", () => {
+                expect(notFound).to.be.an("array");
+                expect(notFound.length).to.equal(0);
+            });
         });
     });
 
-    describe("FindById", () => {
-        let RobinId: any;
-        let notFound: any;
+    describe("One Piece", () => {
+        describe("metadata", () => {
+            let metadatas: any;
 
-        beforeAll(async () => {
-            RobinId = await scraper
-              .findById(1558, { base64: false })
-              .attr('kanji romaji status images occupations affiliation height age')
-              .attrToArray('affiliation age')
-              .exec().catch((err) => {
-                return [];
+            beforeAll(async () => {
+                const scraper = new FandomScraper("one-piece", { lang: "en" });
+                metadatas = await scraper.getMetadata();
             });
-      
-            notFound = await scraper
-              .findById(96, { base64: false })
-              .exec().catch((err) => {
-                return [];
+
+            it("returns stable metadata for the configured wiki", () => {
+                expect(metadatas).to.be.an("object");
+                expect(metadatas.name).to.equal("one-piece");
+                expect(metadatas.language).to.equal("en");
+                expect(metadatas.attributes).to.include("age");
+                expect(metadatas.count).to.equal(3);
             });
         });
 
-        it("Robin name must be ニコ・ロビン (Nico Robin)", () => {
-            expect(RobinId.data.kanji).to.equal("ニコ・ロビン");
-            expect(RobinId.data.romaji).to.equal("Niko Robin");
+        describe("findByName", () => {
+            let zoro: any;
+            let notFound: any;
+
+            beforeAll(async () => {
+                const scraper = new FandomScraper("one-piece", { lang: "en" });
+                zoro = await scraper
+                    .findByName("zoro", { base64: true, withId: true })
+                    .attr("kanji romaji status images occupations affiliation height age")
+                    .attrToArray("affiliation age height")
+                    .exec();
+
+                notFound = await scraper
+                    .findByName("kamado tanjiro", { base64: false, withId: true })
+                    .exec();
+            });
+
+            it("finds a character by name using fixture-backed content", () => {
+                expect(zoro.id).to.equal(501);
+                expect(zoro.data.kanji).to.equal("ロロノア・ゾロ");
+                expect(zoro.data.romaji).to.equal("Roronoa Zoro");
+                expect(zoro.data.age).to.deep.equal(["21"]);
+            });
+
+            it("returns base64 images without live network access", () => {
+                expect(zoro.data.images).to.be.an("array");
+                expect(zoro.data.images[0]).to.be.a("string");
+                expect(/^[A-Za-z0-9+/]*={0,2}$/.test(zoro.data.images[0])).to.equal(true);
+            });
+
+            it("returns an empty array when no fixture matches", () => {
+                expect(notFound).to.be.an("array");
+                expect(notFound.length).to.equal(0);
+            });
         });
 
-        it("Robin affiliation must be an array", () => {
-            expect(RobinId.data.affiliation).to.be.an('array');
-        });
+        describe("findById", () => {
+            let robinId: any;
+            let notFound: any;
 
-        it("Robin age must be an array of string", () => {
-            expect(RobinId.data.age).to.be.an('array');
-            expect(RobinId.data.age[0]).to.be.an('string');
-        });
+            beforeAll(async () => {
+                const scraper = new FandomScraper("one-piece", { lang: "en" });
+                robinId = await scraper
+                    .findById(1558, { base64: false })
+                    .attr("kanji romaji status images occupations affiliation height age")
+                    .attrToArray("affiliation age")
+                    .exec();
 
-        it("Id 1 should not be found (result empty array)", () => {
-            expect(notFound).to.be.an('array');
-            expect(notFound.length).to.equal(0);
-        });
+                notFound = await scraper
+                    .findById(96, { base64: false })
+                    .exec();
+            });
 
+            it("finds a character by id with deterministic values", () => {
+                expect(robinId.data.kanji).to.equal("ニコ・ロビン");
+                expect(robinId.data.romaji).to.equal("Niko Robin");
+                expect(robinId.data.affiliation).to.deep.equal(["Straw Hat Pirates", "Revolutionary Army"]);
+                expect(robinId.data.age).to.deep.equal(["30"]);
+            });
+
+            it("returns an empty array for invalid ids", () => {
+                expect(notFound).to.be.an("array");
+                expect(notFound.length).to.equal(0);
+            });
+        });
     });
-
 });
