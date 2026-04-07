@@ -1882,6 +1882,47 @@ async function fetchAllCharacters(apiBaseUrl, categoryTitle, maxEntries = Infini
   } while (nextToken && allMembers.length < maxEntries);
   return allMembers;
 }
+async function fetchCharacterWindow(apiBaseUrl, categoryTitle, offset, limit, ignoreList = []) {
+  if (limit <= 0) return [];
+  const result = [];
+  let nextToken;
+  let seen = 0;
+  do {
+    const { members, nextToken: token } = await fetchCharacterList(apiBaseUrl, categoryTitle, nextToken);
+    nextToken = token;
+    for (const member of members) {
+      const ignored = ignoreList.some(
+        (sub) => member.title.toLowerCase().includes(sub.toLowerCase())
+      );
+      if (ignored) continue;
+      if (seen < offset) {
+        seen++;
+        continue;
+      }
+      result.push(member);
+      if (result.length === limit) return result;
+    }
+  } while (nextToken);
+  return result;
+}
+
+// utils/concurrency.ts
+async function pMap(items, fn, concurrency) {
+  if (items.length === 0) return [];
+  const limit = Math.max(1, concurrency);
+  const results = new Array(items.length);
+  const queue = items.map((item, index) => ({ item, index }));
+  async function worker() {
+    while (queue.length > 0) {
+      const task = queue.shift();
+      if (!task) break;
+      results[task.index] = await fn(task.item, task.index);
+    }
+  }
+  const workers = Array.from({ length: Math.min(limit, items.length) }, () => worker());
+  await Promise.all(workers);
+  return results;
+}
 
 // utils/allCharactersPage.ts
 var allCharactersPage = {
@@ -2042,7 +2083,7 @@ function getUrlAccordingToFormat(element, pageFormat, getDataUrlFn) {
 }
 
 // core/FandomScraper.ts
-var FandomScraper = class {
+var _FandomScraper = class _FandomScraper {
   /**
    * Constructs a FandomScraper instance.
    * @param { name: TAvailableWikis, options?: { lang: 'en' | 'fr' | null } } options - The options of the constructor.
@@ -2634,8 +2675,10 @@ var FandomScraper = class {
     }
   }
   /**
-   * Fetch the full character list via the MediaWiki generator API, apply offset/limit/ignore,
-   * and optionally fetch individual pages for recursive data extraction.
+   * Fetch the character window [offset, offset+limit) via the MediaWiki generator API,
+   * applying `ignore` filtering on the fly (offset/limit are counted against the filtered
+   * stream, not raw API entries).  When `recursive` is true, individual character pages
+   * are fetched in a bounded-concurrency pool instead of sequentially.
    */
   async _getAllViaMediaWiki(options) {
     const apiUrl = getWikiApiUrl(this._schema.url);
@@ -2643,11 +2686,19 @@ var FandomScraper = class {
     const limit = options.limit ?? 1e5;
     const offset = options.offset ?? 0;
     const ignoreList = options.ignore ?? [];
-    const allMembers = await fetchAllCharacters(apiUrl, categoryTitle, offset + limit);
-    const filtered = ignoreList.length ? allMembers.filter((m) => !ignoreList.some((sub) => m.title.toLowerCase().includes(sub.toLowerCase()))) : allMembers;
-    const page = filtered.slice(offset, offset + limit);
-    const result = [];
-    for (const member of page) {
+    const members = await fetchCharacterWindow(apiUrl, categoryTitle, offset, limit, ignoreList);
+    if (!options.recursive) {
+      return members.map((member) => {
+        const url = buildWikiPageUrl(this._schema.url, member.title);
+        return {
+          name: member.title,
+          url,
+          ...options.withId ? { id: member.pageid } : {},
+          ...member.profileImage ? { profileImage: member.profileImage } : {}
+        };
+      });
+    }
+    return pMap(members, async (member) => {
       const url = buildWikiPageUrl(this._schema.url, member.title);
       const entry = {
         name: member.title,
@@ -2655,19 +2706,16 @@ var FandomScraper = class {
         ...options.withId ? { id: member.pageid } : {},
         ...member.profileImage ? { profileImage: member.profileImage } : {}
       };
-      if (options.recursive) {
-        const characterPage = await this.pageFetcher.fetchPage(url);
-        entry.data = await this.characterParser.parseCharacterPage(
-          characterPage,
-          this._schema.dataSource,
-          options.base64,
-          this.queryBuilder.getKeysAttrToArray(),
-          options.attributes
-        );
-      }
-      result.push(entry);
-    }
-    return result;
+      const characterPage = await this.pageFetcher.fetchPage(url);
+      entry.data = await this.characterParser.parseCharacterPage(
+        characterPage,
+        this._schema.dataSource,
+        options.base64,
+        this.queryBuilder.getKeysAttrToArray(),
+        options.attributes
+      );
+      return entry;
+    }, _FandomScraper.CONCURRENT_FETCHES);
   }
   /**
    * Count all characters in the category using the MediaWiki generator API.
@@ -2678,6 +2726,12 @@ var FandomScraper = class {
     return members.length;
   }
 };
+/**
+ * Maximum number of character pages fetched in parallel when `recursive: true`.
+ * High enough to benefit from parallelism, low enough to avoid Fandom rate limits.
+ */
+_FandomScraper.CONCURRENT_FETCHES = 5;
+var FandomScraper = _FandomScraper;
 
 // core/FandomPersonalScraper.ts
 var FandomPersonalScraper = class extends FandomScraper {

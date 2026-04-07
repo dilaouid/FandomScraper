@@ -117,3 +117,54 @@ export async function fetchAllCharacters(
 
     return allMembers;
 }
+
+/**
+ * Fetch only the entries in the window [offset, offset + limit) from a MediaWiki category,
+ * applying `ignoreList` filtering on the fly so that offset and limit are measured against
+ * the filtered stream — not raw API entries.
+ *
+ * This avoids loading all preceding entries into memory when the offset is large: batches
+ * of 500 are streamed and discarded as soon as enough valid entries have been seen.
+ *
+ * @param apiBaseUrl   - Full URL to api.php
+ * @param categoryTitle - Full category title (e.g. "Category:Characters")
+ * @param offset       - Number of valid (non-ignored) entries to skip
+ * @param limit        - Maximum number of entries to return
+ * @param ignoreList   - Substrings: entries whose title contains any of them are skipped
+ * @returns The slice of valid entries for the requested window
+ */
+export async function fetchCharacterWindow(
+    apiBaseUrl: string,
+    categoryTitle: string,
+    offset: number,
+    limit: number,
+    ignoreList: string[] = []
+): Promise<IMediaWikiCharacterEntry[]> {
+    if (limit <= 0) return [];
+
+    const result: IMediaWikiCharacterEntry[] = [];
+    let nextToken: string | undefined;
+    let seen = 0; // valid (non-ignored) entries before our window
+
+    do {
+        const { members, nextToken: token } = await fetchCharacterList(apiBaseUrl, categoryTitle, nextToken);
+        nextToken = token;
+
+        for (const member of members) {
+            const ignored = ignoreList.some(
+                (sub) => member.title.toLowerCase().includes(sub.toLowerCase())
+            );
+            if (ignored) continue;
+
+            if (seen < offset) {
+                seen++;
+                continue;
+            }
+
+            result.push(member);
+            if (result.length === limit) return result;
+        }
+    } while (nextToken);
+
+    return result;
+}

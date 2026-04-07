@@ -327,8 +327,15 @@ declare class FandomScraper {
      */
     private _warnLegacyIfNeeded;
     /**
-     * Fetch the full character list via the MediaWiki generator API, apply offset/limit/ignore,
-     * and optionally fetch individual pages for recursive data extraction.
+     * Maximum number of character pages fetched in parallel when `recursive: true`.
+     * High enough to benefit from parallelism, low enough to avoid Fandom rate limits.
+     */
+    private static readonly CONCURRENT_FETCHES;
+    /**
+     * Fetch the character window [offset, offset+limit) via the MediaWiki generator API,
+     * applying `ignore` filtering on the fly (offset/limit are counted against the filtered
+     * stream, not raw API entries).  When `recursive` is true, individual character pages
+     * are fetched in a bounded-concurrency pool instead of sequentially.
      */
     private _getAllViaMediaWiki;
     /**

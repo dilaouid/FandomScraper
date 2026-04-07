@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fetchCharacterList, fetchAllCharacters } from '../services/MediaWikiClient';
+import { fetchCharacterList, fetchAllCharacters, fetchCharacterWindow } from '../services/MediaWikiClient';
 import { installMockFetch } from './helpers/mockFetch';
 
 jest.setTimeout(10000);
@@ -187,6 +187,163 @@ describe('MediaWikiClient', () => {
             }
             expect(caughtError).to.exist;
             expect(caughtError!.message).to.include('HTTP 500');
+        });
+    });
+
+    describe('fetchCharacterWindow', () => {
+        /**
+         * Single-page fixture: Alpha(1), Beta(2), Gamma(3)
+         * Used for offset/limit tests that stay within one API batch.
+         */
+        const singlePageUrl = buildGeneratorUrl('Category:Window');
+        const singlePageResponse = {
+            query: {
+                pages: {
+                    '1': { pageid: 1, title: 'Alpha' },
+                    '2': { pageid: 2, title: 'Beta' },
+                    '3': { pageid: 3, title: 'Gamma' },
+                },
+            },
+        };
+
+        /**
+         * Two-page fixture: page-1 = [Alpha(1), Beta(2)], page-2 = [Gamma(3), Delta(4)]
+         * Used for offset tests that cross an API page boundary.
+         */
+        const multiPage1Url = buildGeneratorUrl('Category:Multi');
+        const multiPage2Url = buildGeneratorUrl('Category:Multi', 'mp-token-2');
+        const multiPage1Response = {
+            continue: { gcmcontinue: 'mp-token-2' },
+            query: {
+                pages: {
+                    '1': { pageid: 1, title: 'Alpha' },
+                    '2': { pageid: 2, title: 'Beta' },
+                },
+            },
+        };
+        const multiPage2Response = {
+            query: {
+                pages: {
+                    '3': { pageid: 3, title: 'Gamma' },
+                    '4': { pageid: 4, title: 'Delta' },
+                },
+            },
+        };
+
+        it('returns up to limit entries starting at offset 0', async () => {
+            restoreFetch = installMockFetch({
+                [singlePageUrl]: { body: JSON.stringify(singlePageResponse), contentType: 'application/json' },
+            });
+
+            const result = await fetchCharacterWindow(BASE_API, 'Category:Window', 0, 2);
+
+            expect(result).to.have.length(2);
+            expect(result[0].title).to.equal('Alpha');
+            expect(result[1].title).to.equal('Beta');
+        });
+
+        it('skips the first `offset` valid entries', async () => {
+            restoreFetch = installMockFetch({
+                [singlePageUrl]: { body: JSON.stringify(singlePageResponse), contentType: 'application/json' },
+            });
+
+            const result = await fetchCharacterWindow(BASE_API, 'Category:Window', 1, 2);
+
+            expect(result).to.have.length(2);
+            expect(result[0].title).to.equal('Beta');
+            expect(result[1].title).to.equal('Gamma');
+        });
+
+        it('returns fewer entries than limit when offset+limit exceeds category size', async () => {
+            restoreFetch = installMockFetch({
+                [singlePageUrl]: { body: JSON.stringify(singlePageResponse), contentType: 'application/json' },
+            });
+
+            const result = await fetchCharacterWindow(BASE_API, 'Category:Window', 2, 10);
+
+            expect(result).to.have.length(1);
+            expect(result[0].title).to.equal('Gamma');
+        });
+
+        it('returns an empty array when offset is beyond the last entry', async () => {
+            restoreFetch = installMockFetch({
+                [singlePageUrl]: { body: JSON.stringify(singlePageResponse), contentType: 'application/json' },
+            });
+
+            const result = await fetchCharacterWindow(BASE_API, 'Category:Window', 99, 5);
+            expect(result).to.be.an('array').that.is.empty;
+        });
+
+        it('returns an empty array when limit is 0', async () => {
+            restoreFetch = installMockFetch({
+                [singlePageUrl]: { body: JSON.stringify(singlePageResponse), contentType: 'application/json' },
+            });
+
+            const result = await fetchCharacterWindow(BASE_API, 'Category:Window', 0, 0);
+            expect(result).to.be.an('array').that.is.empty;
+        });
+
+        it('applies ignoreList before counting offset — ignored entries do not advance the offset counter', async () => {
+            // 3 entries: Alpha, Beta(ignored), Gamma
+            // offset=1 skips one VALID entry (Alpha) → returns Gamma only
+            restoreFetch = installMockFetch({
+                [singlePageUrl]: { body: JSON.stringify(singlePageResponse), contentType: 'application/json' },
+            });
+
+            const result = await fetchCharacterWindow(BASE_API, 'Category:Window', 1, 1, ['Beta']);
+
+            expect(result).to.have.length(1);
+            expect(result[0].title).to.equal('Gamma');
+        });
+
+        it('filters entries matching ignoreList substring (case-insensitive)', async () => {
+            restoreFetch = installMockFetch({
+                [singlePageUrl]: { body: JSON.stringify(singlePageResponse), contentType: 'application/json' },
+            });
+
+            // 'beta' (lowercase) should match 'Beta'
+            const result = await fetchCharacterWindow(BASE_API, 'Category:Window', 0, 3, ['beta']);
+            expect(result.map((m) => m.title)).to.deep.equal(['Alpha', 'Gamma']);
+        });
+
+        it('follows continuation tokens to satisfy a large offset spanning multiple API pages', async () => {
+            restoreFetch = installMockFetch({
+                [multiPage1Url]: { body: JSON.stringify(multiPage1Response), contentType: 'application/json' },
+                [multiPage2Url]: { body: JSON.stringify(multiPage2Response), contentType: 'application/json' },
+            });
+
+            // offset=2 skips Alpha and Beta (page 1), limit=2 returns Gamma and Delta (page 2)
+            const result = await fetchCharacterWindow(BASE_API, 'Category:Multi', 2, 2);
+
+            expect(result).to.have.length(2);
+            expect(result[0].title).to.equal('Gamma');
+            expect(result[1].title).to.equal('Delta');
+        });
+
+        it('stops fetching pages as soon as the limit is reached mid-window', async () => {
+            // offset=1 skips Alpha, limit=1 → collects Beta → stops without fetching page 2
+            const fetchSpy: string[] = [];
+            const originalFetch = globalThis.fetch;
+            restoreFetch = () => { globalThis.fetch = originalFetch; };
+
+            const routes = new Map([
+                [multiPage1Url, JSON.stringify(multiPage1Response)],
+                [multiPage2Url, JSON.stringify(multiPage2Response)],
+            ]);
+            globalThis.fetch = jest.fn(async (input: RequestInfo | URL) => {
+                const url = typeof input === 'string' ? input : (input instanceof URL ? input.href : (input as Request).url);
+                fetchSpy.push(url);
+                const body = routes.get(url);
+                if (!body) throw new Error(`Unexpected fetch: ${url}`);
+                return { ok: true, status: 200, text: async () => body } as Response;
+            }) as typeof fetch;
+
+            const result = await fetchCharacterWindow(BASE_API, 'Category:Multi', 1, 1);
+
+            expect(result).to.have.length(1);
+            expect(result[0].title).to.equal('Beta');
+            // Only the first API page should have been requested (title is URL-encoded in the query string)
+            expect(fetchSpy.filter((u) => decodeURIComponent(u).includes('Category:Multi')).length).to.equal(1);
         });
     });
 

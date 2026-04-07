@@ -287,6 +287,111 @@ describe("FandomScraper — MediaWiki generator API path", () => {
         });
     });
 
+    describe("findAll — offset (non-recursive)", () => {
+        it("skips the first offset valid entries", async () => {
+            restoreFetch = installMockFetch(buildKimetsuFRMediaWikiRoutes(false));
+            const scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "fr" });
+            const result = await scraper
+                .findAll({ base64: false, recursive: false, withId: true })
+                .offset(1)
+                .limit(2)
+                .exec();
+
+            expect(result).to.be.an("array");
+            expect(result.length).to.equal(2);
+            const names = result.map((c: any) => c.name);
+            expect(names).to.not.include("Tanjiro Kamado");
+            expect(names).to.include("Nezuko Kamado");
+            expect(names).to.include("Inosuke Hashibira");
+        });
+
+        it("returns fewer results when offset+limit exceeds the category size", async () => {
+            restoreFetch = installMockFetch(buildKimetsuFRMediaWikiRoutes(false));
+            const scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "fr" });
+            const result = await scraper
+                .findAll({ base64: false, recursive: false, withId: true })
+                .offset(2)
+                .limit(10)
+                .exec();
+
+            expect(result).to.be.an("array");
+            expect(result.length).to.equal(1);
+            expect(result[0].name).to.equal("Inosuke Hashibira");
+        });
+    });
+
+    describe("findAll — ignore (non-recursive)", () => {
+        it("filters entries whose title contains an ignored substring", async () => {
+            restoreFetch = installMockFetch(buildKimetsuFRMediaWikiRoutes(false));
+            const scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "fr" });
+            const result = await scraper
+                .findAll({ base64: false, recursive: false, withId: false })
+                .ignore(["Nezuko"])
+                .limit(10)
+                .exec();
+
+            expect(result).to.be.an("array");
+            expect(result.length).to.equal(2);
+            const names = result.map((c: any) => c.name);
+            expect(names).to.not.include("Nezuko Kamado");
+            expect(names).to.include("Tanjiro Kamado");
+            expect(names).to.include("Inosuke Hashibira");
+        });
+
+        it("ignore is applied before offset — ignored entries do not consume an offset slot", async () => {
+            // Ignore Tanjiro (first valid entry); then offset=1 skips Nezuko → only Inosuke
+            restoreFetch = installMockFetch(buildKimetsuFRMediaWikiRoutes(false));
+            const scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "fr" });
+            const result = await scraper
+                .findAll({ base64: false, recursive: false, withId: false })
+                .ignore(["Tanjiro"])
+                .offset(1)
+                .limit(5)
+                .exec();
+
+            expect(result).to.be.an("array");
+            expect(result.length).to.equal(1);
+            expect(result[0].name).to.equal("Inosuke Hashibira");
+        });
+    });
+
+    describe("findAll — offset + recursive (parallel fetches)", () => {
+        let result: any[];
+
+        beforeAll(async () => {
+            restoreFetch = installMockFetch(buildKimetsuFRMediaWikiRoutes(true));
+            const scraper = new FandomScraper("kimetsu-no-yaiba", { lang: "fr" });
+            result = await scraper
+                .findAll({ base64: false, recursive: true, withId: true })
+                .offset(1)
+                .limit(2)
+                .attr("kanji age")
+                .exec();
+        });
+
+        it("fetches only the windowed entries even in recursive mode", () => {
+            expect(result).to.be.an("array");
+            expect(result.length).to.equal(2);
+            const names = result.map((c: any) => c.name);
+            expect(names).to.not.include("Tanjiro Kamado");
+            expect(names).to.include("Nezuko Kamado");
+            expect(names).to.include("Inosuke Hashibira");
+        });
+
+        it("populates character data for each entry in the window", () => {
+            const nezuko = result.find((c: any) => c.name === "Nezuko Kamado");
+            expect(nezuko.data).to.exist;
+            expect(nezuko.data.kanji).to.equal("竈門 禰豆子");
+            expect(nezuko.data.age).to.equal("14");
+        });
+
+        it("preserves id and profileImage alongside data", () => {
+            const inosuke = result.find((c: any) => c.name === "Inosuke Hashibira");
+            expect(inosuke.id).to.equal(202);
+            expect(inosuke.profileImage).to.equal("https://images.test/inosuke-fr.jpg");
+        });
+    });
+
     describe("findAll (recursive)", () => {
         let all: any[];
 

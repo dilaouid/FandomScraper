@@ -10,7 +10,8 @@ import { PageFetcher } from '../services/PageFetcher';
 import { CharacterParser } from '../services/CharacterParser';
 import { DataExtractor } from '../services/DataExtractor';
 import { QueryBuilder } from '../services/QueryBuilder';
-import { fetchAllCharacters } from '../services/MediaWikiClient';
+import { fetchAllCharacters, fetchCharacterWindow } from '../services/MediaWikiClient';
+import { pMap } from '../utils/concurrency';
 
 import { getWikiUrl, getWikiApiUrl, getDataUrl, isFandomPageUrl, buildWikiPageUrl } from '../utils/urlUtils';
 import { isValidCharacterPage, setPageVersion } from '../utils/validationUtils';
@@ -680,8 +681,16 @@ export class FandomScraper {
     }
 
     /**
-     * Fetch the full character list via the MediaWiki generator API, apply offset/limit/ignore,
-     * and optionally fetch individual pages for recursive data extraction.
+     * Maximum number of character pages fetched in parallel when `recursive: true`.
+     * High enough to benefit from parallelism, low enough to avoid Fandom rate limits.
+     */
+    private static readonly CONCURRENT_FETCHES = 5;
+
+    /**
+     * Fetch the character window [offset, offset+limit) via the MediaWiki generator API,
+     * applying `ignore` filtering on the fly (offset/limit are counted against the filtered
+     * stream, not raw API entries).  When `recursive` is true, individual character pages
+     * are fetched in a bounded-concurrency pool instead of sequentially.
      */
     private async _getAllViaMediaWiki(options: IGetCharactersOptions): Promise<IData[]> {
         const apiUrl = getWikiApiUrl(this._schema.url);
@@ -690,16 +699,24 @@ export class FandomScraper {
         const offset = options.offset ?? 0;
         const ignoreList = options.ignore ?? [];
 
-        const allMembers = await fetchAllCharacters(apiUrl, categoryTitle, offset + limit);
+        // Stream-filter the category, skipping the first `offset` valid entries and
+        // collecting at most `limit` — without loading the entire list into memory.
+        const members = await fetchCharacterWindow(apiUrl, categoryTitle, offset, limit, ignoreList);
 
-        const filtered = ignoreList.length
-            ? allMembers.filter((m) => !ignoreList.some((sub) => m.title.toLowerCase().includes(sub.toLowerCase())))
-            : allMembers;
+        if (!options.recursive) {
+            return members.map((member) => {
+                const url = buildWikiPageUrl(this._schema.url, member.title);
+                return {
+                    name: member.title,
+                    url,
+                    ...(options.withId ? { id: member.pageid } : {}),
+                    ...(member.profileImage ? { profileImage: member.profileImage } : {}),
+                };
+            });
+        }
 
-        const page = filtered.slice(offset, offset + limit);
-        const result: IData[] = [];
-
-        for (const member of page) {
+        // Parallel fetch of individual character pages with a bounded concurrency pool.
+        return pMap(members, async (member) => {
             const url = buildWikiPageUrl(this._schema.url, member.title);
             const entry: IData = {
                 name: member.title,
@@ -707,22 +724,16 @@ export class FandomScraper {
                 ...(options.withId ? { id: member.pageid } : {}),
                 ...(member.profileImage ? { profileImage: member.profileImage } : {}),
             };
-
-            if (options.recursive) {
-                const characterPage = await this.pageFetcher.fetchPage(url);
-                entry.data = await this.characterParser.parseCharacterPage(
-                    characterPage,
-                    this._schema.dataSource,
-                    options.base64,
-                    this.queryBuilder.getKeysAttrToArray(),
-                    options.attributes
-                );
-            }
-
-            result.push(entry);
-        }
-
-        return result;
+            const characterPage = await this.pageFetcher.fetchPage(url);
+            entry.data = await this.characterParser.parseCharacterPage(
+                characterPage,
+                this._schema.dataSource,
+                options.base64,
+                this.queryBuilder.getKeysAttrToArray(),
+                options.attributes
+            );
+            return entry;
+        }, FandomScraper.CONCURRENT_FETCHES);
     }
 
     /**
